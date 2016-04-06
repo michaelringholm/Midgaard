@@ -1,0 +1,1 @@
+{name: "Bjorn", hp:18, atk:3, luck:3, atkTypes:["melee", "magic"], currentMap:"MidgaardMainMap", currentCoordinates:"{x:0,y:0,z:0}"}

@@ -7,7 +7,8 @@ var battle = new Battle(_hero, _mob);
 var heroDao = new HeroDao();
 var heroCache = {};
 
-heroDao.exists("Bjorn");
+if(heroDao.exists("Bjorn"))
+	heroDao.load("Bjorn");
 
 
 function logInfo(msg) {
@@ -43,16 +44,23 @@ function HeroDao() {
 		logInfo("HeroDao.exists");
 		var fs = require("fs");
 		var fileName = heroName + '.hero';
+		var fileFound = false;
 		
 		fs.stat(fileName, function(err, stat) {
 				if(err == null) {
 						logInfo('File exists');
+						fileFound = true;
 				} else if(err.code == 'ENOENT') {
 						logInfo('File [' + fileName + '] does not exist!');
+						fileFound = false;
 				} else {
 						logError('Some other error: ', err.code);
+						fileFound = false;
 				}
 		});
+		
+		logInfo("exists=" + fileFound);
+		return fileFound;
 	};
 	
 	this.load = function(heroName) {
