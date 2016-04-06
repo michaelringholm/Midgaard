@@ -9,6 +9,10 @@ function logInfo(msg) {
 	console.log('[INFO]:' + msg);
 }
 
+function logError(msg) {
+	console.log('[ERROR]:' + msg);
+}
+
 function saveFile(customData) {
 	var fs = require("fs");
 
@@ -28,6 +32,11 @@ function saveFile(customData) {
 /****** battle ************/
 function Battle(hero, mob) {
 	var _this = this;
+	if(!hero || !mob) {
+		logError("Hero or mob was null!");
+		return;
+	}
+	
 	this.hero = hero;
   this.mob =  mob;
 	this.status = {over:false, winner:"", loser:""};
@@ -127,10 +136,17 @@ function MobFactory() {
 	
 	this.create = function() {
 		logInfo("MobFactory.create");
-		//var mob = {name: "Rat", hp:18, atk:3, luck:2, atkTypes:["melee", "ranged"]};		
-		var randomMobKey = _this.mobKeys[0];
+
+		var randomIndex = Math.round(Math.random()*_this.mobKeys.length);
+		var randomMobKey = _this.mobKeys[randomIndex];
 		var randomMob = _this.mobs[randomMobKey];
-		logInfo(JSON.stringify(randomMob));
+		
+		if(randomMob)
+			logInfo(JSON.stringify(randomMob));
+		else
+			logError("No mob found!");
+		
+		return randomMob;
 	};
 	
 	this.addMob = function(mob) {
@@ -144,6 +160,9 @@ function MobFactory() {
 		logInfo("MobFactory.construct");
 		_this.addMob({key: "rat", name: "Rat", hp:18, atk:3, luck:2, atkTypes:["melee", "ranged"]});
 		_this.addMob({key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"]});
+		_this.addMob({key: "rabbit", name: "Rabbit", hp:22, atk:1, luck:2, atkTypes:["melee"]});
+		_this.addMob({key: "snake", name: "Snake", hp:22, atk:1, luck:2, atkTypes:["melee"]});
+		_this.addMob({key: "beetle", name: "Beetle", hp:22, atk:1, luck:2, atkTypes:["melee"]});
 	};
 	
 	_this.construct();
@@ -196,7 +215,20 @@ http.createServer(function (request, response) {
   }
 }).listen(1337, "127.0.0.1");
 
-console.log('Server running at http://127.0.0.1:1337/');
+logInfo('Server running at http://127.0.0.1:1337/');
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 if (req.method == 'POST') {
