@@ -1,9 +1,11 @@
 var http = require('http');
 var fs = require('fs');
 
-var _hero = {name: "Bjorn", hp:18, atk:3, luck:3, atkTypes:["melee", "magic"]};
+var _hero = {name: "Bjorn", hp:18, atk:3, luck:3, atkTypes:["melee", "magic"], currentMap:"MidgaardMainMap", currentCoordinates:"{x:0,y:0,z:0}"};
 var _mob = new MobFactory().create();
 var battle = new Battle(_hero, _mob);
+var heroDao = new HeroDao();
+
 
 function logInfo(msg) {
 	console.log('[INFO]:' + msg);
@@ -28,6 +30,76 @@ function saveFile(customData) {
 
 /**********************/
 
+function HeroDao() {
+	var _this = this;
+		
+	this.exists = function(heroName) {
+		logInfo("HeroDao.exists");
+		var fs = require("fs");
+		
+		var updateTime = new Date();
+		fs.writeFile(heroName + '.hero', '{ "updateTime" : "' + updateTime + '", "hero" : "' + JSON.stringify(hero) + '" }',  function(err) {
+			if (err) {
+				return console.error(err);
+			}
+			console.log("Data written successfully!");
+		});
+	};
+	
+	this.save = function(hero) {
+		logInfo("HeroDao.save");
+		var fs = require("fs");
+		
+		var updateTime = new Date();
+		fs.writeFile(hero.name + '.hero', '{ "updateTime" : "' + updateTime + '", "hero" : "' + JSON.stringify(hero) + '" }',  function(err) {
+			if (err) {
+				return console.error(err);
+			}
+			console.log("Data written successfully!");
+		});
+	};
+	
+	this.construct = function() {
+		logInfo("HeroDao.construct");
+  };
+  
+  _this.construct();
+}
+
+
+/********* hero *************/
+function Hero(name, hp, atk, luck, atkTypes, currentMapKey, currentCoordinates) {
+	var _this = this;
+	this.name = name;
+	this.hp = hp;
+	this.atk = atk;
+	this.luck = luck;
+	this.atkTypes = atkTypes;
+	this.currentMapKey = currentMapKey;
+	this.currentCoordinates = currentCoordinates;
+	
+	// east, west, north, south, up, down
+	this.move = function(currentLocation, direction)  {
+		logInfo("MidgaardMainMap.move");
+		var targetLocation = currentLocation;
+		if(direction == "west")
+			targetLocation.x--;
+		else if(direction == "east")
+			targetLocation.x++;
+		else if(direction == "north")
+			targetLocation.y--;		
+		else if(direction == "south")
+			targetLocation.y++;
+		
+		_this.getLocation(targetLocation);
+	};
+	
+	this.construct = function() {
+		logInfo("Hero.construct");
+  };
+  
+  _this.construct();
+}
 
 /****** battle ************/
 function Battle(hero, mob) {
@@ -42,7 +114,7 @@ function Battle(hero, mob) {
 	this.status = {over:false, winner:"", loser:""};
   
 	this.getVersion = function() {
-	return "0.0.0.2";  
+		return "0.0.0.2";  
   };
   
   this.drawB = function() {
@@ -168,6 +240,43 @@ function MobFactory() {
 	_this.construct();
 }
 
+/***************** MapFactory ***************/
+function MapFactory() {
+	var _this = this;
+	this.maps = {};
+	
+	this.create = function(mapKey) {
+		logInfo("MapFactory.create");
+		var map = _this.mobs[mapKey];		
+		return map;
+	};
+	
+	this.addMap = function(mob) {
+		logInfo("MapFactory.addMap");
+		_this.maps[map.key] = map;
+	};
+	
+	this.construct = function() {
+		logInfo("MobFactory.construct");
+		_this.addMap(new MidgaardMainMap());
+	};
+	
+	_this.construct();
+}
+
+function MidgaardMainMap() {
+	var _this = this;
+	this.key = "MidgaardMainMap";
+	this.name = "Midgaard";
+	this.locations = new Array();
+	
+	this.construct = function() {
+		logInfo("MidgaardMainMap.construct");
+	};
+	
+	_this.construct();
+}
+
 
 
 /*********** WEB SERVER ****************/
@@ -204,6 +313,18 @@ http.createServer(function (request, response) {
   else if(request.url == "/nextRound") {
 		battle.nextRound();
 		response.write('{ "hero":' + JSON.stringify(battle.hero) + ', mob":' + JSON.stringify(battle.mob) + ', "status": ' + JSON.stringify(battle.status) +  ', "version":"' + battle.getVersion() + '" }');	
+		response.end();
+  }	
+	else if(request.url == "/createHero") {		
+		var newHero = {};
+		var success = false;
+		if(!heroDao.exists(heroName)) {
+			Hero(heroName, 20, 2, 2, ["melee"], "MidgaardMainMap", {"x":"0", "y":"0"});
+			heroDao.save(newHero);
+			success = true;
+		}
+		
+		response.write('{ "success":' + success + ', "hero":"' + JSON.stringify(newHero) + '" }');	
 		response.end();
   }
   else {
