@@ -5,6 +5,9 @@ var _hero = {name: "Bjorn", hp:18, atk:3, luck:3, atkTypes:["melee", "magic"], c
 var _mob = new MobFactory().create();
 var battle = new Battle(_hero, _mob);
 var heroDao = new HeroDao();
+var heroCache = {};
+
+heroDao.exists("Bjorn");
 
 
 function logInfo(msg) {
@@ -30,21 +33,37 @@ function saveFile(customData) {
 
 /**********************/
 
+
+
+/*********** HeroDao ************/
 function HeroDao() {
 	var _this = this;
 		
 	this.exists = function(heroName) {
 		logInfo("HeroDao.exists");
 		var fs = require("fs");
+		var fileName = heroName + '.hero';
 		
-		var updateTime = new Date();
-		fs.writeFile(heroName + '.hero', '{ "updateTime" : "' + updateTime + '", "hero" : "' + JSON.stringify(hero) + '" }',  function(err) {
-			if (err) {
-				return console.error(err);
-			}
-			console.log("Data written successfully!");
+		fs.stat(fileName, function(err, stat) {
+				if(err == null) {
+						logInfo('File exists');
+				} else if(err.code == 'ENOENT') {
+						logInfo('File [' + fileName + '] does not exist!');
+				} else {
+						logError('Some other error: ', err.code);
+				}
 		});
 	};
+	
+	this.load = function(heroName) {
+		logInfo("HeroDao.load");
+		var fs = require("fs");
+		
+		fs.readFile(heroName + '.dat', (err, data) => {		
+			if (err) throw err;
+			logInfo(data);
+		});
+	};	
 	
 	this.save = function(hero) {
 		logInfo("HeroDao.save");
@@ -57,7 +76,7 @@ function HeroDao() {
 			}
 			console.log("Data written successfully!");
 		});
-	};
+	};	
 	
 	this.construct = function() {
 		logInfo("HeroDao.construct");
@@ -315,13 +334,30 @@ http.createServer(function (request, response) {
 		response.write('{ "hero":' + JSON.stringify(battle.hero) + ', mob":' + JSON.stringify(battle.mob) + ', "status": ' + JSON.stringify(battle.status) +  ', "version":"' + battle.getVersion() + '" }');	
 		response.end();
   }	
-	else if(request.url == "/createHero") {		
-		var newHero = {};
+	else if(request.url == "/createHero") {
 		var success = false;
-		if(!heroDao.exists(heroName)) {
-			Hero(heroName, 20, 2, 2, ["melee"], "MidgaardMainMap", {"x":"0", "y":"0"});
-			heroDao.save(newHero);
-			success = true;
+		var newHero = {};
+		
+		if (request.method == 'POST') {
+			var fullBody = '';
+    
+			request.on('data', function(chunk) {
+			  // append the current chunk of data to the fullBody variable
+			  fullBody += chunk.toString();
+			});
+			
+			request.on('end', function() {
+				// request ended -> do something with the data				
+				
+				if(!heroDao.exists(heroName)) {
+					Hero(heroName, 20, 2, 2, ["melee"], "MidgaardMainMap", {"x":"0", "y":"0"});
+					heroDao.save(newHero);
+					success = true;
+				}
+		
+				response.write('{ "status": "success"}');
+				response.end();
+			});
 		}
 		
 		response.write('{ "success":' + success + ', "hero":"' + JSON.stringify(newHero) + '" }');	
