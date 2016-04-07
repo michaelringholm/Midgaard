@@ -1,5 +1,10 @@
 $(function() {
-	callMethod("http://localhost:1337", "createLogin");
+	$("#createLo").click(function() { callMethod("http://localhost:1337", "createLogin"); });
+	$("#createHe").click(function() { callMethod("http://localhost:1337", "createHero"); });
+	$("#Lo").click(function() { callMethod("http://localhost:1337", "login"); });
+	$("#ChooseHe").click(function() { callMethod("http://localhost:1337", "chooseHero"); });
+	$("#Move").click(function() { callMethod("http://localhost:1337", "move"); });
+	
 	//callMethodJsonp("http://localhost:1337", "createLogin");
   
 	$("#gSessionId").html("gSessionId: N/A");
@@ -7,7 +12,7 @@ $(function() {
 
 
 function callMethodJsonp(host, methodName) {
-	var data = {};
+	var data = {login:"MyLogin"};
 	$.ajax({
 			type: "POST",
 			dataType: "jsonp",
@@ -26,7 +31,7 @@ function callMethodJsonp(host, methodName) {
 }
 
 function callMethod(host, methodName) {
-	var data = {};
+	var data = {login:"MyLogin"};
 	$.ajax({
 			type: "POST",
 			dataType: "json",

@@ -315,10 +315,7 @@ http.createServer(function (request, response) {
 	response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 	response.setHeader('Access-Control-Allow-Credentials', true);
-	response.writeHead(200, {'Content-Type': 'application/json'});
-	
-	//response.setHeader('Content-Type', 'application/json');
-	
+	response.writeHead(200, {'Content-Type': 'application/json'});	
 	
   logInfo("Request.url=" + request.url);
 	logInfo("Request.method=" + request.method);
@@ -329,10 +326,8 @@ http.createServer(function (request, response) {
   }
 	
 	else if(request.url == "/createLogin" && request.method == 'OPTIONS') {
-		response.write('test');	
 		response.end();
-  }
-	
+  }	
 	else if(request.url == "/createLogin" && request.method == 'POST') {		
 		var postData = "";
 	
@@ -348,7 +343,67 @@ http.createServer(function (request, response) {
 			response.end();
 		});		
   }
+	
+	else if(request.url == "/login" && request.method == 'OPTIONS') {
+		response.end();
+  }	
+	else if(request.url == "/login" && request.method == 'POST') {		
+		var postData = "";
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the postData variable
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			// request ended -> do something with the data
+			logInfo("creating login for [" + postData + "].....");
+			response.write('{ "status": "success"}');
+			response.end();
+		});		
+  }	
+	
+	else if(request.url == "/chooseHero" && request.method == 'OPTIONS') {
+		response.end();
+  }	
+	else if(request.url == "/chooseHero" && request.method == 'POST') {		
+		var postData = "";
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the postData variable
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			// request ended -> do something with the data
+			logInfo("creating login for [" + postData + "].....");
+			response.write('{ "status": "success"}');
+			response.end();
+		});		
+  }
+	
+	else if(request.url == "/move" && request.method == 'OPTIONS') {
+		response.end();
+  }	
+	else if(request.url == "/move" && request.method == 'POST') {		
+		var postData = "";
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the postData variable
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			// request ended -> do something with the data
+			logInfo("creating login for [" + postData + "].....");
+			response.write('{ "status": "success"}');
+			response.end();
+		});		
+  }		
   
+	else if(request.url == "/save" && request.method == 'OPTIONS') {
+		response.end();
+	}
 	else if(request.url == "/save" && request.method == 'POST') {
 		var fullBody = '';
 	
@@ -365,12 +420,18 @@ http.createServer(function (request, response) {
 		});
   }
   
+	else if(request.url == "/nextRound" && request.method == 'OPTIONS') {
+		response.end();
+	}	
 	else if(request.url == "/nextRound" && request.method == 'POST') {
 		battle.nextRound();
 		response.write('{ "hero":' + JSON.stringify(battle.hero) + ', mob":' + JSON.stringify(battle.mob) + ', "status": ' + JSON.stringify(battle.status) +  ', "version":"' + battle.getVersion() + '" }');	
 		response.end();
   }	
 	
+	else if(request.url == "/createHero" && request.method == 'OPTIONS') {
+		response.end();
+	}	
 	else if(request.url == "/createHero" && request.method == 'POST') {
 		var success = false;
 		var newHero = {};
