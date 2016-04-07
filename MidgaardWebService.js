@@ -309,75 +309,96 @@ function MidgaardMainMap() {
 
 /*********** WEB SERVER ****************/
 http.createServer(function (request, response) {
-  response.writeHead(200, {'Content-Type': 'text/plain'});
-  console.log(request.url);
+  //response.writeHead(200, {'Content-Type': 'text/plain'});
+	
+	response.setHeader("Access-Control-Allow-Origin", "*");
+	response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+	response.setHeader('Access-Control-Allow-Credentials', true);
+	response.writeHead(200, {'Content-Type': 'application/json'});
+	
+	//response.setHeader('Content-Type', 'application/json');
+	
+	
+  logInfo("Request.url=" + request.url);
+	logInfo("Request.method=" + request.method);
   
   if(request.url == "/about") {
-	response.write('{"author": "Michael Sundgaard", "company" : "Opus Magus"}');
-	response.end();
+		response.write('{"author": "Michael Sundgaard", "company" : "Opus Magus"}');
+		response.end();
   }
-  if(request.url == "/save") {
-		if (request.method == 'POST') {
-			var fullBody = '';
-    
-			request.on('data', function(chunk) {
-			  // append the current chunk of data to the fullBody variable
-			  fullBody += chunk.toString();
-			});
-			
-			request.on('end', function() {			
-				// request ended -> do something with the data
-				saveFile(fullBody);
-				response.write('{ "status": "success"}');
-				response.end();
-			});
-		}
-		else {
-			saveFile();
+	
+	else if(request.url == "/createLogin" && request.method == 'OPTIONS') {
+		response.write('test');	
+		response.end();
+  }
+	
+	else if(request.url == "/createLogin" && request.method == 'POST') {		
+		var postData = "";
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the postData variable
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			// request ended -> do something with the data
+			logInfo("creating login for [" + postData + "].....");
 			response.write('{ "status": "success"}');
 			response.end();
-		}
+		});		
   }
-  else if(request.url == "/nextRound") {
+  
+	else if(request.url == "/save" && request.method == 'POST') {
+		var fullBody = '';
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the fullBody variable
+			fullBody += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			// request ended -> do something with the data
+			saveFile(fullBody);
+			response.write('{ "status": "success"}');
+			response.end();
+		});
+  }
+  
+	else if(request.url == "/nextRound" && request.method == 'POST') {
 		battle.nextRound();
 		response.write('{ "hero":' + JSON.stringify(battle.hero) + ', mob":' + JSON.stringify(battle.mob) + ', "status": ' + JSON.stringify(battle.status) +  ', "version":"' + battle.getVersion() + '" }');	
 		response.end();
   }	
-	else if(request.url == "/createHero") {
+	
+	else if(request.url == "/createHero" && request.method == 'POST') {
 		var success = false;
 		var newHero = {};
 		
-		if (request.method == 'POST') {
-			var fullBody = '';
-    
-			request.on('data', function(chunk) {
-			  // append the current chunk of data to the fullBody variable
-			  fullBody += chunk.toString();
-			});
+		var fullBody = '';
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the fullBody variable
+			fullBody += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			// request ended -> do something with the data				
 			
-			request.on('end', function() {
-				// request ended -> do something with the data				
-				
-				if(!heroDao.exists(heroName)) {
-					var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
-					heroDao.save(newHero);
-					success = true;
-				}
-		
-				response.write('{ "status": "success"}');
-				response.end();
-			});
-		}
-		
-		response.write('{ "success":' + success + ', "hero":"' + JSON.stringify(newHero) + '" }');	
-		response.end();
+			if(!heroDao.exists(heroName)) {
+				var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
+				heroDao.save(newHero);
+				success = true;
+			}
+	
+			response.write('{ "status": "success"}');
+			response.end();
+		});
   }
-  else {
-	fs.readFile('save.dat', (err, data) => {		
-		if (err) throw err;
-		response.write(data);
+  
+	else {
+		response.write("Unhandled url requested or wrong data method defined!");
 		response.end();
-	});
   }
 }).listen(1337, "127.0.0.1");
 
