@@ -1,15 +1,22 @@
 var http = require('http');
 var fs = require('fs');
 
-var _hero = {name: "Bjorn", hp:18, atk:3, luck:3, atkTypes:["melee", "magic"], currentMap:"MidgaardMainMap", currentCoordinates:"{x:0,y:0,z:0}"};
+var _hero = null;
+var _heroCache = {};
+var heroDao = new HeroDao();
+var heroName = "Tjalfe";
+
+_hero = _heroCache[heroName];
+
+if(!_hero) {
+	if(heroDao.exists(heroName)) {
+		_hero = heroDao.load(heroName);
+		_heroCache[heroName] = _hero;
+	}
+}
+
 var _mob = new MobFactory().create();
 var battle = new Battle(_hero, _mob);
-var heroDao = new HeroDao();
-var heroCache = {};
-
-if(heroDao.exists("Bjorn"))
-	heroDao.load("Bjorn");
-
 
 function logInfo(msg) {
 	console.log('[INFO]:' + msg);
@@ -43,34 +50,32 @@ function HeroDao() {
 	this.exists = function(heroName) {
 		logInfo("HeroDao.exists");
 		var fs = require("fs");
-		var fileName = heroName + '.hero';
-		var fileFound = false;
-		
-		fs.stat(fileName, function(err, stat) {
-				if(err == null) {
-						logInfo('File exists');
-						fileFound = true;
-				} else if(err.code == 'ENOENT') {
-						logInfo('File [' + fileName + '] does not exist!');
-						fileFound = false;
-				} else {
-						logError('Some other error: ', err.code);
-						fileFound = false;
-				}
-		});
-		
-		logInfo("exists=" + fileFound);
+		var fileName = "./" + heroName + '.hero';
+			
+		var fileFound = true;
+		try {
+			fs.accessSync(fileName, fs.F_OK);
+			logInfo("File [" + fileName + "] exists!");
+		}
+		catch(e) {
+			fileFound = false;
+			logError("File [" + fileName + "] does not exist!");
+		}
 		return fileFound;
 	};
 	
 	this.load = function(heroName) {
 		logInfo("HeroDao.load");
 		var fs = require("fs");
+		var fileName = "./" + heroName + ".hero";
+		var hero = null;
 		
-		fs.readFile(heroName + '.dat', (err, data) => {		
-			if (err) throw err;
-			logInfo(data);
-		});
+		var heroJson = fs.readFileSync(fileName).toString();
+		logInfo("Hero [" + heroName + "] loaded!");
+		logInfo("Hero JSON [" + heroJson + "] loaded!");
+		
+		hero = JSON.parse(heroJson);		
+		return hero;
 	};	
 	
 	this.save = function(hero) {
@@ -78,7 +83,8 @@ function HeroDao() {
 		var fs = require("fs");
 		
 		var updateTime = new Date();
-		fs.writeFile(hero.name + '.hero', '{ "updateTime" : "' + updateTime + '", "hero" : "' + JSON.stringify(hero) + '" }',  function(err) {
+		//fs.writeFile(hero.name + '.hero', '{ "updateTime" : "' + updateTime + '", "hero" : "' + JSON.stringify(hero) + '" }',  function(err) {
+			fs.writeFile(hero.name + '.hero', JSON.stringify(hero),  function(err) {
 			if (err) {
 				return console.error(err);
 			}
@@ -236,7 +242,7 @@ function MobFactory() {
 	this.create = function() {
 		logInfo("MobFactory.create");
 
-		var randomIndex = Math.round(Math.random()*_this.mobKeys.length);
+		var randomIndex = Math.round(Math.random()*(_this.mobKeys.length-1));
 		var randomMobKey = _this.mobKeys[randomIndex];
 		var randomMob = _this.mobs[randomMobKey];
 		
@@ -358,7 +364,7 @@ http.createServer(function (request, response) {
 				// request ended -> do something with the data				
 				
 				if(!heroDao.exists(heroName)) {
-					Hero(heroName, 20, 2, 2, ["melee"], "MidgaardMainMap", {"x":"0", "y":"0"});
+					var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
 					heroDao.save(newHero);
 					success = true;
 				}
