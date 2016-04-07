@@ -389,18 +389,19 @@ http.createServer(function (request, response) {
 	response.setHeader("Access-Control-Allow-Origin", "*");
 	response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-	response.setHeader('Access-Control-Allow-Credentials', true);
-	response.writeHead(200, {'Content-Type': 'application/json'});	
+	response.setHeader('Access-Control-Allow-Credentials', true);	
 	
   logInfo("Request.url=" + request.url);
 	logInfo("Request.method=" + request.method);
   
   if(request.url == "/about") {
+		response.writeHead(200, {'Content-Type': 'application/json'});	
 		response.write('{"author": "Michael Sundgaard", "company" : "Opus Magus"}');
 		response.end();
   }
 	
 	else if(request.url == "/createLogin" && request.method == 'OPTIONS') {
+		response.writeHead(200, {'Content-Type': 'application/json'});	
 		response.end();
   }	
 	else if(request.url == "/createLogin" && request.method == 'POST') {		
@@ -420,6 +421,7 @@ http.createServer(function (request, response) {
   }
 	
 	else if(request.url == "/login" && request.method == 'OPTIONS') {
+		response.writeHead(200, {'Content-Type': 'application/json'});	
 		response.end();
   }	
 	else if(request.url == "/login" && request.method == 'POST') {		
@@ -436,13 +438,20 @@ http.createServer(function (request, response) {
 			var clientLogin = JSON.parse(postData);
 			if(_loginDao.exists(clientLogin.name)) {
 				var serverLogin = _loginDao.load(clientLogin.name);
-				if(serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password)
-					response.write('{ "status": "success", "login": JSON.stringify(serverLogin)}');
-				else
-					response.write('{ "status": "error", "reason": "login does not exist!"}');
+				
+				if(serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password) {
+					response.writeHead(200, {'Content-Type': 'application/json'});	
+					response.write(JSON.stringify(serverLogin));
+				}
+				else {
+					response.writeHead(500, {'Content-Type': 'application/json'});	
+					response.write('{ "reason": "login does not exist!"}');
+				}
 			}
-			else			
-				response.write('{ "status": "error", "reason": "login does not exist!"}');
+			else {
+				response.writeHead(500, {'Content-Type': 'application/json'});	
+				response.write('{ "reason": "login does not exist!"}');
+			}
 		
 			response.end();
 		});		

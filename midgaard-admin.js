@@ -15,7 +15,7 @@ $(function() {
 });
 
 
-function callMethod(host, methodName, data) {
+function callMethod(host, methodName, data, fnSuccess, fnError) {
 	$.ajax({
 			type: "POST",
 			dataType: "json",
@@ -25,10 +25,14 @@ function callMethod(host, methodName, data) {
 			url: host + "/" + methodName,
 			cache: false,
 			beforeSend : function() {},
-			success: function(returnValue)
-			{
-				$("#status").html("call succeeded!");
+			success: function(data)	{
+				$("#status").html("call succeeded!");				
+				if(fnSuccess)	fnSuccess(data);
 			},
+			error: function(error, error2) {
+				$("#status").html("call failed!");		
+				if(fnError) fnError();
+			},			
 			complete : function() {}
 	});
 }
