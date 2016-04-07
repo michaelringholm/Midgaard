@@ -11,6 +11,8 @@ var fs = require('fs');
 var _loginDao = new LoginDao();
 var _hero = null;
 var _heroCache = {};
+var _loginCache = {};
+
 var _heroDao = new HeroDao();
 var heroName = "Tjalfe";
 
@@ -32,6 +34,16 @@ function logInfo(msg) {
 
 function logError(msg) {
 	console.log('[ERROR]:' + msg);
+}
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
 }
 
 
@@ -157,6 +169,7 @@ function HeroDao() {
 /********* Login *************/
 function Login(name, password, heroes) {
 	var _this = this;
+	this.publicKey = null;
 	this.name = name;
 	this.password = password;
 	this.heroes = heroes;
@@ -415,7 +428,24 @@ http.createServer(function (request, response) {
 		request.on('end', function() {			
 			// request ended -> do something with the data
 			logInfo("creating login for [" + postData + "].....");
-			response.write('{ "status": "success"}');
+			var loginRequest = JSON.parse(postData);
+			
+			if(loginRequest && loginRequest.name && loginRequest.name.length > 5) {
+				if(loginRequest.password == loginRequest.repeatedPassword) {
+					_loginDao.save(clientLogin);
+					response.writeHead(200, {'Content-Type': 'application/json'});
+					response.write('{ "status": "success"}');
+				}
+				else {
+					response.writeHead(500, {'Content-Type': 'application/json'});	
+					response.write('{ "reason": "Password and repeated password does not exist!"}');
+				}
+			}
+			else {
+				response.writeHead(500, {'Content-Type': 'application/json'});	
+				response.write('{ "reason": "Login is too short, please use at least 5 characters!"}');
+			}
+			
 			response.end();
 		});		
   }
@@ -436,11 +466,16 @@ http.createServer(function (request, response) {
 			// request ended -> do something with the data
 			logInfo("Logging in [" + postData + "].....");
 			var clientLogin = JSON.parse(postData);
+			
 			if(_loginDao.exists(clientLogin.name)) {
 				var serverLogin = _loginDao.load(clientLogin.name);
 				
 				if(serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password) {
-					response.writeHead(200, {'Content-Type': 'application/json'});	
+					response.writeHead(200, {'Content-Type': 'application/json'});
+					var publicKey = generateUUID()+serverLogin.name;
+					logInfo("publicKey=[" + publicKey + "]");
+					serverLogin.publicKey = publicKey;
+					_loginCache[publicKey] = serverLogin;
 					response.write(JSON.stringify(serverLogin));
 				}
 				else {

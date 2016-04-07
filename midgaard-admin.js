@@ -1,6 +1,6 @@
 $(function() {
 	
-	$("#createLo").click(function() { callMethod("http://localhost:1337", "createLogin", {name:"MyLogin", password:"myPassword"}); });
+	$("#createLo").click(function() { callMethod("http://localhost:1337", "createLogin", {name:"MyLogin", password:"myPassword", repeatedPassword:"myPassword2"}); });
 	$("#createHe").click(function() { callMethod("http://localhost:1337", "createHero"); });
 	
 	//loginName, password, heroes
