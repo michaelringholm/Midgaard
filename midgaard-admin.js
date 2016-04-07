@@ -1,7 +1,11 @@
 $(function() {
-	$("#createLo").click(function() { callMethod("http://localhost:1337", "createLogin"); });
+	
+	$("#createLo").click(function() { callMethod("http://localhost:1337", "createLogin", {name:"MyLogin", password:"myPassword"}); });
 	$("#createHe").click(function() { callMethod("http://localhost:1337", "createHero"); });
-	$("#Lo").click(function() { callMethod("http://localhost:1337", "login"); });
+	
+	//loginName, password, heroes
+	$("#Lo").click(function() { callMethod("http://localhost:1337", "login", {name:"MyLogin", password:"myPassword"}); });
+	
 	$("#ChooseHe").click(function() { callMethod("http://localhost:1337", "chooseHero"); });
 	$("#Move").click(function() { callMethod("http://localhost:1337", "move"); });
 	
@@ -11,13 +15,12 @@ $(function() {
 });
 
 
-function callMethodJsonp(host, methodName) {
-	var data = {login:"MyLogin"};
+function callMethod(host, methodName, data) {
 	$.ajax({
 			type: "POST",
-			dataType: "jsonp",
-			jsonpCallback: 'callback',
-			contentType: "application/jsonp; charset=utf-8",
+			dataType: "json",
+			origin: "http://127.0.0.1",
+			contentType: "application/json; charset=utf-8",
 			data: JSON.stringify(data),
 			url: host + "/" + methodName,
 			cache: false,
@@ -30,13 +33,23 @@ function callMethodJsonp(host, methodName) {
 	});
 }
 
-function callMethod(host, methodName) {
-	var data = {login:"MyLogin"};
+
+
+
+
+
+
+
+
+
+
+
+function callMethodJsonp(host, methodName, data) {
 	$.ajax({
 			type: "POST",
-			dataType: "json",
-			origin: "http://127.0.0.1",
-			contentType: "application/json; charset=utf-8",
+			dataType: "jsonp",
+			jsonpCallback: 'callback',
+			contentType: "application/jsonp; charset=utf-8",
 			data: JSON.stringify(data),
 			url: host + "/" + methodName,
 			cache: false,

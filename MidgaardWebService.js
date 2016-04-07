@@ -8,16 +8,17 @@ var fs = require('fs');
 //move
 //nextRound
 
+var _loginDao = new LoginDao();
 var _hero = null;
 var _heroCache = {};
-var heroDao = new HeroDao();
+var _heroDao = new HeroDao();
 var heroName = "Tjalfe";
 
 _hero = _heroCache[heroName];
 
 if(!_hero) {
-	if(heroDao.exists(heroName)) {
-		_hero = heroDao.load(heroName);
+	if(_heroDao.exists(heroName)) {
+		_hero = _heroDao.load(heroName);
 		_heroCache[heroName] = _hero;
 	}
 }
@@ -36,6 +37,63 @@ function logError(msg) {
 
 /**********************/
 
+
+
+/*********** LoginDao ************/
+function LoginDao() {
+	var _this = this;
+		
+	this.exists = function(loginName) {
+		logInfo("LoginDao.exists");
+		var fs = require("fs");
+		var fileName = "./" + loginName + '.login';
+			
+		var fileFound = true;
+		try {
+			fs.accessSync(fileName, fs.F_OK);
+			logInfo("File [" + fileName + "] exists!");
+		}
+		catch(e) {
+			fileFound = false;
+			logError("File [" + fileName + "] does not exist!");
+		}
+		return fileFound;
+	};
+	
+	this.load = function(loginName) {
+		logInfo("LoginDao.load");
+		var fs = require("fs");
+		var fileName = "./" + loginName + ".login";
+		var login = null;
+		
+		var heroJson = fs.readFileSync(fileName).toString();
+		logInfo("Login [" + login + "] loaded!");
+		logInfo("Login JSON [" + heroJson + "] loaded!");
+		
+		login = JSON.parse(heroJson);		
+		return login;
+	};	
+	
+	this.save = function(login) {
+		logInfo("LoginDao.save");
+		var fs = require("fs");
+		
+		var updateTime = new Date();
+		//fs.writeFile(login.name + '.login', '{ "updateTime" : "' + updateTime + '", "login" : "' + JSON.stringify(login) + '" }',  function(err) {
+			fs.writeFile(login.name + '.login', JSON.stringify(login),  function(err) {
+			if (err) {
+				return console.error(err);
+			}
+			console.log("Data written successfully!");
+		});
+	};	
+	
+	this.construct = function() {
+		logInfo("LoginDao.construct");
+  };
+  
+  _this.construct();
+}
 
 
 /*********** HeroDao ************/
@@ -95,7 +153,24 @@ function HeroDao() {
 }
 
 
-/********* hero *************/
+
+/********* Login *************/
+function Login(name, password, heroes) {
+	var _this = this;
+	this.name = name;
+	this.password = password;
+	this.heroes = heroes;
+	
+	this.construct = function() {
+		logInfo("Login.construct");
+  };
+  
+  _this.construct();
+}
+
+
+
+/********* Hero *************/
 function Hero(name, hp, atk, luck, atkTypes, currentMapKey, currentCoordinates) {
 	var _this = this;
 	this.name = name;
@@ -357,8 +432,18 @@ http.createServer(function (request, response) {
 		
 		request.on('end', function() {			
 			// request ended -> do something with the data
-			logInfo("creating login for [" + postData + "].....");
-			response.write('{ "status": "success"}');
+			logInfo("Logging in [" + postData + "].....");
+			var clientLogin = JSON.parse(postData);
+			if(_loginDao.exists(clientLogin.name)) {
+				var serverLogin = _loginDao.load(clientLogin.name);
+				if(serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password)
+					response.write('{ "status": "success", "login": JSON.stringify(serverLogin)}');
+				else
+					response.write('{ "status": "error", "reason": "login does not exist!"}');
+			}
+			else			
+				response.write('{ "status": "error", "reason": "login does not exist!"}');
+		
 			response.end();
 		});		
   }	
@@ -379,8 +464,8 @@ http.createServer(function (request, response) {
 			logInfo("creating login for [" + postData + "].....");
 			response.write('{ "status": "success"}');
 			response.end();
-		});		
-  }
+		});
+	}
 	
 	else if(request.url == "/move" && request.method == 'OPTIONS') {
 		response.end();
@@ -446,9 +531,9 @@ http.createServer(function (request, response) {
 		request.on('end', function() {
 			// request ended -> do something with the data				
 			
-			if(!heroDao.exists(heroName)) {
+			if(!_heroDao.exists(heroName)) {
 				var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
-				heroDao.save(newHero);
+				_heroDao.save(newHero);
 				success = true;
 			}
 	
