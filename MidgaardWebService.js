@@ -1,6 +1,13 @@
 var http = require('http');
 var fs = require('fs');
 
+//createLogin
+//createHero
+//login
+//chooseHero
+//move
+//nextRound
+
 var _hero = null;
 var _heroCache = {};
 var heroDao = new HeroDao();
@@ -26,18 +33,6 @@ function logError(msg) {
 	console.log('[ERROR]:' + msg);
 }
 
-function saveFile(customData) {
-	var fs = require("fs");
-
-	console.log("Going to write into existing file");
-	var updateTime = new Date();
-	fs.writeFile('save.dat', '{ "map" : "general", "position": "10,25", "updateTime" : "' + updateTime + '", "customData" : "' + customData + '" }',  function(err) {
-		if (err) {
-			return console.error(err);
-		}
-		console.log("Data written successfully!");
-	});
-}
 
 /**********************/
 
