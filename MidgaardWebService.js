@@ -619,6 +619,11 @@ http.createServer(function (request, response) {
 				if(!_heroDao.exists(newHeroRequest.name)) {
 					var newHero = new Hero(newHeroRequest.name, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
 					_heroDao.save(newHero);
+					if(!serverLogin.heroes)
+						serverLogin.heroes = {};
+					
+					serverLogin.heroes[newHero.name] = newHero.name;
+					_loginDao.save(serverLogin);
 				
 					response.writeHead(200, {'Content-Type': 'application/json'});
 					response.write(JSON.stringify(newHero));

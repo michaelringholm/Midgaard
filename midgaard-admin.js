@@ -4,7 +4,7 @@ $(function() {
 	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
 	$("#btnCreateLogin").click(function() { callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed); });
 			
-	var hero = { name: "Krom"};
+	var hero = { name: $("#newHeroName").val()};
 	gameSession.data = hero;
 	$("#btnCreateHero").click(function() { callMethod("http://localhost:1337", "createHero", gameSession, createHeroSuccess, createHeroFailed); });
 	
@@ -29,7 +29,6 @@ function createHeroSuccess(data) {
 function createHeroFailed(errorMsg) {
 	logInfo(errorMsg);
 }
-
 
 function createLoginSuccess() {
 	logInfo("create login OK!");
