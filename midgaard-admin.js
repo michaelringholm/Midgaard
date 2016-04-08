@@ -1,9 +1,12 @@
-$(function() {
-	
+var gameSession = {};
+
+$(function() {	
 	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
 	$("#btnCreateLogin").click(function() { callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed); });
-	
-	$("#btnCreateHero").click(function() { callMethod("http://localhost:1337", "createHero"); });
+			
+	var hero = { name: "Krom"};
+	gameSession.data = hero;
+	$("#btnCreateHero").click(function() { callMethod("http://localhost:1337", "createHero", gameSession, createHeroSuccess, createHeroFailed); });
 	
 	//loginName, password, heroes
 	var clientLogin = {name:$("#login").val(), password:$("#password").val()};
@@ -17,7 +20,18 @@ $(function() {
 	$("#gSessionId").html("gSessionId: N/A");
 });
 
-function createLoginSuccess(data) {
+
+function createHeroSuccess(data) {
+	logInfo("create hero OK!");
+	logInfo(JSON.stringify(data));
+}
+
+function createHeroFailed(errorMsg) {
+	logInfo(errorMsg);
+}
+
+
+function createLoginSuccess() {
 	logInfo("create login OK!");
 	logInfo(JSON.stringify(data));
 }
@@ -26,9 +40,10 @@ function createLoginFailed(errorMsg) {
 	logInfo(errorMsg);
 }
 
-function loginSuccess(data) {
+function loginSuccess(serverGameSession) {
+	gameSession.publicKey = serverGameSession.publicKey;
 	logInfo("login OK!");
-	logInfo(JSON.stringify(data));
+	logInfo(JSON.stringify(serverGameSession));
 }
 
 function loginFailed(errorMsg) {

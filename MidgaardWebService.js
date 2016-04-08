@@ -593,13 +593,28 @@ http.createServer(function (request, response) {
 			// request ended -> do something with the data				
 			
 			logInfo(postData);
-			var gameSession = JSON.parse(postData);
+			var serverLogin = null;
+			var gameSession = null;
+			var serverLogin  = null;
 			
-			var serverLogin = _loginCache[gameSession.publicKey]
-			if(serverLogin)
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				logError(ex);
+			}
+			
+			if(serverLogin) {
 				logInfo("Creating a new hero...");
-			else
+				response.writeHead(200, {'Content-Type': 'application/json'});
+				response.write('{ "status": "new hero created!"}');
+			}
+			else {
 				logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
 			
 			/*
 			if(!_heroDao.exists(heroName)) {
@@ -608,7 +623,6 @@ http.createServer(function (request, response) {
 				success = true;
 			}*/
 	
-			response.write('{ "status": "success"}');
 			response.end();
 		});
   }
