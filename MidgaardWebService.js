@@ -14,7 +14,8 @@ var _heroCache = {};
 var _loginCache = {};
 
 var _heroDao = new HeroDao();
-var heroName = "Tjalfe";
+
+/*var heroName = "Tjalfe";
 
 _hero = _heroCache[heroName];
 
@@ -24,6 +25,7 @@ if(!_hero) {
 		_heroCache[heroName] = _hero;
 	}
 }
+*/
 
 var _mob = new MobFactory().create();
 var battle = new Battle(_hero, _mob);
@@ -34,6 +36,10 @@ function logInfo(msg) {
 
 function logError(msg) {
 	console.log('[ERROR]:' + msg);
+}
+	
+function logWarn(msg) {
+	console.log('[WARN]:' + msg);
 }
 
 
@@ -106,7 +112,7 @@ function HeroDao() {
 	this.exists = function(heroName) {
 		logInfo("HeroDao.exists");
 		var fs = require("fs");
-		var fileName = "./" + heroName + '.hero';
+		var fileName = "./heroes/" + heroName + '.hero';
 			
 		var fileFound = true;
 		try {
@@ -115,7 +121,7 @@ function HeroDao() {
 		}
 		catch(e) {
 			fileFound = false;
-			logError("File [" + fileName + "] does not exist!");
+			logWarn("File [" + fileName + "] does not exist!");
 		}
 		return fileFound;
 	};
@@ -123,7 +129,7 @@ function HeroDao() {
 	this.load = function(heroName) {
 		logInfo("HeroDao.load");
 		var fs = require("fs");
-		var fileName = "./" + heroName + ".hero";
+		var fileName = "./heroes/" + heroName + '.hero';
 		var hero = null;
 		
 		var heroJson = fs.readFileSync(fileName).toString();
@@ -137,10 +143,10 @@ function HeroDao() {
 	this.save = function(hero) {
 		logInfo("HeroDao.save");
 		var fs = require("fs");
+		var fileName = "./heroes/" + hero.name + '.hero';
 		
 		var updateTime = new Date();
-		//fs.writeFile(hero.name + '.hero', '{ "updateTime" : "' + updateTime + '", "hero" : "' + JSON.stringify(hero) + '" }',  function(err) {
-			fs.writeFile(hero.name + '.hero', JSON.stringify(hero),  function(err) {
+		fs.writeFile(fileName, JSON.stringify(hero),  function(err) {
 			if (err) {
 				return console.error(err);
 			}
@@ -606,9 +612,22 @@ http.createServer(function (request, response) {
 			}
 			
 			if(serverLogin) {
-				logInfo("Creating a new hero...");
-				response.writeHead(200, {'Content-Type': 'application/json'});
-				response.write('{ "status": "new hero created!"}');
+				logInfo("Public key found!, creating a new hero...");
+				
+				var newHeroRequest = gameSession.data;
+				
+				if(!_heroDao.exists(newHeroRequest.name)) {
+					var newHero = new Hero(newHeroRequest.name, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
+					_heroDao.save(newHero);
+				
+					response.writeHead(200, {'Content-Type': 'application/json'});
+					response.write(JSON.stringify(newHero));
+				}
+				else {
+					logError("Unable to create new hero, as a hero with this name already exists!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "Unable to create new hero, as a hero with this name already exists!"}');
+				}
 			}
 			else {
 				logError("Unable to find public key, please try to login again!");
