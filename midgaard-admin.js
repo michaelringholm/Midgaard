@@ -12,7 +12,9 @@ $(function() {
 	var clientLogin = {name:$("#login").val(), password:$("#password").val()};
 	$("#btnLogin").click(function() { callMethod("http://localhost:1337", "login", clientLogin, loginSuccess, loginFailed); });
 	
-	$("#btnChooseHero").click(function() { callMethod("http://localhost:1337", "chooseHero"); });
+	gameSession.heroName = "Tjalfe";
+	$("#btnChooseHero").click(function() { callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed); });
+	
 	$("#btnMove").click(function() { callMethod("http://localhost:1337", "move"); });
 	
 	//callMethodJsonp("http://localhost:1337", "createLogin");
@@ -20,6 +22,14 @@ $(function() {
 	$("#gSessionId").html("gSessionId: N/A");
 });
 
+function chooseHeroSuccess(data) {
+	logInfo("choose hero OK!");
+	logInfo(JSON.stringify(data));
+}
+
+function chooseHeroFailed(errorMsg) {
+	logInfo(errorMsg);
+}
 
 function createHeroSuccess(data) {
 	logInfo("create hero OK!");

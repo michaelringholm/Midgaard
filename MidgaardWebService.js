@@ -533,17 +533,25 @@ http.createServer(function (request, response) {
 			var serverLogin = _loginCache[gameSession.publicKey];
 			
 			if(serverLogin) {
-				var requestedHero = _heroDao.load(gameSession.heroName);
-				
-				if(requestedHero)
-					serverLogin.activeHero = requestedHero;
+				if(_heroDao.exists(gameSession.heroName)) {
+					var requestedHero = _heroDao.load(gameSession.heroName);
+					
+					if(requestedHero) {
+						serverLogin.activeHero = requestedHero;
+						response.writeHead(200, {'Content-Type': 'application/json'});	
+						response.write('{ "status": "Your active hero is now [" + requestedHero.name + "]!}');
+					}
+				}
+				else {
+					response.writeHead(500, {'Content-Type': 'application/json'});	
+					response.write('{ "reason": "Requested hero not found!"}');
+				}
 			}
 			else {
-				
+				response.writeHead(500, {'Content-Type': 'application/json'});	
+				response.write('{ "reason": "Public key not found, please login again!"}');
 			}
 			
-			logInfo("creating login for [" + postData + "].....");
-			response.write('{ "status": "success"}');
 			response.end();
 		});
 	}
