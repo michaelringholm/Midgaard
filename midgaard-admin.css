@@ -12,6 +12,11 @@ h1 {
   background-color: black; color: yellow; padding: 4px; text-align: center; border-radius: 4px; margin: 4px;
 }
 
+.heroButton {
+  display: inline-block; cursor: pointer; min-width: 60px; min-height: 20px; line-height: 20px;
+  background-color: black; color: pink; padding: 4px; text-align: center; border-radius: 4px; margin: 4px;
+}
+
 #status {
 	background-color: black;
 	color: yellow;

@@ -40,9 +40,15 @@ function createLoginFailed(errorMsg) {
 }
 
 function loginSuccess(serverGameSession) {
-	gameSession.publicKey = serverGameSession.publicKey;
 	logInfo("login OK!");
 	logInfo(JSON.stringify(serverGameSession));
+	
+	gameSession.publicKey = serverGameSession.publicKey;
+	var heroes = serverGameSession.data.heroes;
+
+	for(var key in heroes) {	
+		$("#heroList").append('<div class="heroButton">' + key + '</div>');
+	}
 }
 
 function loginFailed(errorMsg) {

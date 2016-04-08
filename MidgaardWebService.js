@@ -496,6 +496,7 @@ http.createServer(function (request, response) {
 						response.writeHead(200, {'Content-Type': 'application/json'});
 						var gameSession = new GameSession(serverLogin.name);
 						gameSession.data = serverLogin;
+						serverLogin.activeHero = null;
 						logInfo("publicKey=[" + gameSession.publicKey + "]");
 						_loginCache[gameSession.publicKey] = serverLogin;
 						response.write(JSON.stringify(gameSession));
@@ -528,6 +529,19 @@ http.createServer(function (request, response) {
 		
 		request.on('end', function() {			
 			// request ended -> do something with the data
+			var gameSession = JSON.parse(postData);
+			var serverLogin = _loginCache[gameSession.publicKey];
+			
+			if(serverLogin) {
+				var requestedHero = _heroDao.load(gameSession.heroName);
+				
+				if(requestedHero)
+					serverLogin.activeHero = requestedHero;
+			}
+			else {
+				
+			}
+			
 			logInfo("creating login for [" + postData + "].....");
 			response.write('{ "status": "success"}');
 			response.end();
