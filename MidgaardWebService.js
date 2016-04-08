@@ -36,16 +36,6 @@ function logError(msg) {
 	console.log('[ERROR]:' + msg);
 }
 
-function generateUUID() {
-    var d = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-}
-
 
 /**********************/
 
@@ -58,7 +48,7 @@ function LoginDao() {
 	this.exists = function(loginName) {
 		logInfo("LoginDao.exists");
 		var fs = require("fs");
-		var fileName = "./" + loginName + '.login';
+		var fileName = "./logins/" + loginName + '.login';
 			
 		var fileFound = true;
 		try {
@@ -75,14 +65,15 @@ function LoginDao() {
 	this.load = function(loginName) {
 		logInfo("LoginDao.load");
 		var fs = require("fs");
-		var fileName = "./" + loginName + ".login";
+		var fileName = "./logins/" + loginName + ".login";
 		var login = null;
 		
 		var heroJson = fs.readFileSync(fileName).toString();
-		logInfo("Login [" + login + "] loaded!");
-		logInfo("Login JSON [" + heroJson + "] loaded!");
+
+		logInfo("Login JSON [" + heroJson + "] loaded!");		
+		login = JSON.parse(heroJson);
+		logInfo("Login [" + JSON.stringify(login) + "] loaded!");		
 		
-		login = JSON.parse(heroJson);		
 		return login;
 	};	
 	
@@ -92,7 +83,7 @@ function LoginDao() {
 		
 		var updateTime = new Date();
 		//fs.writeFile(login.name + '.login', '{ "updateTime" : "' + updateTime + '", "login" : "' + JSON.stringify(login) + '" }',  function(err) {
-			fs.writeFile(login.name + '.login', JSON.stringify(login),  function(err) {
+			fs.writeFile("./logins/" + login.name + '.login', JSON.stringify(login),  function(err) {
 			if (err) {
 				return console.error(err);
 			}
@@ -169,7 +160,6 @@ function HeroDao() {
 /********* Login *************/
 function Login(name, password, heroes) {
 	var _this = this;
-	this.publicKey = null;
 	this.name = name;
 	this.password = password;
 	this.heroes = heroes;
@@ -179,6 +169,31 @@ function Login(name, password, heroes) {
   };
   
   _this.construct();
+}
+
+
+/********** GameSession ***********/
+function GameSession(loginName) {
+	var _this = this;
+	this.publicKey = "";
+	this.data = {};
+	
+	var generateUUID = function() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+	};
+	
+	this.construct = function(loginName) {
+		logInfo("GameSession.construct");
+		_this.publicKey = generateUUID() + "_" + loginName;
+  };
+  
+  _this.construct(loginName);
 }
 
 
@@ -432,13 +447,13 @@ http.createServer(function (request, response) {
 			
 			if(loginRequest && loginRequest.name && loginRequest.name.length > 5) {
 				if(loginRequest.password == loginRequest.repeatedPassword) {
-					_loginDao.save(clientLogin);
+					_loginDao.save(loginRequest);
 					response.writeHead(200, {'Content-Type': 'application/json'});
 					response.write('{ "status": "success"}');
 				}
 				else {
 					response.writeHead(500, {'Content-Type': 'application/json'});	
-					response.write('{ "reason": "Password and repeated password does not exist!"}');
+					response.write('{ "reason": "Password and repeated password do not match!"}');
 				}
 			}
 			else {
@@ -451,7 +466,7 @@ http.createServer(function (request, response) {
   }
 	
 	else if(request.url == "/login" && request.method == 'OPTIONS') {
-		response.writeHead(200, {'Content-Type': 'application/json'});	
+		response.writeHead(200, {'Content-Type': 'application/json'});
 		response.end();
   }	
 	else if(request.url == "/login" && request.method == 'POST') {		
@@ -470,17 +485,19 @@ http.createServer(function (request, response) {
 			if(_loginDao.exists(clientLogin.name)) {
 				var serverLogin = _loginDao.load(clientLogin.name);
 				
-				if(serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password) {
-					response.writeHead(200, {'Content-Type': 'application/json'});
-					var publicKey = generateUUID()+serverLogin.name;
-					logInfo("publicKey=[" + publicKey + "]");
-					serverLogin.publicKey = publicKey;
-					_loginCache[publicKey] = serverLogin;
-					response.write(JSON.stringify(serverLogin));
-				}
-				else {
-					response.writeHead(500, {'Content-Type': 'application/json'});	
-					response.write('{ "reason": "login does not exist!"}');
+				if(serverLogin) {
+					if(serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password) {
+						response.writeHead(200, {'Content-Type': 'application/json'});
+						var gameSession = new GameSession(serverLogin.name);
+						gameSession.data = serverLogin;
+						logInfo("publicKey=[" + gameSession.publicKey + "]");
+						_loginCache[gameSession.publicKey] = serverLogin;
+						response.write(JSON.stringify(gameSession));
+					}
+					else {
+						response.writeHead(500, {'Content-Type': 'application/json'});	
+						response.write('{ "reason": "Wrong login or password!"}');
+					}
 				}
 			}
 			else {
@@ -565,21 +582,31 @@ http.createServer(function (request, response) {
 		var success = false;
 		var newHero = {};
 		
-		var fullBody = '';
+		var postData = '';
 	
 		request.on('data', function(chunk) {
 			// append the current chunk of data to the fullBody variable
-			fullBody += chunk.toString();
+			postData += chunk.toString();
 		});
 		
 		request.on('end', function() {
 			// request ended -> do something with the data				
 			
+			logInfo(postData);
+			var gameSession = JSON.parse(postData);
+			
+			var serverLogin = _loginCache[gameSession.publicKey]
+			if(serverLogin)
+				logInfo("Creating a new hero...");
+			else
+				logError("Unable to find public key, please try to login again!");
+			
+			/*
 			if(!_heroDao.exists(heroName)) {
 				var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
 				_heroDao.save(newHero);
 				success = true;
-			}
+			}*/
 	
 			response.write('{ "status": "success"}');
 			response.end();

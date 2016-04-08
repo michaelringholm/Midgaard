@@ -9,6 +9,21 @@ h1 {
 
 .button {
   display: inline-block; cursor: pointer; min-width: 60px; min-height: 20px; line-height: 20px;
-  background-color: black; color: green; padding: 4px; text-align: center;
+  background-color: black; color: yellow; padding: 4px; text-align: center; border-radius: 4px; margin: 4px;
 }
 
+#status {
+	background-color: black;
+	color: yellow;
+	width: 800px;
+	height: 140px;
+	overflow: auto;
+	padding: 6px;
+	margin: 4px;
+}
+
+.function {
+	border: black;
+	background-color: grey;
+	margin: 4px;
+}
