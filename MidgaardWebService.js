@@ -136,7 +136,7 @@ function HeroDao() {
 		logInfo("Hero [" + heroName + "] loaded!");
 		logInfo("Hero JSON [" + heroJson + "] loaded!");
 		
-		hero = JSON.parse(heroJson);		
+		hero = new Hero(JSON.parse(heroJson));		
 		return hero;
 	};	
 	
@@ -205,20 +205,21 @@ function GameSession(loginName) {
 
 
 /********* Hero *************/
-function Hero(name, hp, atk, luck, atkTypes, currentMapKey, currentCoordinates) {
+//function Hero(name, hp, atk, luck, atkTypes, currentMapKey, currentCoordinates) {
+function Hero(anonHeroObj) {
 	var _this = this;
-	this.name = name;
-	this.hp = hp;
-	this.atk = atk;
-	this.luck = luck;
-	this.atkTypes = atkTypes;
-	this.currentMapKey = currentMapKey;
-	this.currentCoordinates = currentCoordinates;
+	this.name = "";
+	this.hp = 0;
+	this.atk = 0;
+	this.luck = 0;
+	this.atkTypes = [];
+	this.currentMapKey = "";
+	this.currentCoordinates = {};
 	
 	// east, west, north, south, up, down
-	this.move = function(currentLocation, direction)  {
+	this.move = function(direction)  {
 		logInfo("MidgaardMainMap.move");
-		var targetLocation = currentLocation;
+		var targetLocation = currentCoordinates;
 		if(direction == "west")
 			targetLocation.x--;
 		else if(direction == "east")
@@ -233,6 +234,8 @@ function Hero(name, hp, atk, luck, atkTypes, currentMapKey, currentCoordinates) 
 	
 	this.construct = function() {
 		logInfo("Hero.construct");
+		// IF AN OBJECT WAS PASSED THEN INITIALISE PROPERTIES FROM THAT OBJECT
+    for (var prop in anonHeroObj) this[prop] = anonHeroObj[prop];
   };
   
   _this.construct();
@@ -534,12 +537,12 @@ http.createServer(function (request, response) {
 			
 			if(serverLogin) {
 				if(_heroDao.exists(gameSession.heroName)) {
-					var requestedHero = _heroDao.load(gameSession.heroName);
+					var loadedHero = _heroDao.load(gameSession.heroName);
 					
-					if(requestedHero) {
-						serverLogin.activeHero = requestedHero;
+					if(loadedHero) {
+						serverLogin.activeHero = loadedHero;
 						response.writeHead(200, {'Content-Type': 'application/json'});	
-						response.write('{ "status": "Your active hero is now [" + requestedHero.name + "]!}');
+						response.write('{ "status": "Your active hero is now [' + loadedHero.name + ']!}');
 					}
 				}
 				else {
@@ -568,10 +571,33 @@ http.createServer(function (request, response) {
 		});
 		
 		request.on('end', function() {			
-			// request ended -> do something with the data
-			logInfo("creating login for [" + postData + "].....");
-			response.write('{ "status": "success"}');
-			response.end();
+			var gameSession = JSON.parse(postData);			
+			var serverLogin = _loginCache[gameSession.publicKey];
+			
+			if(serverLogin) {
+				var direction = gameSession.direction;
+				
+				if(direction == "west" || direction == "east" || direction == "north" || direction == "south") {										
+					if(serverLogin.activeHero) {
+						serverLogin.activeHero.currentCoordinates;
+						var location = serverLogin.activeHero.move(serverLogin.activeHero.currentCoordinates, direction);
+						response.writeHead(200, {'Content-Type': 'application/json'});	
+						response.write('{ "status": "You moved [' + direction + ']!}');
+					}
+					else {
+						response.writeHead(500, {'Content-Type': 'application/json'});	
+						response.write('{ "reason": "No active hero found, please choose a hero!"}');
+					}
+				}
+				else {
+					response.writeHead(500, {'Content-Type': 'application/json'});	
+					response.write('{ "reason": "Invalid direction [' + direction + ']!"}');
+				}
+			}
+			else {
+				response.writeHead(500, {'Content-Type': 'application/json'});	
+				response.write('{ "reason": "Public key not found, please login again!"}');
+			}
 		});		
   }		
   
@@ -639,7 +665,7 @@ http.createServer(function (request, response) {
 				var newHeroRequest = gameSession.data;
 				
 				if(!_heroDao.exists(newHeroRequest.name)) {
-					var newHero = new Hero(newHeroRequest.name, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
+					var newHero = new Hero( {name:newHeroRequest.name, hp:20, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"MidgaardMainMap", currentCoordinates:{x:0,y:0,z:0}} );
 					_heroDao.save(newHero);
 					if(!serverLogin.heroes)
 						serverLogin.heroes = {};

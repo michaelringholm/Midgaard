@@ -12,15 +12,25 @@ $(function() {
 	var clientLogin = {name:$("#login").val(), password:$("#password").val()};
 	$("#btnLogin").click(function() { callMethod("http://localhost:1337", "login", clientLogin, loginSuccess, loginFailed); });
 	
-	gameSession.heroName = "Tjalfe";
+	gameSession.heroName = "Krom";
 	$("#btnChooseHero").click(function() { callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed); });
 	
-	$("#btnMove").click(function() { callMethod("http://localhost:1337", "move"); });
+	gameSession.direction = $("#direction").val();
+	$("#btnMove").click(function() { callMethod("http://localhost:1337", "move", gameSession, moveSuccess, moveFailed); });
 	
 	//callMethodJsonp("http://localhost:1337", "createLogin");
   
 	$("#gSessionId").html("gSessionId: N/A");
 });
+
+function moveSuccess(data) {
+	logInfo("move hero OK!");
+	logInfo(JSON.stringify(data));
+}
+
+function moveFailed(errorMsg) {
+	logInfo(errorMsg);
+}
 
 function chooseHeroSuccess(data) {
 	logInfo("choose hero OK!");
