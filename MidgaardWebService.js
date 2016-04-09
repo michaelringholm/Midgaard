@@ -206,7 +206,14 @@ function Hero(anonObj) {
 		else if(direction == "south")
 			targetCoordinates.y++;
 		
-		return mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
+		logInfo("targetCoordinates=[" + JSON.stringify(targetCoordinates) + "]");
+		
+		var targetLocation = mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
+		
+		if(targetLocation)
+			_this.currentCoordinates = targetCoordinates;
+		
+		return targetLocation;
 	};
 	
 	this.construct = function() {
@@ -387,8 +394,8 @@ function MidgaardMainMap() {
 	this.locations = new Array();
 	
 	this.getLocation = function(targetCoordinates) {
-		if( (targetCoordinates.x > 0 && targetCoordinates.x < 100) && (targetCoordinates.y && targetCoordinates.y < 100) )
-			return new Location();
+		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 100) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 100)  )
+			return new Location({terrainType:"woodland", mobKeys:["rat", "beetle", "spider"]});
 		else 
 			return null;
 	};
@@ -589,8 +596,16 @@ http.createServer(function (request, response) {
 					if(serverLogin.activeHero) {
 						serverLogin.activeHero.currentCoordinates;
 						var location = serverLogin.activeHero.move(direction, _mapFactory);
-						response.writeHead(200, {'Content-Type': 'application/json'});	
-						response.write('{ "status": "You moved [' + direction + ']!"}');
+						
+						if(location) {
+							_heroDao.save(serverLogin.activeHero);
+							response.writeHead(200, {'Content-Type': 'application/json'});	
+							response.write(JSON.stringify(location));
+						}
+						else {
+							response.writeHead(500, {'Content-Type': 'application/json'});	
+							response.write('{ "reason": "Invalid location!"}');
+						}
 					}
 					else {
 						response.writeHead(500, {'Content-Type': 'application/json'});	

@@ -15,13 +15,18 @@ $(function() {
 	gameSession.heroName = "Krom";
 	$("#btnChooseHero").click(function() { callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed); });
 	
-	gameSession.direction = $("#direction").val();
-	$("#btnMove").click(function() { callMethod("http://localhost:1337", "move", gameSession, moveSuccess, moveFailed); });
+	
+	$("#btnMove").click(function() {move();});
 	
 	//callMethodJsonp("http://localhost:1337", "createLogin");
   
 	$("#gSessionId").html("gSessionId: N/A");
 });
+
+function move() {
+	gameSession.direction = $("#direction").val();	
+	callMethod("http://localhost:1337", "move", gameSession, moveSuccess, moveFailed);
+}
 
 function moveSuccess(data) {
 	logInfo("move hero OK!");
