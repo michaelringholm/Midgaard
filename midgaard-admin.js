@@ -17,11 +17,33 @@ $(function() {
 	
 	
 	$("#btnMove").click(function() {move();});
+	$("#btnNextRound").click(function() {nextRound();});
 	
 	//callMethodJsonp("http://localhost:1337", "createLogin");
   
 	$("#gSessionId").html("gSessionId: N/A");
 });
+
+function nextRound() {
+	gameSession.attackType = $("#attackType").val();	
+	callMethod("http://localhost:1337", "nextRound", gameSession, nextRoundSuccess, nextRoundFailed);
+}
+
+function nextRoundSuccess(data) {
+	logInfo("next round OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data) {
+		if(data.hero && data.mob) {
+			var battle = data;
+			logInfo("Next round completed!");
+		}
+	}
+}
+
+function nextRoundFailed(errorMsg) {
+	logInfo(errorMsg);
+}
 
 function move() {
 	gameSession.direction = $("#direction").val();	
@@ -31,6 +53,17 @@ function move() {
 function moveSuccess(data) {
 	logInfo("move hero OK!");
 	logInfo(JSON.stringify(data));
+	
+	if(data) {
+		if(data.terrainType) {
+			var location = data;
+			logInfo("you moved to a new location");
+		}
+		else if(data.hero && data.mob) {
+			var battle = data;
+			logInfo("you were surprised by monsters!");
+		}
+	}
 }
 
 function moveFailed(errorMsg) {

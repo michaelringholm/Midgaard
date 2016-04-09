@@ -5,12 +5,14 @@ var _loginDao = new LoginDao();
 var _hero = null;
 var _heroCache = {};
 var _loginCache = {};
+var _battleCache = {};
 
 var _heroDao = new HeroDao();
 var _mapFactory = new MapFactory();
+var _mobFactory = new MobFactory();
 
-var _mob = new MobFactory().create();
-var battle = new Battle(_hero, _mob);
+//var _mob = new MobFactory().create();
+//var battle = new Battle(_hero, _mob);
 
 /************************ Common Methods **************/
 function logInfo(msg) {
@@ -194,7 +196,7 @@ function Hero(anonObj) {
 	this.currentCoordinates = {};
 	
 	// east, west, north, south, up, down
-	this.move = function(direction, mapFactory)  {
+	this.move = function(direction, mapFactory, battleCache)  {
 		logInfo("MidgaardMainMap.move");
 		var targetCoordinates = new Coordinate(_this.currentCoordinates);
 		if(direction == "west")
@@ -210,8 +212,12 @@ function Hero(anonObj) {
 		
 		var targetLocation = mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
 		
-		if(targetLocation)
+		if(targetLocation) {
 			_this.currentCoordinates = targetCoordinates;
+			if(targetLocation.mob) {
+				battleCache[_this.name] = new Battle(this, targetLocation.mob);
+			}
+		}
 		
 		return targetLocation;
 	};
@@ -394,8 +400,20 @@ function MidgaardMainMap() {
 	this.locations = new Array();
 	
 	this.getLocation = function(targetCoordinates) {
-		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 100) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 100)  )
-			return new Location({terrainType:"woodland", mobKeys:["rat", "beetle", "spider"]});
+		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 100) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 100)  ) {
+			var possibleMobKeys = ["rat", "beetle", "spider"];
+			var mobProbability = 0.20;
+			var mob = null;
+			
+			if(Math.random() < mobProbability) {
+				//var mobIndex = Math.Round(Math.random()*possibleMobKeys.length));
+				//var mob = 
+				var mob = _mobFactory.create();
+			}
+			
+			var location = new Location({terrainType:"woodland", mob:mob});
+			return location;
+		}
 		else 
 			return null;
 	};
@@ -424,7 +442,7 @@ function Coordinate(anonObj) {
 function Location(anonObj) {
 	var _this = this;
 	this.terrainType = "";
-	this.mobKeys = [];
+	this.mob = null;
 	
 	this.construct = function() {
 		logInfo("Coordinate.construct");
@@ -594,17 +612,29 @@ http.createServer(function (request, response) {
 				
 				if(direction == "west" || direction == "east" || direction == "north" || direction == "south") {										
 					if(serverLogin.activeHero) {
-						serverLogin.activeHero.currentCoordinates;
-						var location = serverLogin.activeHero.move(direction, _mapFactory);
-						
-						if(location) {
-							_heroDao.save(serverLogin.activeHero);
-							response.writeHead(200, {'Content-Type': 'application/json'});	
-							response.write(JSON.stringify(location));
+					
+						if(_battleCache[serverLogin.activeHero.name]) {
+							response.writeHead(500, {'Content-Type': 'application/json'});	
+							response.write('{ "reason": "You cant move on while fighting!"}');
 						}
 						else {
-							response.writeHead(500, {'Content-Type': 'application/json'});	
-							response.write('{ "reason": "Invalid location!"}');
+							serverLogin.activeHero.currentCoordinates;
+							var location = serverLogin.activeHero.move(direction, _mapFactory, _battleCache);
+							
+							if(location) {
+								_heroDao.save(serverLogin.activeHero);
+								response.writeHead(200, {'Content-Type': 'application/json'});			
+
+								var battle = _battleCache[serverLogin.activeHero.name];
+								if(battle)
+									response.write(JSON.stringify(battle));
+								else
+									response.write(JSON.stringify(location));
+							}
+							else {
+								response.writeHead(500, {'Content-Type': 'application/json'});	
+								response.write('{ "reason": "Invalid location!"}');
+							}
 						}
 					}
 					else {
@@ -648,11 +678,52 @@ http.createServer(function (request, response) {
 	else if(request.url == "/nextRound" && request.method == 'OPTIONS') {
 		response.end();
 	}	
-	else if(request.url == "/nextRound" && request.method == 'POST') {
-		battle.nextRound();
-		response.write('{ "hero":' + JSON.stringify(battle.hero) + ', mob":' + JSON.stringify(battle.mob) + ', "status": ' + JSON.stringify(battle.status) +  ', "version":"' + battle.getVersion() + '" }');	
-		response.end();
-  }	
+	else if(request.url == "/nextRound" && request.method == 'POST') {		
+		var postData = "";
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the postData variable
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			var gameSession = JSON.parse(postData);			
+			var serverLogin = _loginCache[gameSession.publicKey];
+			
+			if(serverLogin) {
+				var attackType = gameSession.attackType;
+				
+				if(attackType == "Melee" || attackType == "Healing I" || attackType == "Weakness I" || attackType == "Strength I") {										
+					if(serverLogin.activeHero) {						
+						var battle = _battleCache[serverLogin.activeHero.name];
+
+						if(battle) {
+							battle.nextRound();
+							response.write(JSON.stringify(battle));
+						}
+						else {
+							response.writeHead(500, {'Content-Type': 'application/json'});	
+							response.write('{ "reason": "Battle not found!"}');
+						}
+					}
+					else {
+						response.writeHead(500, {'Content-Type': 'application/json'});	
+						response.write('{ "reason": "No active hero found, please choose a hero!"}');
+					}
+				}
+				else {
+					response.writeHead(500, {'Content-Type': 'application/json'});	
+					response.write('{ "reason": "Invalid attack type [' + attackType + ']!"}');
+				}
+			}
+			else {
+				response.writeHead(500, {'Content-Type': 'application/json'});	
+				response.write('{ "reason": "Public key not found, please login again!"}');
+			}
+			
+			response.end();
+		});		
+  }		
 	
 	else if(request.url == "/createHero" && request.method == 'OPTIONS') {
 		response.end();
