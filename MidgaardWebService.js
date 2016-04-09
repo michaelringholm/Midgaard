@@ -1,35 +1,18 @@
 var http = require('http');
 var fs = require('fs');
 
-//createLogin
-//createHero
-//login
-//chooseHero
-//move
-//nextRound
-
 var _loginDao = new LoginDao();
 var _hero = null;
 var _heroCache = {};
 var _loginCache = {};
 
 var _heroDao = new HeroDao();
-
-/*var heroName = "Tjalfe";
-
-_hero = _heroCache[heroName];
-
-if(!_hero) {
-	if(_heroDao.exists(heroName)) {
-		_hero = _heroDao.load(heroName);
-		_heroCache[heroName] = _hero;
-	}
-}
-*/
+var _mapFactory = new MapFactory();
 
 var _mob = new MobFactory().create();
 var battle = new Battle(_hero, _mob);
 
+/************************ Common Methods **************/
 function logInfo(msg) {
 	console.log('[INFO]:' + msg);
 }
@@ -43,11 +26,8 @@ function logWarn(msg) {
 }
 
 
-/**********************/
 
-
-
-/*********** LoginDao ************/
+/************************** LoginDao *************************/
 function LoginDao() {
 	var _this = this;
 		
@@ -105,7 +85,7 @@ function LoginDao() {
 }
 
 
-/*********** HeroDao ************/
+/************************** HeroDao *************************/
 function HeroDao() {
 	var _this = this;
 		
@@ -202,11 +182,8 @@ function GameSession(loginName) {
   _this.construct(loginName);
 }
 
-
-
 /********* Hero *************/
-//function Hero(name, hp, atk, luck, atkTypes, currentMapKey, currentCoordinates) {
-function Hero(anonHeroObj) {
+function Hero(anonObj) {
 	var _this = this;
 	this.name = "";
 	this.hp = 0;
@@ -217,25 +194,24 @@ function Hero(anonHeroObj) {
 	this.currentCoordinates = {};
 	
 	// east, west, north, south, up, down
-	this.move = function(direction)  {
+	this.move = function(direction, mapFactory)  {
 		logInfo("MidgaardMainMap.move");
-		var targetLocation = currentCoordinates;
+		var targetCoordinates = new Coordinate(_this.currentCoordinates);
 		if(direction == "west")
-			targetLocation.x--;
+			targetCoordinates.x--;
 		else if(direction == "east")
-			targetLocation.x++;
+			targetCoordinates.x++;
 		else if(direction == "north")
-			targetLocation.y--;		
+			targetCoordinates.y--;		
 		else if(direction == "south")
-			targetLocation.y++;
+			targetCoordinates.y++;
 		
-		_this.getLocation(targetLocation);
+		return mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
 	};
 	
 	this.construct = function() {
 		logInfo("Hero.construct");
-		// IF AN OBJECT WAS PASSED THEN INITIALISE PROPERTIES FROM THAT OBJECT
-    for (var prop in anonHeroObj) this[prop] = anonHeroObj[prop];
+    for (var prop in anonObj) this[prop] = anonObj[prop];
   };
   
   _this.construct();
@@ -387,11 +363,11 @@ function MapFactory() {
 	
 	this.create = function(mapKey) {
 		logInfo("MapFactory.create");
-		var map = _this.mobs[mapKey];		
+		var map = _this.maps[mapKey];
 		return map;
 	};
 	
-	this.addMap = function(mob) {
+	this.addMap = function(map) {
 		logInfo("MapFactory.addMap");
 		_this.maps[map.key] = map;
 	};
@@ -407,8 +383,15 @@ function MapFactory() {
 function MidgaardMainMap() {
 	var _this = this;
 	this.key = "MidgaardMainMap";
-	this.name = "Midgaard";
+	this.name = "Midgaard main map";
 	this.locations = new Array();
+	
+	this.getLocation = function(targetCoordinates) {
+		if( (targetCoordinates.x > 0 && targetCoordinates.x < 100) && (targetCoordinates.y && targetCoordinates.y < 100) )
+			return new Location();
+		else 
+			return null;
+	};
 	
 	this.construct = function() {
 		logInfo("MidgaardMainMap.construct");
@@ -417,7 +400,32 @@ function MidgaardMainMap() {
 	_this.construct();
 }
 
+function Coordinate(anonObj) {
+	var _this = this;
+	this.x = 0;
+	this.y = 0;
+	this.z = 0;
+	
+	this.construct = function() {
+		logInfo("Coordinate.construct");
+    for (var prop in anonObj) this[prop] = anonObj[prop];
+  };
+  
+  _this.construct();
+}
 
+function Location(anonObj) {
+	var _this = this;
+	this.terrainType = "";
+	this.mobKeys = [];
+	
+	this.construct = function() {
+		logInfo("Coordinate.construct");
+    for (var prop in anonObj) this[prop] = anonObj[prop];
+  };
+  
+  _this.construct();
+}
 
 /*********** WEB SERVER ****************/
 http.createServer(function (request, response) {
@@ -580,9 +588,9 @@ http.createServer(function (request, response) {
 				if(direction == "west" || direction == "east" || direction == "north" || direction == "south") {										
 					if(serverLogin.activeHero) {
 						serverLogin.activeHero.currentCoordinates;
-						var location = serverLogin.activeHero.move(serverLogin.activeHero.currentCoordinates, direction);
+						var location = serverLogin.activeHero.move(direction, _mapFactory);
 						response.writeHead(200, {'Content-Type': 'application/json'});	
-						response.write('{ "status": "You moved [' + direction + ']!}');
+						response.write('{ "status": "You moved [' + direction + ']!"}');
 					}
 					else {
 						response.writeHead(500, {'Content-Type': 'application/json'});	
@@ -598,6 +606,8 @@ http.createServer(function (request, response) {
 				response.writeHead(500, {'Content-Type': 'application/json'});	
 				response.write('{ "reason": "Public key not found, please login again!"}');
 			}
+			
+			response.end();
 		});		
   }		
   
@@ -665,7 +675,7 @@ http.createServer(function (request, response) {
 				var newHeroRequest = gameSession.data;
 				
 				if(!_heroDao.exists(newHeroRequest.name)) {
-					var newHero = new Hero( {name:newHeroRequest.name, hp:20, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"MidgaardMainMap", currentCoordinates:{x:0,y:0,z:0}} );
+					var newHero = new Hero( { name:newHeroRequest.name, hp:20, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"MidgaardMainMap", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
 					_heroDao.save(newHero);
 					if(!serverLogin.heroes)
 						serverLogin.heroes = {};
@@ -748,3 +758,11 @@ if (req.method == 'POST') {
     
   }
   */
+	
+	
+	//createLogin
+//createHero
+//login
+//chooseHero
+//move
+//nextRound
