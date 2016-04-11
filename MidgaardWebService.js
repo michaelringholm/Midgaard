@@ -1,8 +1,12 @@
 var http = require('http');
 var fs = require('fs');
+
+// IMPORTS
+var Logger = require('./common/Logger.js');
 var MapDao = require('./map/MapDao.js');
 var MidgaardMainMap = require('./map/MidgaardMainMap.js');
-var Logger = require('./common/Logger.js');
+var Coordinate = require('./map/Coordinate.js');
+var Location = require('./map/Location.js');
 
 var _logger = new Logger();
 var _mapDao = new MapDao();
@@ -384,32 +388,6 @@ function MapFactory() {
 	_this.construct();
 }
 
-function Coordinate(anonObj) {
-	var _this = this;
-	this.x = 0;
-	this.y = 0;
-	this.z = 0;
-	
-	this.construct = function() {
-		_logger.logInfo("Coordinate.construct");
-    for (var prop in anonObj) this[prop] = anonObj[prop];
-  };
-  
-  _this.construct();
-}
-
-function Location(anonObj) {
-	var _this = this;
-	this.terrainType = "";
-	this.mob = null;
-	
-	this.construct = function() {
-		_logger.logInfo("Coordinate.construct");
-    for (var prop in anonObj) this[prop] = anonObj[prop];
-  };
-  
-  _this.construct();
-}
 
 /*********** WEB SERVER ****************/
 http.createServer(function (request, response) {

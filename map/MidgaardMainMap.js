@@ -1,4 +1,6 @@
 var Logger = require('../common/Logger.js');
+var Location = require('../map/Location.js');
+
 var _logger = new Logger();
 
 module.exports = function MidgaardMainMap(mapDao) {
