@@ -18,7 +18,7 @@ module.exports = function MidgaardMainMap(mapDao) {
 		if(terrainChar == "w") return "woods";
 		if(terrainChar == "r") return "road";
 		if(terrainChar == "c") return "city";
-		if(terrainChar == "m") return "mountain";
+		if(terrainChar == "m") return "mountains";
 		if(terrainChar == "h") return "hill";
 		return null;
 	};

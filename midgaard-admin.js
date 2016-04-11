@@ -18,11 +18,51 @@ $(function() {
 	
 	$("#btnMove").click(function() {move();});
 	$("#btnNextRound").click(function() {nextRound();});
-	
-	//callMethodJsonp("http://localhost:1337", "createLogin");
+	$("#btnEnterTown").click(function() {enterTown();});
+	$("#btnLeaveTown").click(function() {leaveTown();});
   
 	$("#gSessionId").html("gSessionId: N/A");
 });
+
+function enterTown() {
+	callMethod("http://localhost:1337", "enterTown", gameSession, enterTownSuccess, enterTownFailed);
+}
+
+function enterTownSuccess(data) {
+	logInfo("enter town OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data) {
+	}
+}
+
+function enterTownFailed(errorMsg) {
+	logInfo(errorMsg);
+}
+
+function leaveTown() {
+	callMethod("http://localhost:1337", "leaveTown", gameSession, leaveTownSuccess, leaveTownFailed);
+}
+
+function leaveTownSuccess(data) {
+	logInfo("leave town OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data) {
+		var name = data.name;
+		var mapMatrix = data.mapMatrix;
+		
+		for(var yIndex in mapMatrix) {
+			for(var xIndex in mapMatrix[yIndex]) {
+				drawMapTile(xIndex*32,yIndex*32,mapMatrix[yIndex][xIndex]);
+			}
+		}
+	}
+}
+
+function leaveTownFailed(errorMsg) {
+	logInfo(errorMsg);
+}
 
 function nextRound() {
 	gameSession.attackType = $("#attackType").val();	
@@ -114,7 +154,29 @@ function loginFailed(errorMsg) {
 }
 
 function logInfo(msg) {
-	$("#status").append("[INFO]: " + msg + "<br/>");
+	$("#status").prepend("[INFO]: " + msg + "<br/>");
+}
+
+function drawMapTile(xPos, yPos, terrainType) {
+	logInfo("drawMapTile called!");
+	var ctx = document.getElementById("mapCanvasLayer1").getContext("2d");
+	//ctx.clearRect(0,0,200,200);	
+	//var img = new Image();
+	//img.src = "./resources/forest.png";
+	var img = null;
+	
+	if(terrainType == "w")
+		img = document.getElementById("forest");
+	else if(terrainType == "m")
+		img = document.getElementById("mountains");
+	else if(terrainType == "h")
+		img = document.getElementById("mountains");		
+	else if(terrainType == "c")
+		img = document.getElementById("town");
+	else if(terrainType == "r")
+		img = document.getElementById("road");				
+		
+	ctx.drawImage(img,xPos,yPos,32,32);
 }
 
 
