@@ -3,11 +3,12 @@ var Location = require('../map/Location.js');
 
 var _logger = new Logger();
 
-module.exports = function MidgaardMainMap(mapDao) {
+module.exports = function MidgaardMainMap(mapDao, mobFactory) {
 	var _this = this;
 	this.key = "midgaard-main";
 	this.name = "Midgaard main map";
 	this.locations = new Array();
+	this.rawMap = null;
 	
 	this.getLocation = function(targetCoordinates) {
 		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 20) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 20)  ) {
@@ -18,9 +19,10 @@ module.exports = function MidgaardMainMap(mapDao) {
 			if(Math.random() < mobProbability) {
 				//var mobIndex = Math.Round(Math.random()*possibleMobKeys.length));
 				//var mob = 
-				var mob = _mobFactory.create();
+				var mob = mobFactory.create();
 			}
 			
+			_logger.logInfo("The raw map looks like this = [" + _this.rawMap + "]");
 			var location = new Location({terrainType:"woodland", mob:mob});
 			return location;
 		}
@@ -30,7 +32,7 @@ module.exports = function MidgaardMainMap(mapDao) {
 	
 	this.construct = function() {
 		_logger.logInfo("MidgaardMainMap.construct");
-		mapDao.load(_this.key);
+		_this.rawMap = mapDao.load(_this.key);
 	};
 	
 	_this.construct();

@@ -382,7 +382,7 @@ function MapFactory() {
 	
 	this.construct = function() {
 		_logger.logInfo("MobFactory.construct");
-		_this.addMap(new MidgaardMainMap(_mapDao));
+		_this.addMap(new MidgaardMainMap(_mapDao, _mobFactory));
 	};
 	
 	_this.construct();
