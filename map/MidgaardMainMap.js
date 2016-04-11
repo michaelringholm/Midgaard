@@ -8,7 +8,7 @@ module.exports = function MidgaardMainMap(mapDao, mobFactory) {
 	this.key = "midgaard-main";
 	this.name = "Midgaard main map";
 	this.locations = new Array();
-	this.rawMap = null;
+	this.mapMatrix = null;
 	
 	this.getLocation = function(targetCoordinates) {
 		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 20) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 20)  ) {
@@ -22,8 +22,10 @@ module.exports = function MidgaardMainMap(mapDao, mobFactory) {
 				var mob = mobFactory.create();
 			}
 			
-			_logger.logInfo("The raw map looks like this = [" + _this.rawMap + "]");
-			var location = new Location({terrainType:"woodland", mob:mob});
+			//_logger.logInfo("The raw map looks like this = [" + _this.rawMap + "]");
+		var terrainType = _this.mapMatrix[targetCoordinates.y][targetCoordinates.x];
+			
+			var location = new Location({terrainType:terrainType, mob:mob});
 			return location;
 		}
 		else 
@@ -32,7 +34,8 @@ module.exports = function MidgaardMainMap(mapDao, mobFactory) {
 	
 	this.construct = function() {
 		_logger.logInfo("MidgaardMainMap.construct");
-		_this.rawMap = mapDao.load(_this.key);
+		var rawMap = mapDao.load(_this.key);
+		_this.mapMatrix = rawMap.match(/[^\r\n]+/g);
 	};
 	
 	_this.construct();
