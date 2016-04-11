@@ -159,7 +159,12 @@ function logInfo(msg) {
 
 function drawMapTile(xPos, yPos, terrainType) {
 	logInfo("drawMapTile called!");
-	var ctx = document.getElementById("mapCanvasLayer1").getContext("2d");
+	
+	var canvas = document.getElementById("mapCanvasLayer1");
+	//canvas.style.width  = "800px";
+	//canvas.style.height = "400px";
+
+	var ctx = canvas.getContext("2d");
 	//ctx.clearRect(0,0,200,200);	
 	//var img = new Image();
 	//img.src = "./resources/forest.png";
