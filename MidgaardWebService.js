@@ -1,6 +1,10 @@
 var http = require('http');
 var fs = require('fs');
+var MapDao = require('./map/MapDao.js');
+var Logger = require('./common/Logger.js');
 
+var _logger = new Logger();
+var _mapDao = new MapDao();
 var _loginDao = new LoginDao();
 var _hero = null;
 var _heroCache = {};
@@ -14,59 +18,45 @@ var _mobFactory = new MobFactory();
 //var _mob = new MobFactory().create();
 //var battle = new Battle(_hero, _mob);
 
-/************************ Common Methods **************/
-function logInfo(msg) {
-	console.log('[INFO]:' + msg);
-}
-
-function logError(msg) {
-	console.log('[ERROR]:' + msg);
-}
-	
-function logWarn(msg) {
-	console.log('[WARN]:' + msg);
-}
-
-
 
 /************************** LoginDao *************************/
 function LoginDao() {
 	var _this = this;
 		
 	this.exists = function(loginName) {
-		logInfo("LoginDao.exists");
+		_logger.logInfo("LoginDao.exists");
 		var fs = require("fs");
 		var fileName = "./logins/" + loginName + '.login';
 			
 		var fileFound = true;
 		try {
 			fs.accessSync(fileName, fs.F_OK);
-			logInfo("File [" + fileName + "] exists!");
+			_logger.logInfo("File [" + fileName + "] exists!");
 		}
 		catch(e) {
 			fileFound = false;
-			logError("File [" + fileName + "] does not exist!");
+			_logger.logError("File [" + fileName + "] does not exist!");
 		}
 		return fileFound;
 	};
 	
 	this.load = function(loginName) {
-		logInfo("LoginDao.load");
+		_logger.logInfo("LoginDao.load");
 		var fs = require("fs");
 		var fileName = "./logins/" + loginName + ".login";
 		var login = null;
 		
 		var heroJson = fs.readFileSync(fileName).toString();
 
-		logInfo("Login JSON [" + heroJson + "] loaded!");		
+		_logger.logInfo("Login JSON [" + heroJson + "] loaded!");		
 		login = JSON.parse(heroJson);
-		logInfo("Login [" + JSON.stringify(login) + "] loaded!");		
+		_logger.logInfo("Login [" + JSON.stringify(login) + "] loaded!");		
 		
 		return login;
 	};	
 	
 	this.save = function(login) {
-		logInfo("LoginDao.save");
+		_logger.logInfo("LoginDao.save");
 		var fs = require("fs");
 		
 		var updateTime = new Date();
@@ -80,7 +70,7 @@ function LoginDao() {
 	};	
 	
 	this.construct = function() {
-		logInfo("LoginDao.construct");
+		_logger.logInfo("LoginDao.construct");
   };
   
   _this.construct();
@@ -92,38 +82,38 @@ function HeroDao() {
 	var _this = this;
 		
 	this.exists = function(heroName) {
-		logInfo("HeroDao.exists");
+		_logger.logInfo("HeroDao.exists");
 		var fs = require("fs");
 		var fileName = "./heroes/" + heroName + '.hero';
 			
 		var fileFound = true;
 		try {
 			fs.accessSync(fileName, fs.F_OK);
-			logInfo("File [" + fileName + "] exists!");
+			_logger.logInfo("File [" + fileName + "] exists!");
 		}
 		catch(e) {
 			fileFound = false;
-			logWarn("File [" + fileName + "] does not exist!");
+			_logger.logWarn("File [" + fileName + "] does not exist!");
 		}
 		return fileFound;
 	};
 	
 	this.load = function(heroName) {
-		logInfo("HeroDao.load");
+		_logger.logInfo("HeroDao.load");
 		var fs = require("fs");
 		var fileName = "./heroes/" + heroName + '.hero';
 		var hero = null;
 		
 		var heroJson = fs.readFileSync(fileName).toString();
-		logInfo("Hero [" + heroName + "] loaded!");
-		logInfo("Hero JSON [" + heroJson + "] loaded!");
+		_logger.logInfo("Hero [" + heroName + "] loaded!");
+		_logger.logInfo("Hero JSON [" + heroJson + "] loaded!");
 		
 		hero = new Hero(JSON.parse(heroJson));		
 		return hero;
 	};	
 	
 	this.save = function(hero) {
-		logInfo("HeroDao.save");
+		_logger.logInfo("HeroDao.save");
 		var fs = require("fs");
 		var fileName = "./heroes/" + hero.name + '.hero';
 		
@@ -137,7 +127,7 @@ function HeroDao() {
 	};	
 	
 	this.construct = function() {
-		logInfo("HeroDao.construct");
+		_logger.logInfo("HeroDao.construct");
   };
   
   _this.construct();
@@ -153,7 +143,7 @@ function Login(name, password, heroes) {
 	this.heroes = heroes;
 	
 	this.construct = function() {
-		logInfo("Login.construct");
+		_logger.logInfo("Login.construct");
   };
   
   _this.construct();
@@ -177,7 +167,7 @@ function GameSession(loginName) {
 	};
 	
 	this.construct = function(loginName) {
-		logInfo("GameSession.construct");
+		_logger.logInfo("GameSession.construct");
 		_this.publicKey = generateUUID() + "_" + loginName;
   };
   
@@ -197,7 +187,7 @@ function Hero(anonObj) {
 	
 	// east, west, north, south, up, down
 	this.move = function(direction, mapFactory, battleCache)  {
-		logInfo("MidgaardMainMap.move");
+		_logger.logInfo("Hero.move");
 		var targetCoordinates = new Coordinate(_this.currentCoordinates);
 		if(direction == "west")
 			targetCoordinates.x--;
@@ -208,7 +198,7 @@ function Hero(anonObj) {
 		else if(direction == "south")
 			targetCoordinates.y++;
 		
-		logInfo("targetCoordinates=[" + JSON.stringify(targetCoordinates) + "]");
+		_logger.logInfo("targetCoordinates=[" + JSON.stringify(targetCoordinates) + "]");
 		
 		var targetLocation = mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
 		
@@ -223,7 +213,7 @@ function Hero(anonObj) {
 	};
 	
 	this.construct = function() {
-		logInfo("Hero.construct");
+		_logger.logInfo("Hero.construct");
     for (var prop in anonObj) this[prop] = anonObj[prop];
   };
   
@@ -234,7 +224,7 @@ function Hero(anonObj) {
 function Battle(hero, mob) {
 	var _this = this;
 	if(!hero || !mob) {
-		logError("Hero or mob was null!");
+		_logger.logError("Hero or mob was null!");
 		return;
 	}
 	
@@ -256,7 +246,7 @@ function Battle(hero, mob) {
   };
   
   this.attack = function(attacker, defender) {
-		logInfo("Battle.attack");
+		_logger.logInfo("Battle.attack");
   	defender.hp = defender.hp - attacker.atk;
   };
   
@@ -285,10 +275,10 @@ function Battle(hero, mob) {
   };
   
   this.nextRound = function(heroAtkType, mobAtkType) {
-  	logInfo("Battle.nextRound");
+  	_logger.logInfo("Battle.nextRound");
     
     if(_this.status.over) {
-			logInfo("battle is over!");
+			_logger.logInfo("battle is over!");
     	return;
 		}
       
@@ -310,14 +300,14 @@ function Battle(hero, mob) {
       }
     }
     
-    logInfo(JSON.stringify(_this.hero));
-		logInfo(JSON.stringify(_this.mob));
+    _logger.logInfo(JSON.stringify(_this.hero));
+		_logger.logInfo(JSON.stringify(_this.mob));
     //_this.drawP(_this.he);
     //_this.drawP(_this.mo);
   };
   
   this.construct = function() {
-		logInfo("Battle.construct");
+		_logger.logInfo("Battle.construct");
   	/*_this.drawB();
   	$("#nextR").click(function() { 
     	_this.nextR( {aT:"mel"}, {aT:"mel"} ); 
@@ -336,29 +326,29 @@ function MobFactory() {
 	this.mobKeys = new Array();
 	
 	this.create = function() {
-		logInfo("MobFactory.create");
+		_logger.logInfo("MobFactory.create");
 
 		var randomIndex = Math.round(Math.random()*(_this.mobKeys.length-1));
 		var randomMobKey = _this.mobKeys[randomIndex];
 		var randomMob = _this.mobs[randomMobKey];
 		
 		if(randomMob)
-			logInfo(JSON.stringify(randomMob));
+			_logger.logInfo(JSON.stringify(randomMob));
 		else
-			logError("No mob found!");
+			_logger.logError("No mob found!");
 		
 		return randomMob;
 	};
 	
 	this.addMob = function(mob) {
-		logInfo("MobFactory.addMob");
-		logInfo("name=" + mob.key);
+		_logger.logInfo("MobFactory.addMob");
+		_logger.logInfo("name=" + mob.key);
 		_this.mobKeys.push(mob.key);		
 		_this.mobs[mob.key] = mob;
 	};
 	
 	this.construct = function() {
-		logInfo("MobFactory.construct");
+		_logger.logInfo("MobFactory.construct");
 		_this.addMob({key: "rat", name: "Rat", hp:18, atk:3, luck:2, atkTypes:["melee", "ranged"]});
 		_this.addMob({key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"]});
 		_this.addMob({key: "rabbit", name: "Rabbit", hp:22, atk:1, luck:2, atkTypes:["melee"]});
@@ -375,32 +365,32 @@ function MapFactory() {
 	this.maps = {};
 	
 	this.create = function(mapKey) {
-		logInfo("MapFactory.create");
+		_logger.logInfo("MapFactory.create");
 		var map = _this.maps[mapKey];
 		return map;
 	};
 	
 	this.addMap = function(map) {
-		logInfo("MapFactory.addMap");
+		_logger.logInfo("MapFactory.addMap");
 		_this.maps[map.key] = map;
 	};
 	
 	this.construct = function() {
-		logInfo("MobFactory.construct");
-		_this.addMap(new MidgaardMainMap());
+		_logger.logInfo("MobFactory.construct");
+		_this.addMap(new MidgaardMainMap(_mapDao));
 	};
 	
 	_this.construct();
 }
 
-function MidgaardMainMap() {
+function MidgaardMainMap(mapDao) {
 	var _this = this;
-	this.key = "MidgaardMainMap";
+	this.key = "midgaard-main";
 	this.name = "Midgaard main map";
 	this.locations = new Array();
 	
 	this.getLocation = function(targetCoordinates) {
-		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 100) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 100)  ) {
+		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 20) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 20)  ) {
 			var possibleMobKeys = ["rat", "beetle", "spider"];
 			var mobProbability = 0.20;
 			var mob = null;
@@ -419,7 +409,8 @@ function MidgaardMainMap() {
 	};
 	
 	this.construct = function() {
-		logInfo("MidgaardMainMap.construct");
+		_logger.logInfo("MidgaardMainMap.construct");
+		mapDao.load(_this.key);
 	};
 	
 	_this.construct();
@@ -432,7 +423,7 @@ function Coordinate(anonObj) {
 	this.z = 0;
 	
 	this.construct = function() {
-		logInfo("Coordinate.construct");
+		_logger.logInfo("Coordinate.construct");
     for (var prop in anonObj) this[prop] = anonObj[prop];
   };
   
@@ -445,7 +436,7 @@ function Location(anonObj) {
 	this.mob = null;
 	
 	this.construct = function() {
-		logInfo("Coordinate.construct");
+		_logger.logInfo("Coordinate.construct");
     for (var prop in anonObj) this[prop] = anonObj[prop];
   };
   
@@ -461,8 +452,8 @@ http.createServer(function (request, response) {
 	response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 	response.setHeader('Access-Control-Allow-Credentials', true);	
 	
-  logInfo("Request.url=" + request.url);
-	logInfo("Request.method=" + request.method);
+  _logger.logInfo("Request.url=" + request.url);
+	_logger.logInfo("Request.method=" + request.method);
   
   if(request.url == "/about") {
 		response.writeHead(200, {'Content-Type': 'application/json'});	
@@ -484,7 +475,7 @@ http.createServer(function (request, response) {
 		
 		request.on('end', function() {			
 			// request ended -> do something with the data
-			logInfo("creating login for [" + postData + "].....");
+			_logger.logInfo("creating login for [" + postData + "].....");
 			var loginRequest = JSON.parse(postData);
 			
 			if(loginRequest && loginRequest.name && loginRequest.name.length > 5) {
@@ -521,7 +512,7 @@ http.createServer(function (request, response) {
 		
 		request.on('end', function() {			
 			// request ended -> do something with the data
-			logInfo("Logging in [" + postData + "].....");
+			_logger.logInfo("Logging in [" + postData + "].....");
 			var clientLogin = JSON.parse(postData);
 			
 			if(_loginDao.exists(clientLogin.name)) {
@@ -533,7 +524,7 @@ http.createServer(function (request, response) {
 						var gameSession = new GameSession(serverLogin.name);
 						gameSession.data = serverLogin;
 						serverLogin.activeHero = null;
-						logInfo("publicKey=[" + gameSession.publicKey + "]");
+						_logger.logInfo("publicKey=[" + gameSession.publicKey + "]");
 						_loginCache[gameSession.publicKey] = serverLogin;
 						response.write(JSON.stringify(gameSession));
 					}
@@ -742,7 +733,7 @@ http.createServer(function (request, response) {
 		request.on('end', function() {
 			// request ended -> do something with the data				
 			
-			logInfo(postData);
+			_logger.logInfo(postData);
 			var serverLogin = null;
 			var gameSession = null;
 			var serverLogin  = null;
@@ -752,16 +743,16 @@ http.createServer(function (request, response) {
 				serverLogin = _loginCache[gameSession.publicKey]
 			}
 			catch(ex) {
-				logError(ex);
+				_logger.logError(ex);
 			}
 			
 			if(serverLogin) {
-				logInfo("Public key found!, creating a new hero...");
+				_logger.logInfo("Public key found!, creating a new hero...");
 				
 				var newHeroRequest = gameSession.data;
 				
 				if(!_heroDao.exists(newHeroRequest.name)) {
-					var newHero = new Hero( { name:newHeroRequest.name, hp:20, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"MidgaardMainMap", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
+					var newHero = new Hero( { name:newHeroRequest.name, hp:20, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
 					_heroDao.save(newHero);
 					if(!serverLogin.heroes)
 						serverLogin.heroes = {};
@@ -773,20 +764,20 @@ http.createServer(function (request, response) {
 					response.write(JSON.stringify(newHero));
 				}
 				else {
-					logError("Unable to create new hero, as a hero with this name already exists!");
+					_logger.logError("Unable to create new hero, as a hero with this name already exists!");
 					response.writeHead(500, {'Content-Type': 'application/json'});
 					response.write('{ "error": "Unable to create new hero, as a hero with this name already exists!"}');
 				}
 			}
 			else {
-				logError("Unable to find public key, please try to login again!");
+				_logger.logError("Unable to find public key, please try to login again!");
 				response.writeHead(500, {'Content-Type': 'application/json'});
 				response.write('{ "error": "Unable to find public key, please try to login again!"}');
 			}
 			
 			/*
 			if(!_heroDao.exists(heroName)) {
-				var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "MidgaardMainMap", {x:0,y:0,z:0});
+				var newHero = new Hero(heroName, 20, 3, 3, ["melee", "magic"], "midgaard-main", {x:0,y:0,z:0});
 				_heroDao.save(newHero);
 				success = true;
 			}*/
@@ -801,15 +792,7 @@ http.createServer(function (request, response) {
   }
 }).listen(1337, "127.0.0.1");
 
-logInfo('Server running at http://127.0.0.1:1337/');
-
-
-
-
-
-
-
-
+_logger.logInfo('Server running at http://127.0.0.1:1337/');
 
 
 
@@ -852,3 +835,18 @@ if (req.method == 'POST') {
 //chooseHero
 //move
 //nextRound
+
+
+
+/*
+user.js
+
+module.exports = function User()
+{
+    //...
+}
+server.js
+
+var User = require('./user.js');
+var user = new User();
+*/
