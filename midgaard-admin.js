@@ -22,6 +22,13 @@ $(function() {
 	$("#btnLeaveTown").click(function() {leaveTown();});
   
 	$("#gSessionId").html("gSessionId: N/A");
+	
+	$("body").keypress(function(e) { 
+			if(e.which == 100 || e.which == 97 || e.which == 115 || e.which == 119) {
+				e.preventDefault();
+				moveHero(e.which);
+			}
+	});
 });
 
 function enterTown() {
@@ -52,11 +59,20 @@ function leaveTownSuccess(data) {
 		var name = data.name;
 		var mapMatrix = data.mapMatrix;
 		
+		var canvasLayer1 = document.getElementById("mapCanvasLayer1");
+		canvasLayer1.width = 700;
+		canvasLayer1.height = 300;
+		
 		for(var yIndex in mapMatrix) {
 			for(var xIndex in mapMatrix[yIndex]) {
-				drawMapTile(xIndex*32,yIndex*32,mapMatrix[yIndex][xIndex]);
+				drawMapTile(canvasLayer1, xIndex*32,yIndex*32,mapMatrix[yIndex][xIndex]);
 			}
 		}
+		
+		var canvasLayer2 = document.getElementById("mapCanvasLayer2");
+		canvasLayer2.width = 700;
+		canvasLayer2.height = 300;
+		drawHeroMapIcon(canvasLayer2,0,0);
 	}
 }
 
@@ -157,10 +173,9 @@ function logInfo(msg) {
 	$("#status").prepend("[INFO]: " + msg + "<br/>");
 }
 
-function drawMapTile(xPos, yPos, terrainType) {
+function drawMapTile(canvas, xPos, yPos, terrainType) {
 	logInfo("drawMapTile called!");
 	
-	var canvas = document.getElementById("mapCanvasLayer1");
 	//canvas.style.width  = "800px";
 	//canvas.style.height = "400px";
 
@@ -184,6 +199,31 @@ function drawMapTile(xPos, yPos, terrainType) {
 	ctx.drawImage(img,xPos,yPos,32,32);
 }
 
+function drawHeroMapIcon(canvas, xPos, yPos) {
+	logInfo("drawMapTile called!");
+	var ctx = canvas.getContext("2d");
+	ctx.clearRect(0,0,700,300);
+	var img = document.getElementById("heroMapIcon");
+	ctx.drawImage(img,xPos,yPos,32,32);
+}
+
+var currentHeroXPos = 0;
+var currentHeroYPos = 0;
+function moveHero(keyCode) {	
+	var stepSize = 32;
+	if(keyCode == 100) // D which is right
+		currentHeroXPos = currentHeroXPos+stepSize;    		
+	if(keyCode == 119) // W which is up
+		currentHeroYPos = currentHeroYPos-stepSize;    		
+	if(keyCode == 97) // A which is left
+		currentHeroXPos = currentHeroXPos-stepSize;    		
+	if(keyCode == 115) // S which is down
+		currentHeroYPos = currentHeroYPos+stepSize;    		        
+		
+	var canvasLayer2 = document.getElementById("mapCanvasLayer2");		
+	drawHeroMapIcon(canvasLayer2, currentHeroXPos, currentHeroYPos);
+};
+
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {
 	$.ajax({
@@ -206,16 +246,6 @@ function callMethod(host, methodName, data, fnSuccess, fnError) {
 			complete : function() {}
 	});
 }
-
-
-
-
-
-
-
-
-
-
 
 
 function callMethodJsonp(host, methodName, data) {

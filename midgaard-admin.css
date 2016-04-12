@@ -19,16 +19,30 @@ h1 {
 
 #status {
 	background-color: black;
-	color: yellow;
-	width: 800px;
-	height: 140px;
-	overflow: auto;
-	padding: 6px;
-	margin: 4px;
+	color: yellow; width: 800px;height: 140px;
+	overflow: auto;	padding: 6px;	margin: 4px;
+	position: relative;
 }
 
 .function {
 	border: black;
 	background-color: grey;
 	margin: 4px;
+}
+
+#mapContainer {
+	position:relative; height: 300px;
+	background-image: url('./resources/parchment.jpg'); background-repeat: no-repeat;
+	background-size: 700px 300px;
+}
+
+#mapCanvasLayer1 {
+	width: 700px; height: 300px;
+	border: solid 1px;
+	position: absolute; top:0px; left: 0px; z-index: 0;
+}
+
+#mapCanvasLayer2 {
+	width: 700px; height: 300px;
+	position: absolute; top:0px; left: 0px; z-index: 1;
 }
