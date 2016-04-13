@@ -174,7 +174,6 @@ function logInfo(msg) {
 }
 
 function drawMapTile(canvas, xPos, yPos, terrainType) {
-	logInfo("drawMapTile called!");
 	
 	//canvas.style.width  = "800px";
 	//canvas.style.height = "400px";
@@ -191,16 +190,19 @@ function drawMapTile(canvas, xPos, yPos, terrainType) {
 		img = document.getElementById("mountains");
 	else if(terrainType == "h")
 		img = document.getElementById("mountains");		
-	else if(terrainType == "c")
+	else if(terrainType == "t")
 		img = document.getElementById("town");
 	else if(terrainType == "r")
-		img = document.getElementById("road");				
-		
-	ctx.drawImage(img,xPos,yPos,32,32);
+		img = document.getElementById("road");	
+
+	if(!img)
+		logInfo("The image for terrainType [" + terrainType + "] was not found!");
+	else
+		ctx.drawImage(img,xPos,yPos,32,32);
 }
 
 function drawHeroMapIcon(canvas, xPos, yPos) {
-	logInfo("drawMapTile called!");
+	logInfo("drawHeroMapIcon called!");
 	var ctx = canvas.getContext("2d");
 	ctx.clearRect(0,0,700,300);
 	var img = document.getElementById("heroMapIcon");
