@@ -1,0 +1,7 @@
+{
+	"w":{"terrainType":"woods"},
+	"h":{"terrainType":"hills"},
+	"t":{"terrainType":"town"},
+	"s":{"terrainType":"sea"}
+	"r":{"terrainType":"road"}
+}
