@@ -10,16 +10,18 @@ module.exports = function MidgaardMainMap(mapDao) {
 	this.name = "Midgaard main map";
 	this.locations = new Array();
 	this.mapMatrix = null;
+	this.mapDefinition = null;
 	
 	var mapDao = mapDao;
 	var mobFactory = new MobFactory();
 	
 	var getTerrainType = function(terrainChar) {
-		if(terrainChar == "w") return "woods";
-		if(terrainChar == "r") return "road";
-		if(terrainChar == "c") return "city";
-		if(terrainChar == "m") return "mountains";
-		if(terrainChar == "h") return "hill";
+		_logger.logInfo("terrainChar [" + terrainChar + "] translated into [" + _this.mapDefinition[terrainChar].terrainType + "]");
+		var mapDefinitionEntry = _this.mapDefinition[terrainChar];
+		
+		if(mapDefinitionEntry)
+			return mapDefinitionEntry.terrainType;
+		
 		return null;
 	};
 	
@@ -51,6 +53,7 @@ module.exports = function MidgaardMainMap(mapDao) {
 		var mob = mobFactory.create();
 		var rawMap = mapDao.load(_this.key);
 		_this.mapMatrix = rawMap.match(/[^\r\n]+/g);
+		_this.mapDefinition = JSON.parse(mapDao.loadDefinition(_this.key));
 	};
 	
 	_this.construct();

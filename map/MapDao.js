@@ -7,7 +7,7 @@ module.exports = function MapDao() {
 	this.exists = function(mapName) {
 		_logger.logInfo("MapDao.exists");
 		var fs = require("fs");
-		var fileName = "./map/" + mapName + '.map';
+		var fileName = "./resources/maps/" + mapName + '.map';
 			
 		var fileFound = true;
 		try {
@@ -24,11 +24,23 @@ module.exports = function MapDao() {
 	this.load = function(mapName) {
 		_logger.logInfo("MapDao.load");
 		var fs = require("fs");
-		var fileName = "./map/" + mapName + '.map';
+		var fileName = "./resources/maps/" + mapName + '.map';
 		
 		var raw = fs.readFileSync(fileName).toString();
 		_logger.logInfo("Map [" + mapName + "] loaded!");
-		_logger.logInfo("Map JSON [" + raw + "] loaded!");
+		_logger.logInfo("Map JSON is [" + raw + "]!");
+		
+		return raw;
+	};
+	
+	this.loadDefinition = function(mapName) {
+		_logger.logInfo("MapDao.loadDefinition");
+		var fs = require("fs");
+		var fileName = "./resources/maps/" + mapName + '.map.definition';
+		
+		var raw = fs.readFileSync(fileName).toString();
+		_logger.logInfo("Map definition for [" + mapName + "] loaded!");
+		_logger.logInfo("Map definition JSON is [" + raw + "]!");
 		
 		return raw;
 	};		

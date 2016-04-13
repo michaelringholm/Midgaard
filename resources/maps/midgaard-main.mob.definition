@@ -1,0 +1,7 @@
+{
+	"a":{"mobs":[{"name":"Rabbit", "level":"1", "probability":"15", "xp":"30", "copper":"2"}]},
+	"b":{"mobs":[{"name":"Beetle", "level":"1", "probability":"15", "xp":"40", "copper":"12"}]},
+	"c":{"mobs":[{"name":"Spider", "level":"1", "probability":"15", "xp":"50", "copper":"8"}]},
+	"d":{"mobs":[{"name":"Fox", "level":"1", "probability":"15", "xp":"60", "copper":"5"}]},
+	"-":{"mobs":[]}
+}
