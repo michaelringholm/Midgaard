@@ -59,9 +59,9 @@ function leaveTownSuccess(data) {
 		var name = data.name;
 		var mapMatrix = data.mapMatrix;
 		
-		var canvasLayer1 = document.getElementById("mapCanvasLayer1");
-		canvasLayer1.width = 700;
-		canvasLayer1.height = 300;
+		var canvasLayer1 = document.getElementById("canvasLayer1");
+		canvasLayer1.width = 650;
+		canvasLayer1.height = 220;
 		
 		for(var yIndex in mapMatrix) {
 			for(var xIndex in mapMatrix[yIndex]) {
@@ -69,9 +69,9 @@ function leaveTownSuccess(data) {
 			}
 		}
 		
-		var canvasLayer2 = document.getElementById("mapCanvasLayer2");
-		canvasLayer2.width = 700;
-		canvasLayer2.height = 300;
+		var canvasLayer2 = document.getElementById("canvasLayer2");
+		canvasLayer2.width = 650;
+		canvasLayer2.height = 220;
 		drawHeroMapIcon(canvasLayer2,0,0);
 	}
 }
@@ -118,7 +118,7 @@ function moveSuccess(data) {
 		if(data.terrainType) { // The move resulted in an actual move
 			var location = data;
 			var targetCoordinates = location.targetCoordinates;
-			var canvasLayer2 = document.getElementById("mapCanvasLayer2");
+			var canvasLayer2 = document.getElementById("canvasLayer2");
 			drawHeroMapIcon(canvasLayer2, targetCoordinates.x, targetCoordinates.y);
 			logInfo("you moved to a new location");
 		}
