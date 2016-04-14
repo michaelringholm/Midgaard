@@ -1,1 +1,1 @@
-{"name":"Krom","hp":20,"atk":3,"luck":3,"atkTypes":["melee","magic"],"currentMapKey":"midgaard-main","currentCoordinates":{"x":2,"y":3,"z":0},"isInBattle":true}
+{"name":"Krom","hp":20,"atk":3,"luck":3,"atkTypes":["melee","magic"],"currentMapKey":"midgaard-main","currentCoordinates":{"x":9,"y":0,"z":0},"isInBattle":true}

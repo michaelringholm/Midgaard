@@ -208,12 +208,13 @@ function drawMapTile(canvas, xPos, yPos, terrainType) {
 		ctx.drawImage(img,xPos,yPos,32,32);
 }
 
+var pixelMultiplier = 32;
 function drawHeroMapIcon(canvas, xPos, yPos) {
 	logInfo("drawHeroMapIcon called!");
 	var ctx = canvas.getContext("2d");
 	ctx.clearRect(0,0,700,300);
 	var img = document.getElementById("heroMapIcon");
-	ctx.drawImage(img,xPos,yPos,32,32);
+	ctx.drawImage(img,xPos*pixelMultiplier,yPos*pixelMultiplier,32,32);
 }
 
 //var currentHeroXPos = 0;
