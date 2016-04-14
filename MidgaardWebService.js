@@ -4,7 +4,11 @@ var fs = require('fs');
 // IMPORTS
 var Logger = require('./common/Logger.js');
 var MapDao = require('./map/MapDao.js');
+var HeroDao = require('./hero/HeroDao.js');
+var Hero = require('./hero/Hero.js');
+var Battle = require('./battle/Battle.js');
 var MobFactory = require('./mob/MobFactory.js');
+var MapFactory = require('./map/MapFactory.js');
 var MidgaardMainMap = require('./map/MidgaardMainMap.js');
 var Coordinate = require('./map/Coordinate.js');
 var Location = require('./map/Location.js');
@@ -18,7 +22,7 @@ var _loginCache = {};
 var _battleCache = {};
 
 var _heroDao = new HeroDao();
-var _mapFactory = new MapFactory();
+var _mapFactory = new MapFactory(_mapDao);
 var _mobFactory = new MobFactory();
 
 //var _mob = new MobFactory().create();
@@ -82,65 +86,6 @@ function LoginDao() {
   _this.construct();
 }
 
-
-/************************** HeroDao *************************/
-function HeroDao() {
-	var _this = this;
-		
-	this.exists = function(heroName) {
-		_logger.logInfo("HeroDao.exists");
-		var fs = require("fs");
-		var fileName = "./heroes/" + heroName + '.hero';
-			
-		var fileFound = true;
-		try {
-			fs.accessSync(fileName, fs.F_OK);
-			_logger.logInfo("File [" + fileName + "] exists!");
-		}
-		catch(e) {
-			fileFound = false;
-			_logger.logWarn("File [" + fileName + "] does not exist!");
-		}
-		return fileFound;
-	};
-	
-	this.load = function(heroName) {
-		_logger.logInfo("HeroDao.load");
-		var fs = require("fs");
-		var fileName = "./heroes/" + heroName + '.hero';
-		var hero = null;
-		
-		var heroJson = fs.readFileSync(fileName).toString();
-		_logger.logInfo("Hero [" + heroName + "] loaded!");
-		_logger.logInfo("Hero JSON [" + heroJson + "] loaded!");
-		
-		hero = new Hero(JSON.parse(heroJson));		
-		return hero;
-	};	
-	
-	this.save = function(hero) {
-		_logger.logInfo("HeroDao.save");
-		var fs = require("fs");
-		var fileName = "./heroes/" + hero.name + '.hero';
-		
-		var updateTime = new Date();
-		fs.writeFile(fileName, JSON.stringify(hero),  function(err) {
-			if (err) {
-				return console.error(err);
-			}
-			console.log("Data written successfully!");
-		});
-	};	
-	
-	this.construct = function() {
-		_logger.logInfo("HeroDao.construct");
-  };
-  
-  _this.construct();
-}
-
-
-
 /********* Login *************/
 function Login(name, password, heroes) {
 	var _this = this;
@@ -179,175 +124,6 @@ function GameSession(loginName) {
   
   _this.construct(loginName);
 }
-
-/********* Hero *************/
-function Hero(anonObj) {
-	var _this = this;
-	this.name = "";
-	this.hp = 0;
-	this.atk = 0;
-	this.luck = 0;
-	this.atkTypes = [];
-	this.currentMapKey = "";
-	this.currentCoordinates = {};
-	
-	// east, west, north, south, up, down
-	this.move = function(direction, mapFactory, battleCache)  {
-		_logger.logInfo("Hero.move");
-		var targetCoordinates = new Coordinate(_this.currentCoordinates);
-		if(direction == "west")
-			targetCoordinates.x--;
-		else if(direction == "east")
-			targetCoordinates.x++;
-		else if(direction == "north")
-			targetCoordinates.y--;		
-		else if(direction == "south")
-			targetCoordinates.y++;
-		
-		_logger.logInfo("targetCoordinates=[" + JSON.stringify(targetCoordinates) + "]");
-		
-		var targetLocation = mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
-		
-		if(targetLocation) {
-			_this.currentCoordinates = targetCoordinates;
-			if(targetLocation.mob) {
-				battleCache[_this.name] = new Battle(this, targetLocation.mob);
-			}
-		}
-		
-		return targetLocation;
-	};
-	
-	this.construct = function() {
-		_logger.logInfo("Hero.construct");
-    for (var prop in anonObj) this[prop] = anonObj[prop];
-  };
-  
-  _this.construct();
-}
-
-/****** battle ************/
-function Battle(hero, mob) {
-	var _this = this;
-	if(!hero || !mob) {
-		_logger.logError("Hero or mob was null!");
-		return;
-	}
-	
-	this.hero = hero;
-  this.mob =  mob;
-	this.status = {over:false, winner:"", loser:""};
-  
-	this.getVersion = function() {
-		return "0.0.0.2";  
-  };
-  
-  this.drawB = function() {
-  	_this.drawP(_this.hero);
-    _this.drawP(_this.mob);
-  };
-  
-  this.drawP = function(p) {
-  	//$(p.div).html("a:" + p.a + " # h:" + p.h);
-  };
-  
-  this.attack = function(attacker, defender) {
-		_logger.logInfo("Battle.attack");
-  	defender.hp = defender.hp - attacker.atk;
-  };
-  
-  this.getFirstUp = function(playerX, playerY) {
-  	if(playerX.luck > playerY.luck)
-    	return playerX;
-    
-    return playerY;
-  };
-  
-  this.getSecondUp = function(playerX, playerY) {
-  	if(playerX.luck > playerY.luck)
-    	return playerY;
-    
-    return pX;
-  };
-  
-  this.updateStatus = function(msg) {
-  	//$("#status").html(msg);
-  };
-  
-  this.battleEnded = function(winner, loser) {
-		_this.status.winner = winner.name;
-		_this.status.loser = loser.name;
-		_this.updateStatus(winner.name + " W! and " + loser.name + " L!");
-  };
-  
-  this.nextRound = function(heroAtkType, mobAtkType) {
-  	_logger.logInfo("Battle.nextRound");
-    
-    if(_this.status.over) {
-			_logger.logInfo("battle is over!");
-    	return;
-		}
-      
-  	var firstUp = _this.getFirstUp(_this.hero, _this.mob);
-    var secondUp = _this.getSecondUp(_this.hero, _this.mob);
-    
-  	_this.attack(firstUp, secondUp);
-    
-    if(secondUp.hp <= 0) {
-			_this.battleEnded(firstUp, secondUp);
-			_this.status.over = true;
-    }
-    else {
-    	_this.attack(secondUp, firstUp);
-    	
-      if(firstUp.hp <= 0) {
-				_this.battleEnded(secondUp, firstUp);
-      	_this.status.over = true;
-      }
-    }
-    
-    _logger.logInfo(JSON.stringify(_this.hero));
-		_logger.logInfo(JSON.stringify(_this.mob));
-    //_this.drawP(_this.he);
-    //_this.drawP(_this.mo);
-  };
-  
-  this.construct = function() {
-		_logger.logInfo("Battle.construct");
-  	/*_this.drawB();
-  	$("#nextR").click(function() { 
-    	_this.nextR( {aT:"mel"}, {aT:"mel"} ); 
-    });*/
-  };
-  
-  _this.construct();
-}
-
-
-/***************** MapFactory ***************/
-function MapFactory() {
-	var _this = this;
-	this.maps = {};
-	
-	this.create = function(mapKey) {
-		_logger.logInfo("MapFactory.create");
-		var map = _this.maps[mapKey];
-		return map;
-	};
-	
-	this.addMap = function(map) {
-		_logger.logInfo("MapFactory.addMap");
-		_this.maps[map.key] = map;
-	};
-	
-	this.construct = function() {
-		_logger.logInfo("MobFactory.construct");
-		_this.addMap(new MidgaardMainMap(_mapDao));
-	};
-	
-	_this.construct();
-}
-
 
 /*********** WEB SERVER ****************/
 http.createServer(function (request, response) {
@@ -751,9 +527,7 @@ _logger.logInfo('Server running at http://127.0.0.1:1337/');
 
 
 
-
-
-/*
+/***** OBSOLETE ******
 if (req.method == 'POST') {
     console.log("[200] " + req.method + " to " + req.url);
     var fullBody = '';
@@ -780,18 +554,6 @@ if (req.method == 'POST') {
     });
     
   }
-  */
-	
-	
-	//createLogin
-//createHero
-//login
-//chooseHero
-//move
-//nextRound
-
-
-
 /*
 user.js
 

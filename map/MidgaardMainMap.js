@@ -34,8 +34,11 @@ module.exports = function MidgaardMainMap(mapDao) {
 			if(Math.random() < mobProbability) {
 				//var mobIndex = Math.Round(Math.random()*possibleMobKeys.length));
 				//var mob = 
+				logInfo("Monsters found!");
 				var mob = mobFactory.create();
 			}
+			else
+				logInfo("No monsters here!");
 			
 			//_logger.logInfo("The raw map looks like this = [" + _this.rawMap + "]");
 			var terrainChar = _this.mapMatrix[targetCoordinates.y][targetCoordinates.x];

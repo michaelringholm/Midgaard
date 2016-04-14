@@ -101,8 +101,12 @@ function nextRoundFailed(errorMsg) {
 	logInfo(errorMsg);
 }
 
-function move() {
-	gameSession.direction = $("#direction").val();	
+function move(direction) {
+	if(!direction)
+		gameSession.direction = $("#direction").val();
+	else
+		gameSession.direction = direction;
+	
 	callMethod("http://localhost:1337", "move", gameSession, moveSuccess, moveFailed);
 }
 
@@ -213,17 +217,32 @@ var currentHeroXPos = 0;
 var currentHeroYPos = 0;
 function moveHero(keyCode) {	
 	var stepSize = 32;
-	if(keyCode == 100) // D which is right
+	var direction = null;
+	
+	if(keyCode == 100) { // D which is east
 		currentHeroXPos = currentHeroXPos+stepSize;    		
-	if(keyCode == 119) // W which is up
+		direction = "east";
+	}
+	if(keyCode == 119) { // W which is north
 		currentHeroYPos = currentHeroYPos-stepSize;    		
-	if(keyCode == 97) // A which is left
+		direction = "north";
+	}		
+	if(keyCode == 97) { // A which is west
 		currentHeroXPos = currentHeroXPos-stepSize;    		
-	if(keyCode == 115) // S which is down
+		direction = "west";
+	}		
+	if(keyCode == 115) { // S which is south
 		currentHeroYPos = currentHeroYPos+stepSize;    		        
+		direction = "south";
+	}		
 		
-	var canvasLayer2 = document.getElementById("mapCanvasLayer2");		
-	drawHeroMapIcon(canvasLayer2, currentHeroXPos, currentHeroYPos);
+	if(direction) {
+		move(direction);
+		var canvasLayer2 = document.getElementById("mapCanvasLayer2");
+		drawHeroMapIcon(canvasLayer2, currentHeroXPos, currentHeroYPos);
+	}
+	else
+		logInfo("Invalid move direction!");
 };
 
 
