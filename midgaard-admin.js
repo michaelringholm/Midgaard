@@ -115,11 +115,14 @@ function moveSuccess(data) {
 	logInfo(JSON.stringify(data));
 	
 	if(data) {
-		if(data.terrainType) {
+		if(data.terrainType) { // The move resulted in an actual move
 			var location = data;
+			var targetCoordinates = location.targetCoordinates;
+			var canvasLayer2 = document.getElementById("mapCanvasLayer2");
+			drawHeroMapIcon(canvasLayer2, targetCoordinates.x, targetCoordinates.y);
 			logInfo("you moved to a new location");
 		}
-		else if(data.hero && data.mob) {
+		else if(data.hero && data.mob) { // The move resulted in a fight
 			var battle = data;
 			logInfo("you were surprised by monsters!");
 		}
@@ -213,33 +216,31 @@ function drawHeroMapIcon(canvas, xPos, yPos) {
 	ctx.drawImage(img,xPos,yPos,32,32);
 }
 
-var currentHeroXPos = 0;
-var currentHeroYPos = 0;
+//var currentHeroXPos = 0;
+//var currentHeroYPos = 0;
 function moveHero(keyCode) {	
 	var stepSize = 32;
 	var direction = null;
 	
 	if(keyCode == 100) { // D which is east
-		currentHeroXPos = currentHeroXPos+stepSize;    		
+		//currentHeroXPos = currentHeroXPos+stepSize;    		
 		direction = "east";
 	}
 	if(keyCode == 119) { // W which is north
-		currentHeroYPos = currentHeroYPos-stepSize;    		
+		//currentHeroYPos = currentHeroYPos-stepSize;    		
 		direction = "north";
 	}		
 	if(keyCode == 97) { // A which is west
-		currentHeroXPos = currentHeroXPos-stepSize;    		
+		//currentHeroXPos = currentHeroXPos-stepSize;    		
 		direction = "west";
 	}		
 	if(keyCode == 115) { // S which is south
-		currentHeroYPos = currentHeroYPos+stepSize;    		        
+		//currentHeroYPos = currentHeroYPos+stepSize;    		        
 		direction = "south";
 	}		
 		
 	if(direction) {
-		move(direction);
-		var canvasLayer2 = document.getElementById("mapCanvasLayer2");
-		drawHeroMapIcon(canvasLayer2, currentHeroXPos, currentHeroYPos);
+		move(direction);		
 	}
 	else
 		logInfo("Invalid move direction!");

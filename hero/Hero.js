@@ -1,5 +1,6 @@
 var Logger = require('../common/Logger.js');
 var Battle = require('../battle/Battle.js');
+var Coordinate = require('../map/Coordinate.js');
 
 var _logger = new Logger();
 
