@@ -1,10 +1,19 @@
 var gameSession = {};
 var canvasLayer1 = document.getElementById("canvasLayer1");
 var canvasLayer2 = document.getElementById("canvasLayer2");
+var canvasHeight = 0;
+var canvasWidth = 0;
 
 $(function() {	
 	canvasLayer1 = document.getElementById("canvasLayer1");
 	canvasLayer2 = document.getElementById("canvasLayer2");
+	canvasWidth = 800;
+	canvasHeight = 300;
+	canvasLayer1.width = canvasWidth;
+	canvasLayer1.height = canvasHeight;
+	canvasLayer2.width = canvasWidth;
+	canvasLayer2.height = canvasHeight;
+		
 	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
 	$("#btnCreateLogin").click(function() { callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed); });
 			
@@ -64,17 +73,13 @@ function leaveTownSuccess(data) {
 		var mapMatrix = data.map.mapMatrix;
 		var hero = data.hero;
 		
-		canvasLayer1.width = 650;
-		canvasLayer1.height = 220;
-		
 		for(var yIndex in mapMatrix) {
 			for(var xIndex in mapMatrix[yIndex]) {
 				drawMapTile(canvasLayer1, xIndex*32,yIndex*32,mapMatrix[yIndex][xIndex]);
 			}
 		}
 		
-		canvasLayer2.width = 650;
-		canvasLayer2.height = 220;
+
 		drawHeroMapIcon(canvasLayer2,hero.currentCoordinates.x,hero.currentCoordinates.y);
 	}
 }
@@ -90,11 +95,11 @@ function nextRound() {
 
 function nextRoundSuccess(data) {
 	logInfo("next round OK!");
-	logInfo(JSON.stringify(data));
 	
 	if(data) {
 		if(data.hero && data.mob) {
 			var battle = data;
+			drawBattleScreen(battle);
 			logInfo("Next round completed!");
 		}
 	}
@@ -190,14 +195,7 @@ function logInfo(msg) {
 }
 
 function drawMapTile(canvas, xPos, yPos, terrainType) {
-	
-	//canvas.style.width  = "800px";
-	//canvas.style.height = "400px";
-
 	var ctx = canvas.getContext("2d");
-	//ctx.clearRect(0,0,200,200);	
-	//var img = new Image();
-	//img.src = "./resources/forest.png";
 	var img = null;
 	
 	if(terrainType == "w")
@@ -221,7 +219,7 @@ var pixelMultiplier = 32;
 function drawHeroMapIcon(canvas, xPos, yPos) {
 	logInfo("drawHeroMapIcon called!");
 	var ctx = canvas.getContext("2d");
-	ctx.clearRect(0,0,700,300);
+	ctx.clearRect(0,0,canvasWidth,canvasHeight);
 	var img = document.getElementById("heroMapIcon");
 	ctx.drawImage(img,xPos*pixelMultiplier,yPos*pixelMultiplier,32,32);
 }
@@ -259,15 +257,24 @@ function moveHero(keyCode) {
 function drawBattleScreen(battle) {
 	var ctx1 = canvasLayer1.getContext("2d");
 	var ctx2 = canvasLayer2.getContext("2d");
-	ctx1.clearRect(0,0,700,300);
-	ctx2.clearRect(0,0,700,300);
+	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
+	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
 	//var img = new Image();
 	//img.src = "./resources/forest.png";
 	var mobImg = document.getElementById("wildBoar");
 	var heroImg = document.getElementById("warriorHero");
+	if(battle.hero.hp <= 0)
+		heroImg = document.getElementById("dead");
+	if(battle.mob.hp <= 0)
+		mobImg = document.getElementById("dead");
 	
-	ctx1.drawImage(mobImg,30,30,48,102);
-	ctx1.drawImage(heroImg,230,30,48,102);
+	ctx1.drawImage(heroImg,50,50,120,190);
+	ctx1.drawImage(mobImg,450,50,120,190);
+	//ctx1.drawImage(mobImg,450,50,378,600,0,0,120,190);
+	
+	ctx1.font = "22px Arial";
+  ctx1.fillText(battle.hero.hp + " HP",80,30);
+	ctx1.fillText(battle.mob.hp + " HP",480,30);
 }
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {

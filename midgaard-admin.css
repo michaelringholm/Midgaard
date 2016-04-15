@@ -31,18 +31,18 @@ h1 {
 }
 
 #container {
-	position:relative; height: 220px; width: 650px;
+	position:relative; height: 300px; width: 800px;
 	background-image: url('./resources/images/parchment.jpg'); background-repeat: no-repeat;
-	background-size: 650px 220px;
+	background-size: 800px 300px;
 }
 
 #canvasLayer1 {
-	width: 650px; height: 220px;
+	width: 800px; height: 300px;
 	border: solid 1px;
 	position: absolute; top:0px; left: 0px; z-index: 0;
 }
 
 #canvasLayer2 {
-	width: 650px; height: 220px;
+	width: 800px; height: 300px;
 	position: absolute; top:0px; left: 0px; z-index: 1;
 }
