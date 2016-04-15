@@ -1,6 +1,10 @@
 var gameSession = {};
+var canvasLayer1 = document.getElementById("canvasLayer1");
+var canvasLayer2 = document.getElementById("canvasLayer2");
 
 $(function() {	
+	canvasLayer1 = document.getElementById("canvasLayer1");
+	canvasLayer2 = document.getElementById("canvasLayer2");
 	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
 	$("#btnCreateLogin").click(function() { callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed); });
 			
@@ -57,9 +61,9 @@ function leaveTownSuccess(data) {
 	
 	if(data) {
 		var name = data.name;
-		var mapMatrix = data.mapMatrix;
+		var mapMatrix = data.map.mapMatrix;
+		var hero = data.hero;
 		
-		var canvasLayer1 = document.getElementById("canvasLayer1");
 		canvasLayer1.width = 650;
 		canvasLayer1.height = 220;
 		
@@ -69,10 +73,9 @@ function leaveTownSuccess(data) {
 			}
 		}
 		
-		var canvasLayer2 = document.getElementById("canvasLayer2");
 		canvasLayer2.width = 650;
 		canvasLayer2.height = 220;
-		drawHeroMapIcon(canvasLayer2,0,0);
+		drawHeroMapIcon(canvasLayer2,hero.currentCoordinates.x,hero.currentCoordinates.y);
 	}
 }
 
@@ -117,13 +120,13 @@ function moveSuccess(data) {
 	if(data) {
 		if(data.terrainType) { // The move resulted in an actual move
 			var location = data;
-			var targetCoordinates = location.targetCoordinates;
-			var canvasLayer2 = document.getElementById("canvasLayer2");
+			var targetCoordinates = location.targetCoordinates;			
 			drawHeroMapIcon(canvasLayer2, targetCoordinates.x, targetCoordinates.y);
 			logInfo("you moved to a new location");
 		}
 		else if(data.hero && data.mob) { // The move resulted in a fight
 			var battle = data;
+			drawBattleScreen(battle);
 			logInfo("you were surprised by monsters!");
 		}
 	}
@@ -135,6 +138,12 @@ function moveFailed(errorMsg) {
 
 function chooseHeroSuccess(data) {
 	logInfo("choose hero OK!");
+	if(data) {
+		if(data.battle && data.battle.mob && data.battle.hero) { // The hero is already in a fight
+			drawBattleScreen(data.battle);
+			logInfo("you resume the battle!");
+		}
+	}
 	logInfo(JSON.stringify(data));
 }
 
@@ -247,6 +256,19 @@ function moveHero(keyCode) {
 		logInfo("Invalid move direction!");
 };
 
+function drawBattleScreen(battle) {
+	var ctx1 = canvasLayer1.getContext("2d");
+	var ctx2 = canvasLayer2.getContext("2d");
+	ctx1.clearRect(0,0,700,300);
+	ctx2.clearRect(0,0,700,300);
+	//var img = new Image();
+	//img.src = "./resources/forest.png";
+	var mobImg = document.getElementById("wildBoar");
+	var heroImg = document.getElementById("warriorHero");
+	
+	ctx1.drawImage(mobImg,30,30,48,102);
+	ctx1.drawImage(heroImg,230,30,48,102);
+}
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {
 	$.ajax({

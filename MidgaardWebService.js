@@ -247,8 +247,10 @@ http.createServer(function (request, response) {
 					
 					if(loadedHero) {
 						serverLogin.activeHero = loadedHero;
-						response.writeHead(200, {'Content-Type': 'application/json'});	
-						response.write('{ "status": "Your active hero is now [' + loadedHero.name + ']!}');
+						response.writeHead(200, {'Content-Type': 'application/json'});
+						var currentBattle = _battleCache[serverLogin.activeHero.name];
+						var data = { hero: loadedHero, battle:currentBattle, status:'Your active hero is now [' + loadedHero.name + ']!' };
+						response.write(JSON.stringify(data));
 					}
 				}
 				else {
@@ -287,8 +289,9 @@ http.createServer(function (request, response) {
 					if(serverLogin.activeHero) {
 					
 						if(_battleCache[serverLogin.activeHero.name]) {
-							response.writeHead(500, {'Content-Type': 'application/json'});	
-							response.write('{ "reason": "You cant move on while fighting!"}');
+							response.writeHead(200, {'Content-Type': 'application/json'});
+							var battle = _battleCache[serverLogin.activeHero.name];
+							response.write(JSON.stringify(battle));
 						}
 						else {
 							serverLogin.activeHero.currentCoordinates;
@@ -296,7 +299,7 @@ http.createServer(function (request, response) {
 							
 							if(location) {
 								_heroDao.save(serverLogin.activeHero);
-								response.writeHead(200, {'Content-Type': 'application/json'});			
+								response.writeHead(200, {'Content-Type': 'application/json'});
 
 								var battle = _battleCache[serverLogin.activeHero.name];
 								if(battle)
@@ -497,7 +500,8 @@ http.createServer(function (request, response) {
 					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
 				
 					response.writeHead(200, {'Content-Type': 'application/json'});
-					response.write(JSON.stringify(currentMap));
+					var data = { map:currentMap, hero:serverLogin.activeHero };
+					response.write(JSON.stringify(data));
 				}
 				else {
 					_logger.logError("No hero selected!");
