@@ -33,6 +33,11 @@ $(function() {
 	$("#btnNextRound").click(function() {nextRound();});
 	$("#btnEnterTown").click(function() {enterTown();});
 	$("#btnLeaveTown").click(function() {leaveTown();});
+	
+	$("#btnVisitMeadhall").click(function() {visitMeadhall();});
+	$("#btnTrain").click(function() {visitMeadhall();});
+	$("#btnVisitSmithy").click(function() {visitMeadhall();});
+	$("#btnViewCharacter").click(function() {visitMeadhall();});
   
 	$("#gSessionId").html("gSessionId: N/A");
 	
@@ -43,6 +48,28 @@ $(function() {
 			}
 	});
 });
+
+function visitMeadhall() {
+	callMethod("http://localhost:1337", "visitMeadhall", gameSession, enterTownSuccess, enterTownFailed);
+}
+
+function visitMeadhallSuccess(data) {
+	logInfo("enter town OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data.town) {
+		var town = data.town;
+		logInfo("Entering the town of [" + town.name + "]!");
+		drawTown(town);
+	}
+	else
+		logInfo("There is no town at this location, continuing on map!");
+}
+
+function visitMeadhallFailed(errorMsg) {
+	logInfo(errorMsg);
+}
+
 
 function enterTown() {
 	callMethod("http://localhost:1337", "enterTown", gameSession, enterTownSuccess, enterTownFailed);
@@ -149,7 +176,11 @@ function chooseHeroSuccess(data) {
 		if(data.battle && data.battle.mob && data.battle.hero) { // The hero is already in a fight
 			drawBattleScreen(data.battle);
 			logInfo("you resume the battle!");
-		}
+		}		
+		else if(data.town)
+			drawTown(data.town);
+		else
+			drawMap(data);
 	}
 	logInfo(JSON.stringify(data));
 }
@@ -310,8 +341,9 @@ function drawTown(town) {
 	
 	$("#container").css("background-image", "url('./resources/images/town.jpg')"); 
 	
-	ctx1.font = "22px Arial";
-  //ctx1.fillText(battle.hero.hp + " HP",80,30);
+	ctx1.font = "28px Calibri";
+	ctx1.fillStyle = '#3D3A36';
+  ctx1.fillText(town.name,50,30);
 }
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {

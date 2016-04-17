@@ -249,7 +249,17 @@ http.createServer(function (request, response) {
 						serverLogin.activeHero = loadedHero;
 						response.writeHead(200, {'Content-Type': 'application/json'});
 						var currentBattle = _battleCache[serverLogin.activeHero.name];
-						var data = { hero: loadedHero, battle:currentBattle, status:'Your active hero is now [' + loadedHero.name + ']!' };
+						
+						var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+						var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					
+						var data = { hero: loadedHero, battle:currentBattle, map:currentMap, status:'Your active hero is now [' + loadedHero.name + ']!' };
+						
+						if(location.terrainType == "town") {
+							var town = {name:"Dolfjirheim"};
+							data.town = town;
+						}
+						
 						response.write(JSON.stringify(data));
 					}
 				}
@@ -586,7 +596,62 @@ http.createServer(function (request, response) {
 			response.end();
 		});
   }	
-  	
+  
+	else if(request.url == "/visitMeadhall" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/visitMeadhall" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});
+					var data = null;
+					
+					if(location.terrainType == "town") {
+						var town = {name:"Dolfjirheim"};
+						data = { map:currentMap, hero:serverLogin.activeHero, town:town };
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+  }	
+  
 	else {
 		response.writeHead(500, {'Content-Type': 'application/json'});	
 		response.write("Unhandled url requested or wrong data method defined!");
