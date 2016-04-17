@@ -461,7 +461,7 @@ http.createServer(function (request, response) {
 				var newHeroRequest = gameSession.data;
 				
 				if(!_heroDao.exists(newHeroRequest.name)) {
-					var newHero = new Hero( { name:newHeroRequest.name, baseHp:20, hp:20, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
+					var newHero = new Hero( { name:newHeroRequest.name, baseHp:20, hp:20, baseMana:10, mana:10, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
 					_heroDao.save(newHero);
 					if(!serverLogin.heroes)
 						serverLogin.heroes = {};
@@ -630,9 +630,11 @@ http.createServer(function (request, response) {
 					if(location.terrainType == "town") {
 						var town = {name:"Dolfjirheim"};
 						data = { map:currentMap, hero:serverLogin.activeHero, town:town };
+						data.rested = serverLogin.activeHero.visitMeadhall();
+						_heroDao.save(serverLogin.activeHero);
 					}
 					else {
-						data = { map:currentMap, hero:serverLogin.activeHero };
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to visit the meadhall" };
 					}
 					response.write(JSON.stringify(data));					
 				}

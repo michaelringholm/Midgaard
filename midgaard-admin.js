@@ -118,17 +118,19 @@ function nextRoundSuccess(data) {
 	if(data) {
 		if(data.battle) {
 			var battle = data.battle;
+			var hero = data.hero;
 			if(battle.status.over) {
-				if(battle.winner.name == data.hero.name)
+				logInfo("Battle is over!");
+				if(battle.status.winner == hero.name)
 					drawTreasureScreen(battle);
 				else
 					drawDeathScreen(hero);
 			}
-			drawBattleScreen(battle);
-			logInfo("Next round completed!");
+			else
+				drawBattleScreen(battle);			
 		}
 		else {
-			logInfo("Battle is over!");
+			logInfo("Battle was already over!");
 			drawMap(data);
 		}
 	}
@@ -232,6 +234,7 @@ function drawMap(data) {
 		var name = data.map.name;
 		var mapMatrix = data.map.mapMatrix;
 		var hero = data.hero;
+		$("#container").css("background-image", "url('./resources/images/parchment.jpg')");
 		
 		for(var yIndex in mapMatrix) {
 			for(var xIndex in mapMatrix[yIndex]) {
@@ -346,6 +349,33 @@ function drawTown(town) {
   ctx1.fillText(town.name,50,30);
 }
 
+function drawTreasureScreen(battle) {
+	logInfo("showing treasure screen!");
+	var ctx1 = canvasLayer1.getContext("2d");
+	var ctx2 = canvasLayer2.getContext("2d");
+	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
+	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
+	
+	//var townImg = document.getElementById("town");		
+	//ctx1.drawImage(townImg,50,50,120,190);
+	
+	$("#container").css("background-image", "url('./resources/images/loot.jpg')");
+	
+	ctx1.font = "28px Calibri";
+	ctx1.fillStyle = '#E4CA64';
+  ctx1.fillText("You gained [" + battle.mob.xp + "] XP!",50,30);
+	
+	if(battle.mob.copper > 0)
+		ctx1.fillText("You looted [" + battle.mob.copper + "] copper!",50,60);
+	
+	if(battle.mob.items && battle.mob.items.length > 0)
+		ctx1.fillText("You found items while searching the corpse!",50,90);
+}
+
+function drawDeathScreen(hero) {
+	logInfo("showing death screen!");
+}
+
 function callMethod(host, methodName, data, fnSuccess, fnError) {
 	$.ajax({
 			type: "POST",
@@ -367,7 +397,6 @@ function callMethod(host, methodName, data, fnSuccess, fnError) {
 			complete : function() {}
 	});
 }
-
 
 function callMethodJsonp(host, methodName, data) {
 	$.ajax({

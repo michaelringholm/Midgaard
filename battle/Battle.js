@@ -59,9 +59,9 @@ module.exports = function Battle(hero, mob) {
 	this.heroWon = function() {
 		_logger.logInfo("hero won the battle!");
 		_this.hero.xp += mob.xp;
-		_this.hero.gold = mob.gold;
-		_this.hero.silver = mob.silver;
-		_this.hero.copper = mob.copper;
+		_this.hero.gold += mob.gold;
+		_this.hero.silver += mob.silver;
+		_this.hero.copper += mob.copper;
 		
 		for(var itemIndex in mob.items)
 			_this.hero.items.push(mob.items[itemIndex]);

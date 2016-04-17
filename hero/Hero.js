@@ -9,6 +9,8 @@ module.exports = function Hero(anonObj) {
 	this.name = "";
 	this.baseHp = 0;
 	this.hp = 0;
+	this.baseMana = 0;
+	this.mana = 0;
 	this.xp = 0;
 	this.level = 1;
 	this.str = 0;
@@ -48,6 +50,17 @@ module.exports = function Hero(anonObj) {
 		}
 		
 		return targetLocation;
+	};
+	
+	this.visitMeadhall = function() {
+		if(_this.copper > 0) {
+			_this.copper -= 1;
+			_this.hp = _this.baseHp;
+			_this.mana = _this.baseMana;
+			return true;
+		}
+		else
+			return false;
 	};
 	
 	this.construct = function() {
