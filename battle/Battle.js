@@ -44,15 +44,38 @@ module.exports = function Battle(hero, mob) {
     return pX;
   };
   
-  this.updateStatus = function(msg) {
-  	//$("#status").html(msg);
-  };
-  
   this.battleEnded = function(winner, loser) {
 		_this.status.winner = winner.name;
 		_this.status.loser = loser.name;
-		_this.updateStatus(winner.name + " won! and " + loser.name + " lost!");
+		_this.status.over = true;
+		_logger.logInfo(winner.name + " won! and " + loser.name + " lost!");
+		
+		if(winner == hero)
+			_this.heroWon();
+		else
+			_this.heroLost();
   };
+	
+	this.heroWon = function() {
+		_logger.logInfo("hero won the battle!");
+		_this.hero.xp += mob.xp;
+		_this.hero.gold = mob.gold;
+		_this.hero.silver = mob.silver;
+		_this.hero.copper = mob.copper;
+		
+		for(var itemIndex in mob.items)
+			_this.hero.items.push(mob.items[itemIndex]);
+	};
+	
+	this.heroLost = function() {
+		_logger.logInfo("hero lost the battle!");
+		_this.hero.xp -= (mob.xp*10);
+		_this.hero.sta -= 1;
+		_this.hero.hp = _this.baseHp;
+		// Should be set to home/nearest town
+		_this.hero.currentCoordinates.x = 0;		
+		_this.hero.currentCoordinates.y = 0;
+	};
   
   this.nextRound = function(heroAtkType, mobAtkType) {
   	_logger.logInfo("Battle.nextRound");
@@ -69,21 +92,17 @@ module.exports = function Battle(hero, mob) {
     
     if(secondUp.hp <= 0) {
 			_this.battleEnded(firstUp, secondUp);
-			_this.status.over = true;
     }
     else {
     	_this.attack(secondUp, firstUp);
     	
       if(firstUp.hp <= 0) {
 				_this.battleEnded(secondUp, firstUp);
-      	_this.status.over = true;
       }
     }
     
     _logger.logInfo(JSON.stringify(_this.hero));
 		_logger.logInfo(JSON.stringify(_this.mob));
-    //_this.drawP(_this.he);
-    //_this.drawP(_this.mo);
   };
   
   this.construct = function() {

@@ -1,1 +1,1 @@
-{"name":"Krom","hp":20,"atk":3,"luck":3,"atkTypes":["melee","magic"],"currentMapKey":"midgaard-main","currentCoordinates":{"x":12,"y":1,"z":0},"isInBattle":true}
+{"name":"Krom","baseHp":0,"hp":5,"xp":24,"level":1,"str":0,"sta":0,"atk":3,"luck":3,"gold":0,"silver":0,"copper":1,"items":[],"atkTypes":["melee","magic"],"currentMapKey":"midgaard-main","currentCoordinates":{"x":12,"y":4,"z":0},"isInBattle":true}

@@ -52,8 +52,13 @@ function enterTownSuccess(data) {
 	logInfo("enter town OK!");
 	logInfo(JSON.stringify(data));
 	
-	if(data) {
+	if(data.town) {
+		var town = data.town;
+		logInfo("Entering the town of [" + town.name + "]!");
+		drawTown(town);
 	}
+	else
+		logInfo("There is no town at this location, continuing on map!");
 }
 
 function enterTownFailed(errorMsg) {
@@ -68,20 +73,7 @@ function leaveTownSuccess(data) {
 	logInfo("leave town OK!");
 	logInfo(JSON.stringify(data));
 	
-	if(data) {
-		var name = data.name;
-		var mapMatrix = data.map.mapMatrix;
-		var hero = data.hero;
-		
-		for(var yIndex in mapMatrix) {
-			for(var xIndex in mapMatrix[yIndex]) {
-				drawMapTile(canvasLayer1, xIndex*32,yIndex*32,mapMatrix[yIndex][xIndex]);
-			}
-		}
-		
-
-		drawHeroMapIcon(canvasLayer2,hero.currentCoordinates.x,hero.currentCoordinates.y);
-	}
+	drawMap(data);
 }
 
 function leaveTownFailed(errorMsg) {
@@ -97,10 +89,20 @@ function nextRoundSuccess(data) {
 	logInfo("next round OK!");
 	
 	if(data) {
-		if(data.hero && data.mob) {
-			var battle = data;
+		if(data.battle) {
+			var battle = data.battle;
+			if(battle.status.over) {
+				if(battle.winner.name == data.hero.name)
+					drawTreasureScreen(battle);
+				else
+					drawDeathScreen(hero);
+			}
 			drawBattleScreen(battle);
 			logInfo("Next round completed!");
+		}
+		else {
+			logInfo("Battle is over!");
+			drawMap(data);
 		}
 	}
 }
@@ -194,6 +196,22 @@ function logInfo(msg) {
 	$("#status").prepend("[INFO]: " + msg + "<br/>");
 }
 
+function drawMap(data) {
+	if(data) {
+		var name = data.map.name;
+		var mapMatrix = data.map.mapMatrix;
+		var hero = data.hero;
+		
+		for(var yIndex in mapMatrix) {
+			for(var xIndex in mapMatrix[yIndex]) {
+				drawMapTile(canvasLayer1, xIndex*32,yIndex*32,mapMatrix[yIndex][xIndex]);
+			}
+		}		
+
+		drawHeroMapIcon(canvasLayer2,hero.currentCoordinates.x,hero.currentCoordinates.y);
+	}
+}
+
 function drawMapTile(canvas, xPos, yPos, terrainType) {
 	var ctx = canvas.getContext("2d");
 	var img = null;
@@ -262,6 +280,10 @@ function drawBattleScreen(battle) {
 	//var img = new Image();
 	//img.src = "./resources/forest.png";
 	var mobImg = document.getElementById("wildBoar");
+	
+	if(battle.mob.key == "orc")
+		mobImg = document.getElementById("orc");
+		
 	var heroImg = document.getElementById("warriorHero");
 	if(battle.hero.hp <= 0)
 		heroImg = document.getElementById("dead");
@@ -275,6 +297,21 @@ function drawBattleScreen(battle) {
 	ctx1.font = "22px Arial";
   ctx1.fillText(battle.hero.hp + " HP",80,30);
 	ctx1.fillText(battle.mob.hp + " HP",480,30);
+}
+
+function drawTown(town) {
+	var ctx1 = canvasLayer1.getContext("2d");
+	var ctx2 = canvasLayer2.getContext("2d");
+	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
+	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
+	
+	//var townImg = document.getElementById("town");		
+	//ctx1.drawImage(townImg,50,50,120,190);
+	
+	$("#container").css("background-image", "url('./resources/images/town.jpg')"); 
+	
+	ctx1.font = "22px Arial";
+  //ctx1.fillText(battle.hero.hp + " HP",80,30);
 }
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {
