@@ -685,7 +685,7 @@ http.createServer(function (request, response) {
 					
 					if(location.town) {
 						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
-						data.trained = serverLogin.activeHero.train();
+						data.trainingOutcome = serverLogin.activeHero.train();
 						_heroDao.save(serverLogin.activeHero);
 					}
 					else {

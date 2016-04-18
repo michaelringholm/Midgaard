@@ -68,21 +68,31 @@ module.exports = function Hero(anonObj) {
 	};
 	
 	this.train = function() {
-		var cost = _this.level*_this.level*100;
-		if(_this.copper >= cost) {
-			_this.copper -= cost;
-			
-			 var extraHp = Math.round(((Math.random()*2)*(_this.sta/3))+1);
-			 var extraMana = Math.round(((Math.random()*2)*(_this.int/3))+1);
-			 
-			_this.baseHp += extraHp;
-			_this.baseMana += extraMana;
-			_this.level++;
-			return true;
+		var xpTarget = _this.level*_this.level*1000;
+		
+		if(_this.xp >= xpTarget) {		
+			var cost = _this.level*_this.level*100;
+			if(_this.copper >= cost) {
+				_this.copper -= cost;
+				
+				 var extraHp = Math.round(((Math.random()*2)*(_this.sta/3))+1);
+				 var extraMana = Math.round(((Math.random()*2)*(_this.int/3))+1);
+				 
+				_this.baseHp += extraHp;
+				_this.baseMana += extraMana;
+				_this.level++;
+				return {trained:true};
+			}
+			else {
+				var errMsg = "Not enough money to train, you need at least [" + cost + "] copper!";
+				_logger.logError(errMsg);
+				return {trained:false, reason:errMsg};
+			}
 		}
 		else {
-			_logger.logError("Not enough money to train, you need at least [" + cost + "] copper!");
-			return false;
+			var errMsg = "Not enough xp to train, you need at least [" + xpTarget + "] XP to become level [" + (_this.level+1) + "]!";
+			_logger.logError(errMsg);
+			return {trained:false, reason:errMsg};
 		}
 	};	
 	
