@@ -15,6 +15,7 @@ module.exports = function Hero(anonObj) {
 	this.level = 1;
 	this.str = 0;
 	this.sta = 0;
+	this.int = 0;
 	this.atk = 0;
 	this.luck = 0;
 	this.gold = 0;
@@ -59,9 +60,30 @@ module.exports = function Hero(anonObj) {
 			_this.mana = _this.baseMana;
 			return true;
 		}
-		else
+		else {
+			_logger.logError("Not enough money to visit the mead hall, you need at least 1 copper!");
 			return false;
+		}
 	};
+	
+	this.train = function() {
+		var cost = _this.level*_this.level*100;
+		if(_this.copper >= cost) {
+			_this.copper -= cost;
+			
+			 var extraHp = Math.round(((Math.random()*2)*(_this.sta/3))+1);
+			 var extraMana = Math.round(((Math.random()*2)*(_this.int/3))+1);
+			 
+			_this.baseHp += extraHp;
+			_this.baseMana += extraMana;
+			_this.level++;
+			return true;
+		}
+		else {
+			_logger.logError("Not enough money to train, you need at least [" + cost + "] copper!");
+			return false;
+		}
+	};	
 	
 	this.construct = function() {
 		_logger.logInfo("Hero.construct");

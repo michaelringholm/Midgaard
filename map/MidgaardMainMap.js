@@ -45,6 +45,13 @@ module.exports = function MidgaardMainMap(mapDao) {
 			var terrainType = getTerrainType(terrainChar);
 		
 			var location = new Location({targetCoordinates:targetCoordinates, terrainType:terrainType, mob:mob});
+			
+			if(terrainType == "town") {
+				var town = {name:"Dolfjirheim"};
+				location.town = town;
+			}
+				
+			
 			return location;
 		}
 		else 
