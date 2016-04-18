@@ -4,19 +4,26 @@ var _logger = new Logger();
 module.exports = function MobFactory() {
 	var _this = this;
 	this.mobs = {};
-	this.mobKeys = new Array();
+	//this.mobKeys = new Array();
+	this.mobCount = 5;
 	
 	this.create = function() {
 		_logger.logInfo("MobFactory.create");
 
-		var randomIndex = Math.round(Math.random()*(_this.mobKeys.length-1));
-		var randomMobKey = _this.mobKeys[randomIndex];
-		var randomMob = _this.mobs[randomMobKey];
+		var randomIndex = Math.round(Math.random()*(_this.mobCount-1));
+
+		var randomMob = null;
+		
+		if(randomIndex == 0) randomMob = {key: "rat", name: "Rat", hp:12, atk:3, luck:2, atkTypes:["melee", "ranged"], xp:5, gold:0, silver:0, copper:2, items:[]};
+		if(randomIndex == 1) randomMob = {key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"], xp:7, gold:0, silver:0, copper:4, items:[]};
+		if(randomIndex == 2) randomMob = {key: "rabbit", name: "Rabbit", hp:14, atk:1, luck:2, atkTypes:["melee"], xp:5, gold:0, silver:0, copper:3, items:[]};
+		if(randomIndex == 3) randomMob = {key: "snake", name: "Snake", hp:19, atk:1, luck:2, atkTypes:["melee"], xp:8, gold:0, silver:0, copper:5, items:[]};
+		if(randomIndex == 4) randomMob = {key: "beetle", name: "Beetle", hp:15, atk:1, luck:2, atkTypes:["melee"], xp:15, gold:0, silver:0, copper:6, items:[]};
 		
 		if(randomMob)
 			_logger.logInfo(JSON.stringify(randomMob));
 		else
-			_logger.logError("No mob found!");
+			_logger.logError("No mob found at index [" + randomIndex + "]!");
 		
 		return randomMob;
 	};
@@ -30,11 +37,6 @@ module.exports = function MobFactory() {
 	
 	this.construct = function() {
 		_logger.logInfo("MobFactory.construct");
-		_this.addMob({key: "rat", name: "Rat", hp:12, atk:3, luck:2, atkTypes:["melee", "ranged"], xp:5, gold:0, silver:0, copper:2, items:[]});
-		_this.addMob({key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"], xp:7, gold:0, silver:0, copper:4, items:[]});
-		_this.addMob({key: "rabbit", name: "Rabbit", hp:14, atk:1, luck:2, atkTypes:["melee"], xp:5, gold:0, silver:0, copper:3, items:[]});
-		_this.addMob({key: "snake", name: "Snake", hp:19, atk:1, luck:2, atkTypes:["melee"], xp:8, gold:0, silver:0, copper:5, items:[]});
-		_this.addMob({key: "beetle", name: "Beetle", hp:15, atk:1, luck:2, atkTypes:["melee"], xp:15, gold:0, silver:0, copper:6, items:[]});
 		//_this.addMob({key: "orc", name: "Orc", hp:30, atk:4, luck:2, atkTypes:["melee"], xp:40, gold:0, silver:1, copper:6, items:[]});
 	};
 	
