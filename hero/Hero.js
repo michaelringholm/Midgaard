@@ -90,7 +90,7 @@ module.exports = function Hero(anonObj) {
 			}
 		}
 		else {
-			var errMsg = "Not enough xp to train, you need at least [" + xpTarget + "] XP to become level [" + (_this.level+1) + "]!";
+			var errMsg = "Not enough xp to train, you need [" + (xpTarget-_this.xp*1) + "] more XP to become level [" + (_this.level+1) + "]!";
 			_logger.logError(errMsg);
 			return {trained:false, reason:errMsg};
 		}

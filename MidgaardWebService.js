@@ -461,7 +461,7 @@ http.createServer(function (request, response) {
 				var newHeroRequest = gameSession.data;
 				
 				if(!_heroDao.exists(newHeroRequest.name)) {
-					var newHero = new Hero( { name:newHeroRequest.name, heroClass:"warrior", baseHp:20, hp:20, baseMana:0, mana:0, sta:14, str:12, int:6, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
+					var newHero = new Hero( { name:newHeroRequest.name, heroClass:"warrior", xp:0, baseHp:20, hp:20, baseMana:0, mana:0, sta:14, str:12, int:6, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
 					_heroDao.save(newHero);
 					if(!serverLogin.heroes)
 						serverLogin.heroes = {};

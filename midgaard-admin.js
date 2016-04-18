@@ -51,7 +51,7 @@ $(function() {
 
 
 function viewCharacter() {
-	callMethod("http://localhost:1337", "viewCharacter", gameSession, enterTownSuccess, enterTownFailed);
+	callMethod("http://localhost:1337", "viewCharacter", gameSession, viewCharacterSuccess, viewCharacterFailed);
 }
 
 function viewCharacterSuccess(data) {
@@ -72,7 +72,7 @@ function viewCharacterFailed(errorMsg) {
 }
 
 function visitSmithy() {
-	callMethod("http://localhost:1337", "visitSmithy", gameSession, enterTownSuccess, enterTownFailed);
+	callMethod("http://localhost:1337", "visitSmithy", gameSession, visitSmithySuccess, visitSmithyFailed);
 }
 
 function visitSmithySuccess(data) {
@@ -93,7 +93,7 @@ function visitSmithyFailed(errorMsg) {
 }
 
 function train() {
-	callMethod("http://localhost:1337", "train", gameSession, enterTownSuccess, enterTownFailed);
+	callMethod("http://localhost:1337", "train", gameSession, trainSuccess, trainFailed);
 }
 
 function trainSuccess(data) {
@@ -102,8 +102,8 @@ function trainSuccess(data) {
 	
 	if(data.town) {
 		var town = data.town;
-		logInfo("Entering the town of [" + town.name + "]!");
-		drawTown(town);
+		logInfo("Training in the town of [" + town.name + "]!");
+		drawTraining(data.hero, data.trainingOutcome, data.town);
 	}
 	else
 		logInfo("There is no town at this location, continuing on map!");
@@ -438,6 +438,31 @@ function drawTreasureScreen(battle) {
 function drawDeathScreen(hero) {
 	logInfo("showing death screen!");
 }
+
+function drawTraining(hero, trainingOutcome, town) {
+		logInfo("showing training screen!");
+	var ctx1 = canvasLayer1.getContext("2d");
+	var ctx2 = canvasLayer2.getContext("2d");
+	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
+	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
+	
+	ctx1.font = "28px Calibri";
+	ctx1.fillStyle = '#3D3A36';
+  ctx1.fillText(town.name,50,30);
+	
+	ctx1.font = "20px Calibri";
+	ctx1.fillStyle = '#E4CA64';
+	
+	if(trainingOutcome.trained) {
+		ctx1.fillText("You trained hard and gained a level!. You are now level [" + hero.level + "]",70,90);
+	}
+	else {
+		ctx1.fillText(trainingOutcome.reason,70,90);
+	}
+}
+
+
+
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {
 	$.ajax({
