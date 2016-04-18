@@ -36,7 +36,7 @@ function LoginDao() {
 	this.exists = function(loginName) {
 		_logger.logInfo("LoginDao.exists");
 		var fs = require("fs");
-		var fileName = "./logins/" + loginName + '.login';
+		var fileName = "./data/logins/" + loginName + '.login';
 			
 		var fileFound = true;
 		try {
@@ -53,7 +53,7 @@ function LoginDao() {
 	this.load = function(loginName) {
 		_logger.logInfo("LoginDao.load");
 		var fs = require("fs");
-		var fileName = "./logins/" + loginName + ".login";
+		var fileName = "./data/logins/" + loginName + ".login";
 		var login = null;
 		
 		var heroJson = fs.readFileSync(fileName).toString();
@@ -71,7 +71,7 @@ function LoginDao() {
 		
 		var updateTime = new Date();
 		//fs.writeFile(login.name + '.login', '{ "updateTime" : "' + updateTime + '", "login" : "' + JSON.stringify(login) + '" }',  function(err) {
-			fs.writeFile("./logins/" + login.name + '.login', JSON.stringify(login),  function(err) {
+			fs.writeFile("./data/logins/" + login.name + '.login', JSON.stringify(login),  function(err) {
 			if (err) {
 				return console.error(err);
 			}
