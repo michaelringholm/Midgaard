@@ -461,7 +461,7 @@ http.createServer(function (request, response) {
 				var newHeroRequest = gameSession.data;
 				
 				if(!_heroDao.exists(newHeroRequest.name)) {
-					var newHero = new Hero( { name:newHeroRequest.name, baseHp:20, hp:20, baseMana:10, mana:10, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
+					var newHero = new Hero( { name:newHeroRequest.name, heroClass:"warrior", baseHp:20, hp:20, baseMana:0, mana:0, sta:14, str:12, int:6, atk:3, luck:3, atkTypes:["melee", "magic"], currentMapKey:"midgaard-main", currentCoordinates:new Coordinate({x:0,y:0,z:0}) } );
 					_heroDao.save(newHero);
 					if(!serverLogin.heroes)
 						serverLogin.heroes = {};
@@ -708,7 +708,116 @@ http.createServer(function (request, response) {
 			response.end();
 		});
   }	
-  	
+  
+	else if(request.url == "/viewCharacter" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/viewCharacter" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});
+					var data = null;
+					
+					if(location.town) {
+						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to view your character!" };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+  }	
+ 
+	else if(request.url == "/visitSmithy" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/visitSmithy" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});
+					var data = null;
+					
+					if(location.town) {
+						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+						//data.trained = serverLogin.activeHero.train();
+						_heroDao.save(serverLogin.activeHero);
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to train!" };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+  }	 
 	
 	else {
 		response.writeHead(500, {'Content-Type': 'application/json'});	

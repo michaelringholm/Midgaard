@@ -7,6 +7,7 @@ var _logger = new Logger();
 module.exports = function Hero(anonObj) {
 	var _this = this;
 	this.name = "";
+	this.heroClass = "";
 	this.baseHp = 0;
 	this.hp = 0;
 	this.baseMana = 0;

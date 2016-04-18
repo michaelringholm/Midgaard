@@ -35,9 +35,9 @@ $(function() {
 	$("#btnLeaveTown").click(function() {leaveTown();});
 	
 	$("#btnVisitMeadhall").click(function() {visitMeadhall();});
-	$("#btnTrain").click(function() {visitMeadhall();});
-	$("#btnVisitSmithy").click(function() {visitMeadhall();});
-	$("#btnViewCharacter").click(function() {visitMeadhall();});
+	$("#btnTrain").click(function() {train();});
+	$("#btnVisitSmithy").click(function() {visitSmithy();});
+	$("#btnViewCharacter").click(function() {viewCharacter();});
   
 	$("#gSessionId").html("gSessionId: N/A");
 	
@@ -48,6 +48,70 @@ $(function() {
 			}
 	});
 });
+
+
+function viewCharacter() {
+	callMethod("http://localhost:1337", "viewCharacter", gameSession, enterTownSuccess, enterTownFailed);
+}
+
+function viewCharacterSuccess(data) {
+	logInfo("enter town OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data.town) {
+		var town = data.town;
+		logInfo("Entering the town of [" + town.name + "]!");
+		drawTown(town);
+	}
+	else
+		logInfo("There is no town at this location, continuing on map!");
+}
+
+function viewCharacterFailed(errorMsg) {
+	logInfo(errorMsg);
+}
+
+function visitSmithy() {
+	callMethod("http://localhost:1337", "visitSmithy", gameSession, enterTownSuccess, enterTownFailed);
+}
+
+function visitSmithySuccess(data) {
+	logInfo("enter town OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data.town) {
+		var town = data.town;
+		logInfo("Entering the town of [" + town.name + "]!");
+		drawTown(town);
+	}
+	else
+		logInfo("There is no town at this location, continuing on map!");
+}
+
+function visitSmithyFailed(errorMsg) {
+	logInfo(errorMsg);
+}
+
+function train() {
+	callMethod("http://localhost:1337", "train", gameSession, enterTownSuccess, enterTownFailed);
+}
+
+function trainSuccess(data) {
+	logInfo("enter town OK!");
+	logInfo(JSON.stringify(data));
+	
+	if(data.town) {
+		var town = data.town;
+		logInfo("Entering the town of [" + town.name + "]!");
+		drawTown(town);
+	}
+	else
+		logInfo("There is no town at this location, continuing on map!");
+}
+
+function trainFailed(errorMsg) {
+	logInfo(errorMsg);
+}
 
 function visitMeadhall() {
 	callMethod("http://localhost:1337", "visitMeadhall", gameSession, enterTownSuccess, enterTownFailed);
@@ -69,7 +133,6 @@ function visitMeadhallSuccess(data) {
 function visitMeadhallFailed(errorMsg) {
 	logInfo(errorMsg);
 }
-
 
 function enterTown() {
 	callMethod("http://localhost:1337", "enterTown", gameSession, enterTownSuccess, enterTownFailed);
