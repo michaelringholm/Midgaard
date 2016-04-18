@@ -254,12 +254,7 @@ http.createServer(function (request, response) {
 						var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
 					
 						var data = { hero: loadedHero, battle:currentBattle, map:currentMap, status:'Your active hero is now [' + loadedHero.name + ']!' };
-						
-						if(location.terrainType == "town") {
-							var town = {name:"Dolfjirheim"};
-							data.town = town;
-						}
-						
+												
 						response.write(JSON.stringify(data));
 					}
 				}
@@ -572,9 +567,8 @@ http.createServer(function (request, response) {
 					response.writeHead(200, {'Content-Type': 'application/json'});
 					var data = null;
 					
-					if(location.terrainType == "town") {
-						var town = {name:"Dolfjirheim"};
-						data = { map:currentMap, hero:serverLogin.activeHero, town:town };
+					if(location.town) {
+						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
 					}
 					else {
 						data = { map:currentMap, hero:serverLogin.activeHero };

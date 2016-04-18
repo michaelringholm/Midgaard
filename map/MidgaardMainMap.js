@@ -16,12 +16,23 @@ module.exports = function MidgaardMainMap(mapDao) {
 	var mobFactory = new MobFactory();
 	
 	var getTerrainType = function(terrainChar) {
-		_logger.logInfo("terrainChar [" + terrainChar + "] translated into [" + _this.mapDefinition[terrainChar].terrainType + "]");
-		var mapDefinitionEntry = _this.mapDefinition[terrainChar];
+		_logger.logInfo("terrainChar [" + terrainChar + "] translated into [" + _this.mapDefinition.terrainTypes[terrainChar].terrainType + "]");
+		var mapDefinitionEntry = _this.mapDefinition.terrainTypes[terrainChar];
 		
 		if(mapDefinitionEntry)
 			return mapDefinitionEntry.terrainType;
 		
+		return null;
+	};
+	
+	var getTown = function(targetCoordinates) {	
+		for(var townIndex in  _this.mapDefinition.towns) {
+			if(_this.mapDefinition.towns[townIndex].x == targetCoordinates.x && _this.mapDefinition.towns[townIndex].y == targetCoordinates.y) {
+				_logger.logInfo("Found the town of [" + _this.mapDefinition.towns[townIndex].name + "]!");
+				return _this.mapDefinition.towns[townIndex];
+			}
+		}
+
 		return null;
 	};
 	
@@ -47,7 +58,7 @@ module.exports = function MidgaardMainMap(mapDao) {
 			var location = new Location({targetCoordinates:targetCoordinates, terrainType:terrainType, mob:mob});
 			
 			if(terrainType == "town") {
-				var town = {name:"Dolfjirheim"};
+				var town = getTown(targetCoordinates); //{name:"Dolfjirheim"};
 				location.town = town;
 			}
 				
