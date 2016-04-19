@@ -3,6 +3,9 @@ var fs = require('fs');
 
 // IMPORTS
 var Logger = require('./common/Logger.js');
+var AppContext = require('./context/AppContext.js');
+var LoginDao = require('./login/LoginDao.js');
+var Login = require('./login/Login.js');
 var MapDao = require('./map/MapDao.js');
 var HeroDao = require('./hero/HeroDao.js');
 var Hero = require('./hero/Hero.js');
@@ -14,6 +17,7 @@ var Coordinate = require('./map/Coordinate.js');
 var Location = require('./map/Location.js');
 
 var _logger = new Logger();
+var _appContext = new AppContext();
 var _mapDao = new MapDao();
 var _loginDao = new LoginDao();
 var _hero = null;
@@ -27,78 +31,6 @@ var _mobFactory = new MobFactory();
 
 //var _mob = new MobFactory().create();
 //var battle = new Battle(_hero, _mob);
-
-
-/************************** LoginDao *************************/
-function LoginDao() {
-	var _this = this;
-		
-	this.exists = function(loginName) {
-		_logger.logInfo("LoginDao.exists");
-		var fs = require("fs");
-		var fileName = "./data/logins/" + loginName + '.login';
-			
-		var fileFound = true;
-		try {
-			fs.accessSync(fileName, fs.F_OK);
-			_logger.logInfo("File [" + fileName + "] exists!");
-		}
-		catch(e) {
-			fileFound = false;
-			_logger.logError("File [" + fileName + "] does not exist!");
-		}
-		return fileFound;
-	};
-	
-	this.load = function(loginName) {
-		_logger.logInfo("LoginDao.load");
-		var fs = require("fs");
-		var fileName = "./data/logins/" + loginName + ".login";
-		var login = null;
-		
-		var heroJson = fs.readFileSync(fileName).toString();
-
-		_logger.logInfo("Login JSON [" + heroJson + "] loaded!");		
-		login = JSON.parse(heroJson);
-		_logger.logInfo("Login [" + JSON.stringify(login) + "] loaded!");		
-		
-		return login;
-	};	
-	
-	this.save = function(login) {
-		_logger.logInfo("LoginDao.save");
-		var fs = require("fs");
-		
-		var updateTime = new Date();
-		//fs.writeFile(login.name + '.login', '{ "updateTime" : "' + updateTime + '", "login" : "' + JSON.stringify(login) + '" }',  function(err) {
-			fs.writeFile("./data/logins/" + login.name + '.login', JSON.stringify(login),  function(err) {
-			if (err) {
-				return console.error(err);
-			}
-			console.log("Data written successfully!");
-		});
-	};	
-	
-	this.construct = function() {
-		_logger.logInfo("LoginDao.construct");
-  };
-  
-  _this.construct();
-}
-
-/********* Login *************/
-function Login(name, password, heroes) {
-	var _this = this;
-	this.name = name;
-	this.password = password;
-	this.heroes = heroes;
-	
-	this.construct = function() {
-		_logger.logInfo("Login.construct");
-  };
-  
-  _this.construct();
-}
 
 
 /********** GameSession ***********/
@@ -818,11 +750,9 @@ http.createServer(function (request, response) {
 		response.write("Unhandled url requested or wrong data method defined!");
 		response.end();
   }
-}).listen(1337, "127.0.0.1");
+}).listen(_appContext.getHostPort(), _appContext.getHostIp());
 
-_logger.logInfo('Server running at http://127.0.0.1:1337/');
-
-
+_logger.logInfo('Server running at http://' + _appContext.getHostIp() + ':' + _appContext.getHostPort());
 
 
 /***** OBSOLETE ******

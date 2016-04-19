@@ -9,11 +9,11 @@ module.exports = function HeroDao() {
 	this.exists = function(heroName) {
 		_logger.logInfo("HeroDao.exists");
 		var fs = require("fs");
-		var fileName = "./resources/heroes/" + heroName + '.hero';
+		var fileName = "./data/heroes/" + heroName + '.hero';
 			
 		var fileFound = true;
 		try {
-			fs.accessSync(fileName, fs.F_OK);
+			fs.statSync(fileName);
 			_logger.logInfo("File [" + fileName + "] exists!");
 		}
 		catch(e) {
@@ -26,7 +26,7 @@ module.exports = function HeroDao() {
 	this.load = function(heroName) {
 		_logger.logInfo("HeroDao.load");
 		var fs = require("fs");
-		var fileName = "./resources/heroes/" + heroName + '.hero';
+		var fileName = "./data/heroes/" + heroName + '.hero';
 		var hero = null;
 		
 		var heroJson = fs.readFileSync(fileName).toString();
@@ -40,7 +40,7 @@ module.exports = function HeroDao() {
 	this.save = function(hero) {
 		_logger.logInfo("HeroDao.save");
 		var fs = require("fs");
-		var fileName = "./resources/heroes/" + hero.name + '.hero';
+		var fileName = "./data/heroes/" + hero.name + '.hero';
 		
 		var updateTime = new Date();
 		fs.writeFile(fileName, JSON.stringify(hero),  function(err) {

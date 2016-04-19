@@ -1,4 +1,7 @@
 var Logger = require('../common/Logger.js');
+var AppContext = require('../context/AppContext.js');
+
+var _appContext = new AppContext();
 var _logger = new Logger();
 
 module.exports = function MapDao() {
