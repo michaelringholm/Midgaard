@@ -225,8 +225,12 @@ function moveFailed(errorMsg) {
 }
 
 function chooseHero() {
-	gameSession.heroName = $("#heroList").val();
-	callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed);
+	var heroName = $("#heroList").val();
+	
+	if (heroName) {
+		gameSession.heroName = heroName;
+		callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed);
+	}	
 }
 
 function chooseHeroSuccess(data) {
