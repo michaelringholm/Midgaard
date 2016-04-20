@@ -14,20 +14,10 @@ $(function() {
 	canvasLayer2.width = canvasWidth;
 	canvasLayer2.height = canvasHeight;
 		
-	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
-	$("#btnCreateLogin").click(function() { callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed); });
-			
-	var hero = { name: $("#newHeroName").val()};
-	gameSession.data = hero;
-	$("#btnCreateHero").click(function() { callMethod("http://localhost:1337", "createHero", gameSession, createHeroSuccess, createHeroFailed); });
-	
-	//loginName, password, heroes
-	var clientLogin = {name:$("#login").val(), password:$("#password").val()};
-	$("#btnLogin").click(function() { callMethod("http://localhost:1337", "login", clientLogin, loginSuccess, loginFailed); });
-	
-	gameSession.heroName = "Krom";
-	$("#btnChooseHero").click(function() { callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed); });
-	
+	$("#btnCreateLogin").click(function() {createLogin();});
+	$("#btnCreateHero").click(function() { createHero(); });
+	$("#btnLogin").click(function() {login();});
+	$("#btnChooseHero").click(function() {chooseHero();});
 	
 	$("#btnMove").click(function() {move();});
 	$("#btnNextRound").click(function() {nextRound();});
@@ -48,7 +38,6 @@ $(function() {
 			}
 	});
 });
-
 
 function viewCharacter() {
 	callMethod("http://localhost:1337", "viewCharacter", gameSession, viewCharacterSuccess, viewCharacterFailed);
@@ -235,6 +224,11 @@ function moveFailed(errorMsg) {
 	logInfo(errorMsg);
 }
 
+function chooseHero() {
+	gameSession.heroName = $("#heroList").val();
+	callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed);
+}
+
 function chooseHeroSuccess(data) {
 	logInfo("choose hero OK!");
 	if(data) {
@@ -254,6 +248,12 @@ function chooseHeroFailed(errorMsg) {
 	logInfo(errorMsg);
 }
 
+function createHero() {
+	var hero = { name: $("#newHeroName").val()};
+	gameSession.data = hero;
+	callMethod("http://localhost:1337", "createHero", gameSession, createHeroSuccess, createHeroFailed);
+}
+
 function createHeroSuccess(data) {
 	logInfo("create hero OK!");
 	logInfo(JSON.stringify(data));
@@ -261,6 +261,11 @@ function createHeroSuccess(data) {
 
 function createHeroFailed(errorMsg) {
 	logInfo(errorMsg);
+}
+
+function createLogin() {
+	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
+	callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed);
 }
 
 function createLoginSuccess() {
@@ -272,6 +277,11 @@ function createLoginFailed(errorMsg) {
 	logInfo(errorMsg);
 }
 
+function login() {
+	var clientLogin = {name:$("#login").val(), password:$("#password").val()};
+	callMethod("http://localhost:1337", "login", clientLogin, loginSuccess, loginFailed);
+}
+
 function loginSuccess(serverGameSession) {
 	logInfo("login OK!");
 	logInfo(JSON.stringify(serverGameSession));
@@ -280,7 +290,7 @@ function loginSuccess(serverGameSession) {
 	var heroes = serverGameSession.data.heroes;
 
 	for(var key in heroes) {	
-		$("#heroList").append('<div class="heroButton">' + key + '</div>');
+		$("#heroList").append('<option value="' + key + '">' + key + '</option>');		
 	}
 }
 
@@ -339,8 +349,6 @@ function drawHeroMapIcon(canvas, xPos, yPos) {
 	ctx.drawImage(img,xPos*pixelMultiplier,yPos*pixelMultiplier,32,32);
 }
 
-//var currentHeroXPos = 0;
-//var currentHeroYPos = 0;
 function moveHero(keyCode) {	
 	var stepSize = 32;
 	var direction = null;
