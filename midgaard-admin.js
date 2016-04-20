@@ -3,8 +3,13 @@ var canvasLayer1 = document.getElementById("canvasLayer1");
 var canvasLayer2 = document.getElementById("canvasLayer2");
 var canvasHeight = 0;
 var canvasWidth = 0;
+var hostIp = "";
+var hostPort = 0;
 
 $(function() {	
+	hostIp = "www.opusmagus.com";
+	hostPort = 83;
+	
 	canvasLayer1 = document.getElementById("canvasLayer1");
 	canvasLayer2 = document.getElementById("canvasLayer2");
 	canvasWidth = 800;
@@ -31,7 +36,7 @@ $(function() {
   
 	$("#gSessionId").html("gSessionId: N/A");
 	
-	$("body").keypress(function(e) { 
+	$("#container").keypress(function(e) { 
 			if(e.which == 100 || e.which == 97 || e.which == 115 || e.which == 119) {
 				e.preventDefault();
 				moveHero(e.which);
@@ -40,7 +45,7 @@ $(function() {
 });
 
 function viewCharacter() {
-	callMethod("http://localhost:1337", "viewCharacter", gameSession, viewCharacterSuccess, viewCharacterFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "viewCharacter", gameSession, viewCharacterSuccess, viewCharacterFailed);
 }
 
 function viewCharacterSuccess(data) {
@@ -61,7 +66,7 @@ function viewCharacterFailed(errorMsg) {
 }
 
 function visitSmithy() {
-	callMethod("http://localhost:1337", "visitSmithy", gameSession, visitSmithySuccess, visitSmithyFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "visitSmithy", gameSession, visitSmithySuccess, visitSmithyFailed);
 }
 
 function visitSmithySuccess(data) {
@@ -82,7 +87,7 @@ function visitSmithyFailed(errorMsg) {
 }
 
 function train() {
-	callMethod("http://localhost:1337", "train", gameSession, trainSuccess, trainFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "train", gameSession, trainSuccess, trainFailed);
 }
 
 function trainSuccess(data) {
@@ -103,7 +108,7 @@ function trainFailed(errorMsg) {
 }
 
 function visitMeadhall() {
-	callMethod("http://localhost:1337", "visitMeadhall", gameSession, enterTownSuccess, enterTownFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "visitMeadhall", gameSession, enterTownSuccess, enterTownFailed);
 }
 
 function visitMeadhallSuccess(data) {
@@ -124,7 +129,7 @@ function visitMeadhallFailed(errorMsg) {
 }
 
 function enterTown() {
-	callMethod("http://localhost:1337", "enterTown", gameSession, enterTownSuccess, enterTownFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "enterTown", gameSession, enterTownSuccess, enterTownFailed);
 }
 
 function enterTownSuccess(data) {
@@ -145,7 +150,7 @@ function enterTownFailed(errorMsg) {
 }
 
 function leaveTown() {
-	callMethod("http://localhost:1337", "leaveTown", gameSession, leaveTownSuccess, leaveTownFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "leaveTown", gameSession, leaveTownSuccess, leaveTownFailed);
 }
 
 function leaveTownSuccess(data) {
@@ -161,7 +166,7 @@ function leaveTownFailed(errorMsg) {
 
 function nextRound() {
 	gameSession.attackType = $("#attackType").val();	
-	callMethod("http://localhost:1337", "nextRound", gameSession, nextRoundSuccess, nextRoundFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "nextRound", gameSession, nextRoundSuccess, nextRoundFailed);
 }
 
 function nextRoundSuccess(data) {
@@ -198,7 +203,7 @@ function move(direction) {
 	else
 		gameSession.direction = direction;
 	
-	callMethod("http://localhost:1337", "move", gameSession, moveSuccess, moveFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "move", gameSession, moveSuccess, moveFailed);
 }
 
 function moveSuccess(data) {
@@ -229,7 +234,7 @@ function chooseHero() {
 	
 	if (heroName) {
 		gameSession.heroName = heroName;
-		callMethod("http://localhost:1337", "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed);
+		callMethod("http://" + hostIp + ":" + hostPort, "chooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed);
 	}	
 }
 
@@ -255,12 +260,14 @@ function chooseHeroFailed(errorMsg) {
 function createHero() {
 	var hero = { name: $("#newHeroName").val()};
 	gameSession.data = hero;
-	callMethod("http://localhost:1337", "createHero", gameSession, createHeroSuccess, createHeroFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "createHero", gameSession, createHeroSuccess, createHeroFailed);
 }
 
 function createHeroSuccess(data) {
 	logInfo("create hero OK!");
 	logInfo(JSON.stringify(data));
+	var hero = data;
+	$("#heroList").append('<option value="' + hero.name + '">' + hero.name + '</option>');
 }
 
 function createHeroFailed(errorMsg) {
@@ -269,10 +276,10 @@ function createHeroFailed(errorMsg) {
 
 function createLogin() {
 	var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
-	callMethod("http://localhost:1337", "createLogin", newClientLogin, createLoginSuccess, createLoginFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "createLogin", newClientLogin, createLoginSuccess, createLoginFailed);
 }
 
-function createLoginSuccess() {
+function createLoginSuccess(data) {
 	logInfo("create login OK!");
 	logInfo(JSON.stringify(data));
 }
@@ -283,7 +290,7 @@ function createLoginFailed(errorMsg) {
 
 function login() {
 	var clientLogin = {name:$("#login").val(), password:$("#password").val()};
-	callMethod("http://localhost:1337", "login", clientLogin, loginSuccess, loginFailed);
+	callMethod("http://" + hostIp + ":" + hostPort, "login", clientLogin, loginSuccess, loginFailed);
 }
 
 function loginSuccess(serverGameSession) {
