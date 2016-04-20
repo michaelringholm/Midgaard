@@ -1,8 +1,12 @@
 var Logger = require('../common/Logger.js');
 var Battle = require('../battle/Battle.js');
 var Coordinate = require('../map/Coordinate.js');
+var MapDao = require('../map/MapDao.js');
+var MapFactory = require('../map/MapFactory.js');
 
 var _logger = new Logger();
+var _mapDao = new MapDao();
+var _mapFactory = new MapFactory(_mapDao);
 
 module.exports = function Hero(anonObj) {
 	var _this = this;
@@ -28,7 +32,7 @@ module.exports = function Hero(anonObj) {
 	this.currentCoordinates = {};
 	
 	// east, west, north, south, up, down
-	this.move = function(direction, mapFactory, battleCache)  {
+	this.move = function(direction, battleCache)  {
 		_logger.logInfo("Hero.move");
 		var targetCoordinates = new Coordinate(_this.currentCoordinates);
 		if(direction == "west")
@@ -42,7 +46,7 @@ module.exports = function Hero(anonObj) {
 		
 		_logger.logInfo("targetCoordinates=[" + JSON.stringify(targetCoordinates) + "]");
 		
-		var targetLocation = mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
+		var targetLocation = _mapFactory.create(_this.currentMapKey).getLocation(targetCoordinates);
 		
 		if(targetLocation) {
 			_this.currentCoordinates = targetCoordinates;
@@ -94,7 +98,17 @@ module.exports = function Hero(anonObj) {
 			_logger.logError(errMsg);
 			return {trained:false, reason:errMsg};
 		}
-	};	
+	};
+	
+	this.died = function(mob) {
+		_this.xp -= (mob.xp*10);
+		_this.sta -= 1;
+		_this.hp = _this.baseHp;
+		_this.mana = _this.baseMana;
+		var baseTown = _mapFactory.create(_this.currentMapKey).getBaseTown();
+		_this.currentCoordinates.x = baseTown.x;
+		_this.currentCoordinates.y = baseTown.y;
+	};
 	
 	this.construct = function() {
 		_logger.logInfo("Hero.construct");

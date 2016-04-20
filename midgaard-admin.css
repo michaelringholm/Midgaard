@@ -32,7 +32,7 @@ h1 {
 
 #container {
 	position:relative; height: 300px; width: 800px;
-	background-image: url('./resources/images/parchment.jpg'); background-repeat: no-repeat;
+	background-image: url('./resources/images/map-background.jpg'); background-repeat: no-repeat;
 	background-size: 800px 300px;
 }
 

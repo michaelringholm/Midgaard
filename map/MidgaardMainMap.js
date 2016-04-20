@@ -36,8 +36,13 @@ module.exports = function MidgaardMainMap(mapDao) {
 		return null;
 	};
 	
+	this.getBaseTown = function() {
+		return _this.mapDefinition.towns[0]
+	};
+	
 	this.getLocation = function(targetCoordinates) {
-		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 20) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 20)  ) {
+		// Should figure out what is there
+		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 18) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 6)  ) {
 			var possibleMobKeys = ["rat", "beetle", "spider"];
 			var mobProbability = 0.20;
 			var mob = null;
@@ -53,17 +58,21 @@ module.exports = function MidgaardMainMap(mapDao) {
 			
 			//_logger.logInfo("The raw map looks like this = [" + _this.rawMap + "]");
 			var terrainChar = _this.mapMatrix[targetCoordinates.y][targetCoordinates.x];
-			var terrainType = getTerrainType(terrainChar);
-		
-			var location = new Location({targetCoordinates:targetCoordinates, terrainType:terrainType, mob:mob});
 			
-			if(terrainType == "town") {
-				var town = getTown(targetCoordinates); //{name:"Dolfjirheim"};
-				location.town = town;
-			}
+			if(terrainChar) {
+				var terrainType = getTerrainType(terrainChar);
+			
+				var location = new Location({targetCoordinates:targetCoordinates, terrainType:terrainType, mob:mob});
 				
-			
-			return location;
+				if(terrainType == "town") {
+					var town = getTown(targetCoordinates); //{name:"Dolfjirheim"};
+					location.town = town;
+				}
+								
+				return location;
+			}
+			else
+				return null;
 		}
 		else 
 			return null;

@@ -69,12 +69,7 @@ module.exports = function Battle(hero, mob) {
 	
 	this.heroLost = function() {
 		_logger.logInfo("hero lost the battle!");
-		_this.hero.xp -= (mob.xp*10);
-		_this.hero.sta -= 1;
-		_this.hero.hp = _this.baseHp;
-		// Should be set to home/nearest town
-		_this.hero.currentCoordinates.x = 0;		
-		_this.hero.currentCoordinates.y = 0;
+		_this.hero.died(_this.mob);
 	};
   
   this.nextRound = function(heroAtkType, mobAtkType) {

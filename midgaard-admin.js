@@ -7,8 +7,10 @@ var hostIp = "";
 var hostPort = 0;
 
 $(function() {	
-	hostIp = "www.opusmagus.com";
-	hostPort = 83;
+	//hostIp = "www.opusmagus.com";
+	//hostPort = 83;
+	hostIp = "localhost";
+	hostPort = 1337;
 	
 	canvasLayer1 = document.getElementById("canvasLayer1");
 	canvasLayer2 = document.getElementById("canvasLayer2");
@@ -73,13 +75,13 @@ function visitSmithySuccess(data) {
 	logInfo("enter town OK!");
 	logInfo(JSON.stringify(data));
 	
-	if(data.town) {
+	if(data.town && data.smithy) {
 		var town = data.town;
-		logInfo("Entering the town of [" + town.name + "]!");
-		drawTown(town);
+		logInfo("Entering the smithy in [" + town.name + "]!");
+		drawSmithy(data.smithy);
 	}
 	else
-		logInfo("There is no town at this location, continuing on map!");
+		logInfo("You have to be in a town to enter the smithy!");
 }
 
 function visitSmithyFailed(errorMsg) {
@@ -314,11 +316,16 @@ function logInfo(msg) {
 }
 
 function drawMap(data) {
+	var ctx1 = canvasLayer1.getContext("2d");
+	var ctx2 = canvasLayer2.getContext("2d");
+	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
+	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
+	
 	if(data) {
 		var name = data.map.name;
 		var mapMatrix = data.map.mapMatrix;
 		var hero = data.hero;
-		$("#container").css("background-image", "url('./resources/images/parchment.jpg')");
+		$("#container").css("background-image", "url('./resources/images/map-background.jpg')");
 		
 		for(var yIndex in mapMatrix) {
 			for(var xIndex in mapMatrix[yIndex]) {
@@ -393,8 +400,8 @@ function drawBattleScreen(battle) {
 	var ctx2 = canvasLayer2.getContext("2d");
 	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
 	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
-	//var img = new Image();
-	//img.src = "./resources/forest.png";
+		
+	$("#container").css("background-image", "url('./resources/images/battle-background.jpg')"); 
 	var mobImg = document.getElementById("wildBoar");
 	
 	if(battle.mob.key == "orc")
@@ -459,7 +466,7 @@ function drawDeathScreen(hero) {
 }
 
 function drawTraining(hero, trainingOutcome, town) {
-		logInfo("showing training screen!");
+	logInfo("showing training screen!");
 	var ctx1 = canvasLayer1.getContext("2d");
 	var ctx2 = canvasLayer2.getContext("2d");
 	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
@@ -480,7 +487,35 @@ function drawTraining(hero, trainingOutcome, town) {
 	}
 }
 
-
+function drawSmithy(smithy) {
+	var ctx1 = canvasLayer1.getContext("2d");
+	var ctx2 = canvasLayer2.getContext("2d");
+	ctx1.clearRect(0,0,canvasWidth,canvasHeight);
+	ctx2.clearRect(0,0,canvasWidth,canvasHeight);
+		
+	$("#container").css("background-image", "url('./resources/images/smithy-background.jpg')"); 
+	//var smithImg = document.getElementById("smith");	
+	//ctx1.drawImage(smithImg,50,50,120,190);
+	
+	ctx1.font = "22px Calibri";
+	ctx1.fillStyle = '#F9D526';
+	ctx1.fillText("Welcome to my smithy!",20,30);
+	
+	ctx1.font = "16px Calibri";
+  ctx1.fillText("The smith has around " + smithy.copper + " copper pieces!",20,50);
+	ctx1.fillText("He has the following items for sale:",20,90);
+	
+	ctx1.font = "14px Calibri";
+	ctx1.fillText("Item:",20,90+(((1*1)+1)*20));
+	ctx1.fillText("Cost:",170,90+(((1*1)+1)*20));
+	ctx1.fillText("Attributes:",260,90+(((1*1)+1)*20));
+		
+	for(var itemIndex in smithy.items) {
+		ctx1.fillText("- " + smithy.items[itemIndex].name,20,140+(((itemIndex*1)+1)*20));
+		ctx1.fillText(smithy.items[itemIndex].cost + " cp",170,140+(((itemIndex*1)+1)*20));
+		ctx1.fillText(smithy.items[itemIndex].atkMin + "-" + smithy.items[itemIndex].atkMax,260,140+(((itemIndex*1)+1)*20));
+	}
+};
 
 
 function callMethod(host, methodName, data, fnSuccess, fnError) {

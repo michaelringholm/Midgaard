@@ -232,7 +232,7 @@ http.createServer(function (request, response) {
 						}
 						else {
 							serverLogin.activeHero.currentCoordinates;
-							var location = serverLogin.activeHero.move(direction, _mapFactory, _battleCache);
+							var location = serverLogin.activeHero.move(direction, _battleCache);
 							
 							if(location) {
 								_heroDao.save(serverLogin.activeHero);
@@ -718,14 +718,14 @@ http.createServer(function (request, response) {
 					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
 					response.writeHead(200, {'Content-Type': 'application/json'});
 					var data = null;
-					
+					_logger.logInfo("wants to enter smithy!");
 					if(location.town) {
 						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
-						//data.trained = serverLogin.activeHero.train();
+						data.smithy = {copper:500, items:[{name:"wooden sword",cost:1,atkMin:1,atkMax:3},{name:"long sword",cost:20,atkMin:2,atkMax:4},{name:"silver long sword",cost:1000,atkMin:3,atkMax:6}]};
 						_heroDao.save(serverLogin.activeHero);
 					}
 					else {
-						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to train!" };
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to visit the smithy!" };
 					}
 					response.write(JSON.stringify(data));					
 				}
