@@ -14,12 +14,12 @@ module.exports = function MobFactory() {
 
 		var randomMob = null;
 		
-		if(randomIndex == 0) randomMob = {key: "rat", name: "Rat", hp:12, atk:3, luck:2, atkTypes:["melee", "ranged"], xp:5, copper:2, items:["rat pelt"]};
-		if(randomIndex == 1) randomMob = {key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"], xp:7, copper:4, items:["deer skin"]};
-		if(randomIndex == 2) randomMob = {key: "rabbit", name: "Rabbit", hp:14, atk:1, luck:2, atkTypes:["melee"], xp:5, copper:3, items:["rabbits foot"]};
-		if(randomIndex == 3) randomMob = {key: "snake", name: "Snake", hp:19, atk:1, luck:2, atkTypes:["melee"], xp:8, copper:5, items:["snake fang"]};
-		if(randomIndex == 4) randomMob = {key: "beetle", name: "Beetle", hp:15, atk:1, luck:2, atkTypes:["melee"], xp:15, copper:6, items:["beetle shell"]};
-		if(randomIndex == 5) randomMob = {key: "boar", name: "Boar", hp:20, atk:1, luck:2, atkTypes:["melee"], xp:15, copper:6, items:["boar tusk"]};
+		if(randomIndex == 0) randomMob = {key: "rat", name: "Rat", hp:12, minAtk:1, maxAtk:2, ac:0,  regen:1, luck:2, atkTypes:["melee", "poison I"], xp:5, copper:2, items:["rat pelt"]};
+		if(randomIndex == 1) randomMob = {key: "deer", name: "Deer", hp:22, minAtk:1, maxAtk:3, ac:0,  regen:0, luck:2, atkTypes:["melee"], xp:7, copper:4, items:["deer skin"]};
+		if(randomIndex == 2) randomMob = {key: "rabbit", name: "Rabbit", hp:14, minAtk:1, maxAtk:3, ac:0,  regen:0, luck:2, atkTypes:["melee"], xp:5, copper:3, items:["rabbits foot"]};
+		if(randomIndex == 3) randomMob = {key: "snake", name: "Snake", hp:19, minAtk:1, maxAtk:4, ac:1,  regen:1, luck:2, atkTypes:["melee"], xp:8, copper:5, items:["snake fang"]};
+		if(randomIndex == 4) randomMob = {key: "beetle", name: "Beetle", hp:15, minAtk:1, maxAtk:3, ac:2,  regen:0, luck:2, atkTypes:["melee"], xp:15, copper:6, items:["beetle shell"]};
+		if(randomIndex == 5) randomMob = {key: "boar", name: "Boar", hp:20, minAtk:1, maxAtk:4, ac:1,  regen:0, luck:2, atkTypes:["melee"], xp:15, copper:6, items:["boar tusk"]};
 		
 		if(randomMob)
 			_logger.logInfo(JSON.stringify(randomMob));

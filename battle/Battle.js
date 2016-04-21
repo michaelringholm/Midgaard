@@ -24,10 +24,25 @@ module.exports = function Battle(hero, mob) {
   this.drawP = function(p) {
   	//$(p.div).html("a:" + p.a + " # h:" + p.h);
   };
+	
+	var meleeAttack = function(attacker, defender) {
+		var rawDamage = Math.round(attacker.minAtk + (Math.random()*(attacker.maxAtk-attacker.minAtk)) );
+		var damageImpact = damage-defender.ac;
+		if (damageImpact < 0)
+				damageImpact = 0;
+				
+		defender.hp = defender.hp - damageImpact;
+	};
   
   this.attack = function(attacker, defender) {
 		_logger.logInfo("Battle.attack");
-  	defender.hp = defender.hp - attacker.atk;
+		
+		if (attacker.currentBattleAction == "melee")
+			meleeAttack(attacker, defender);
+		else {
+			_logger.logError("Battle action [" + attacker.currentBattleAction + "] not implemented, reverting to melee attack!");
+			meleeAttack(attacker, defender);
+		}
   };
   
   this.getFirstUp = function(playerX, playerY) {
@@ -71,8 +86,18 @@ module.exports = function Battle(hero, mob) {
 		_logger.logInfo("hero lost the battle!");
 		_this.hero.died(_this.mob);
 	};
+	
+	this.regen = function() {
+		_this.hero.hp += _this.hero.regen;
+		_this.mob.hp += _this.mob.regen;
+		
+		if (_this.hero.hp > _this.hero.baseHp)
+				_this.hero.hp = _this.hero.baseHp;
+		if (_this.mob.hp > _this.mob.baseHp)
+				_this.mob.hp = _this.mob.baseHp;
+	};
   
-  this.nextRound = function(heroAtkType, mobAtkType) {
+  this.nextRound = function() {
   	_logger.logInfo("Battle.nextRound");
     
     if(_this.status.over) {
@@ -94,6 +119,8 @@ module.exports = function Battle(hero, mob) {
       if(firstUp.hp <= 0) {
 				_this.battleEnded(secondUp, firstUp);
       }
+			else
+				_this.regen();
     }
     
     _logger.logInfo(JSON.stringify(_this.hero));

@@ -306,12 +306,14 @@ http.createServer(function (request, response) {
 			if(serverLogin) {
 				var attackType = gameSession.attackType;
 				
-				if(attackType == "Melee" || attackType == "Healing I" || attackType == "Weakness I" || attackType == "Strength I") {										
+				if(attackType == "melee" || attackType == "healing I" || attackType == "weakness I" || attackType == "strength I") {										
 					if(serverLogin.activeHero) {						
 						var battle = _battleCache[serverLogin.activeHero.name];
 
 						if(battle) {							
 							response.writeHead(200, {'Content-Type': 'application/json'});
+							battle.hero.currentBattleAction = attackType;
+							battle.mob.currentBattleAction = "melee";
 							battle.nextRound();
 							_heroDao.save(serverLogin.activeHero);
 							
