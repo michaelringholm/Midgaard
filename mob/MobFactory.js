@@ -5,7 +5,7 @@ module.exports = function MobFactory() {
 	var _this = this;
 	this.mobs = {};
 	//this.mobKeys = new Array();
-	this.mobCount = 5;
+	this.mobCount = 6;
 	
 	this.create = function() {
 		_logger.logInfo("MobFactory.create");
@@ -14,11 +14,12 @@ module.exports = function MobFactory() {
 
 		var randomMob = null;
 		
-		if(randomIndex == 0) randomMob = {key: "rat", name: "Rat", hp:12, atk:3, luck:2, atkTypes:["melee", "ranged"], xp:5, gold:0, silver:0, copper:2, items:[]};
-		if(randomIndex == 1) randomMob = {key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"], xp:7, gold:0, silver:0, copper:4, items:[]};
-		if(randomIndex == 2) randomMob = {key: "rabbit", name: "Rabbit", hp:14, atk:1, luck:2, atkTypes:["melee"], xp:5, gold:0, silver:0, copper:3, items:[]};
-		if(randomIndex == 3) randomMob = {key: "snake", name: "Snake", hp:19, atk:1, luck:2, atkTypes:["melee"], xp:8, gold:0, silver:0, copper:5, items:[]};
-		if(randomIndex == 4) randomMob = {key: "beetle", name: "Beetle", hp:15, atk:1, luck:2, atkTypes:["melee"], xp:15, gold:0, silver:0, copper:6, items:[]};
+		if(randomIndex == 0) randomMob = {key: "rat", name: "Rat", hp:12, atk:3, luck:2, atkTypes:["melee", "ranged"], xp:5, copper:2, items:["rat pelt"]};
+		if(randomIndex == 1) randomMob = {key: "deer", name: "Deer", hp:22, atk:1, luck:2, atkTypes:["melee"], xp:7, copper:4, items:["deer skin"]};
+		if(randomIndex == 2) randomMob = {key: "rabbit", name: "Rabbit", hp:14, atk:1, luck:2, atkTypes:["melee"], xp:5, copper:3, items:["rabbits foot"]};
+		if(randomIndex == 3) randomMob = {key: "snake", name: "Snake", hp:19, atk:1, luck:2, atkTypes:["melee"], xp:8, copper:5, items:["snake fang"]};
+		if(randomIndex == 4) randomMob = {key: "beetle", name: "Beetle", hp:15, atk:1, luck:2, atkTypes:["melee"], xp:15, copper:6, items:["beetle shell"]};
+		if(randomIndex == 5) randomMob = {key: "boar", name: "Boar", hp:20, atk:1, luck:2, atkTypes:["melee"], xp:15, copper:6, items:["boar tusk"]};
 		
 		if(randomMob)
 			_logger.logInfo(JSON.stringify(randomMob));
