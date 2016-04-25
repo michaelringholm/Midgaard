@@ -8,6 +8,7 @@ module.exports = function Battle(hero, mob) {
 		return;
 	}
 	
+	this.round = 0;
 	this.hero = hero;
   this.mob =  mob;
 	this.status = {over:false, winner:"", loser:""};
@@ -27,10 +28,11 @@ module.exports = function Battle(hero, mob) {
 	
 	var meleeAttack = function(attacker, defender) {
 		var rawDamage = Math.round(attacker.minAtk + (Math.random()*(attacker.maxAtk-attacker.minAtk)) );
-		var damageImpact = damage-defender.ac;
+		var damageImpact = rawDamage-defender.ac;
 		if (damageImpact < 0)
 				damageImpact = 0;
-				
+		
+		attacker.damageImpact = damageImpact;
 		defender.hp = defender.hp - damageImpact;
 	};
   
@@ -104,6 +106,8 @@ module.exports = function Battle(hero, mob) {
 			_logger.logInfo("battle is over!");
     	return;
 		}
+		else
+			this.round++;
       
   	var firstUp = _this.getFirstUp(_this.hero, _this.mob);
     var secondUp = _this.getSecondUp(_this.hero, _this.mob);
