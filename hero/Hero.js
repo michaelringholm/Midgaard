@@ -75,8 +75,12 @@ module.exports = function Hero(anonObj) {
 		}
 	};
 	
+	this.getXpTarget = function() {
+		return _this.level*_this.level*1000;
+	}
+	
 	this.train = function() {
-		var xpTarget = _this.level*_this.level*1000;
+		var xpTarget = _this.getXpTarget();
 		
 		if(_this.xp >= xpTarget) {		
 			var cost = _this.level*_this.level*100;
