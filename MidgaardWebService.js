@@ -15,6 +15,7 @@ var MapFactory = require('./map/MapFactory.js');
 var MidgaardMainMap = require('./map/MidgaardMainMap.js');
 var Coordinate = require('./map/Coordinate.js');
 var Location = require('./map/Location.js');
+var Smithy = require('./town/Smithy.js');
 
 var _logger = new Logger();
 var _appContext = new AppContext();
@@ -24,6 +25,7 @@ var _hero = null;
 var _heroCache = {};
 var _loginCache = {};
 var _battleCache = {};
+var _smithy = new Smithy();
 
 var _heroDao = new HeroDao();
 var _mapFactory = new MapFactory(_mapDao);
@@ -745,7 +747,72 @@ http.createServer(function (request, response) {
 				
 			response.end();
 		});
-  }	 
+	}	 
+	
+	else if(request.url == "/buySmithyItem" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/buySmithyItem" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});					
+					var data = null;
+					_logger.logInfo("wants to enter smithy!");
+					
+					if(location.town) {
+						if (gameSession.itemKey) {
+							//data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+							//data.smithy = {copper:500, items:[{name:"wooden sword",cost:1,atkMin:1,atkMax:3},{name:"long sword",cost:20,atkMin:2,atkMax:4},{name:"silver long sword",cost:1000,atkMin:3,atkMax:6}]};
+							_smithy.buyItem(gameSession.itemKey, serverLogin.activeHero);
+							_heroDao.save(serverLogin.activeHero);
+						}
+						else {
+							_logger.logError("No hero selected!");
+							response.writeHead(500, {'Content-Type': 'application/json'});
+							response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+						}
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to visit the smithy!" };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+	}	
 	
 	else {
 		response.writeHead(500, {'Content-Type': 'application/json'});	

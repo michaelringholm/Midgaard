@@ -3,10 +3,12 @@ var Battle = require('../battle/Battle.js');
 var Coordinate = require('../map/Coordinate.js');
 var MapDao = require('../map/MapDao.js');
 var MapFactory = require('../map/MapFactory.js');
+var ItemFactory = require('../item/ItemFactory.js');
 
 var _logger = new Logger();
 var _mapDao = new MapDao();
 var _mapFactory = new MapFactory(_mapDao);
+var _itemFactory = new ItemFactory();
 
 module.exports = function Hero(anonObj) {
 	var _this = this;
@@ -31,9 +33,48 @@ module.exports = function Hero(anonObj) {
 	this.silver = 0;
 	this.copper = 0;
 	this.items = [];
+	this.equippedItems = {};
 	this.atkTypes = [];
 	this.currentMapKey = "";
 	this.currentCoordinates = {};
+	
+	this.equipItem = function(itemKey) {
+		
+		// Find and remove equipped item from inventory
+		var itemIndexToRemove = -1;
+		for(var itemIndex in items) {
+			if (items[itemIndex] == itemKey) {
+				itemIndexToRemove = itemIndex;
+				break;
+			}
+		}
+		
+		if (itemIndexToRemove > -1)  {
+			items.splice(itemIndexToRemove, 1);
+		}
+		else
+			return { status: false, reason:"Hero does not have that item!" };
+		
+		var item = _itemFactory.create(itemKey); // Get full item as we need to know the slot
+		var currentlyEquippedItem = _this.equippedItems[item.slot];
+		
+		if (currentlyEquippedItem) {
+			items.push(currentlyEquippedItem); // Put the currently equipped item back into the inventory	if one exists
+		}
+		_this.equippedItems[item.slot] = itemKey;
+		
+		return { status: true, reason:"Item equipped!" };
+	};
+	
+	this.removeItem = function(itemKey) {
+		var item = _itemFactory.create(itemKey); // Get full item as we need to know the slot
+		var currentlyEquippedItem = _this.equippedItems[item.slot];
+		
+		if (currentlyEquippedItem) {
+			items.push(currentlyEquippedItem); // Put the currently equipped item back into the inventory	if one exists
+			_this.equippedItems[item.slot] = null;
+		}
+	};	
 	
 	// east, west, north, south, up, down
 	this.move = function(direction, battleCache)  {
