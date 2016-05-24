@@ -725,7 +725,8 @@ http.createServer(function (request, response) {
 					_logger.logInfo("wants to enter smithy!");
 					if(location.town) {
 						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
-						data.smithy = {copper:500, items:[{name:"wooden sword",cost:1,atkMin:1,atkMax:3},{name:"long sword",cost:20,atkMin:2,atkMax:4},{name:"silver long sword",cost:1000,atkMin:3,atkMax:6}]};
+						//data.smithy = {copper:500, items:[{name:"wooden sword",cost:1,atkMin:1,atkMax:3},{name:"long sword",cost:20,atkMin:2,atkMax:4},{name:"silver long sword",cost:1000,atkMin:3,atkMax:6}]};
+						data.smithy = _smithy;
 						_heroDao.save(serverLogin.activeHero);
 					}
 					else {
@@ -778,13 +779,210 @@ http.createServer(function (request, response) {
 					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
 					response.writeHead(200, {'Content-Type': 'application/json'});					
 					var data = null;
-					_logger.logInfo("wants to enter smithy!");
+					_logger.logInfo("wants to buy an item!");
 					
 					if(location.town) {
-						if (gameSession.itemKey) {
-							//data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
-							//data.smithy = {copper:500, items:[{name:"wooden sword",cost:1,atkMin:1,atkMax:3},{name:"long sword",cost:20,atkMin:2,atkMax:4},{name:"silver long sword",cost:1000,atkMin:3,atkMax:6}]};
-							_smithy.buyItem(gameSession.itemKey, serverLogin.activeHero);
+						if (gameSession.itemKey) {							
+							var buyResponse = _smithy.buyItem(gameSession.itemKey, serverLogin.activeHero);
+							data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+							data.smithy = _smithy;
+							data.buyResponse = buyResponse;
+							_heroDao.save(serverLogin.activeHero);
+						}
+						else {
+							_logger.logError("No hero selected!");
+							response.writeHead(500, {'Content-Type': 'application/json'});
+							response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+						}
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to visit the smithy!" };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+	}	
+	
+	else if(request.url == "/sellSmithyItem" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/sellSmithyItem" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});					
+					var data = null;
+					_logger.logInfo("wants to sell an item!");
+					
+					if(location.town) {
+						if (gameSession.itemKey) {							
+							var sellResponse = _smithy.sellItem(gameSession.itemKey, serverLogin.activeHero);
+							data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+							data.smithy = _smithy;
+							data.sellResponse = sellResponse;
+							_heroDao.save(serverLogin.activeHero);
+						}
+						else {
+							_logger.logError("No hero selected!");
+							response.writeHead(500, {'Content-Type': 'application/json'});
+							response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+						}
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to visit the smithy!" };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+	}	
+	
+	else if(request.url == "/equipItem" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/equipItem" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});					
+					var data = null;
+					_logger.logInfo("wants to equip an item!");
+					
+					if(location.town) {
+						if (gameSession.itemKey) {							
+							var equipResponse = serverLogin.activeHero.equipItem(gameSession.itemKey, serverLogin.activeHero);
+							data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+							data.equipResponse = equipResponse;
+							_heroDao.save(serverLogin.activeHero);
+						}
+						else {
+							_logger.logError("No hero selected!");
+							response.writeHead(500, {'Content-Type': 'application/json'});
+							response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+						}
+					}
+					else {
+						data = { map:currentMap, hero:serverLogin.activeHero, reason:"You have to be in a town to visit the smithy!" };
+					}
+					response.write(JSON.stringify(data));					
+				}
+				else {
+					_logger.logError("No hero selected!");
+					response.writeHead(500, {'Content-Type': 'application/json'});
+					response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+				}
+			}
+			else {
+				_logger.logError("Unable to find public key, please try to login again!");
+				response.writeHead(500, {'Content-Type': 'application/json'});
+				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+			}
+				
+			response.end();
+		});
+	}	
+	
+	else if(request.url == "/removeItem" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/removeItem" && request.method == 'POST') {			
+		var postData = '';
+	
+		request.on('data', function(chunk) {
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {
+			_logger.logInfo(postData);
+			var gameSession = null;
+			var serverLogin  = null;
+			
+			try {
+				gameSession = JSON.parse(postData);			
+				serverLogin = _loginCache[gameSession.publicKey]
+			}
+			catch(ex) {
+				_logger.logError(ex);
+			}
+			
+			if(serverLogin) {				
+				if(serverLogin.activeHero) {
+					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+					response.writeHead(200, {'Content-Type': 'application/json'});					
+					var data = null;
+					_logger.logInfo("wants to remove an item!");
+					
+					if(location.town) {
+						if (gameSession.itemKey) {							
+							var removeResponse = serverLogin.activeHero.removeItem(gameSession.itemKey, serverLogin.activeHero);
+							data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
+							data.removeResponse = removeResponse;
 							_heroDao.save(serverLogin.activeHero);
 						}
 						else {

@@ -73,7 +73,10 @@ module.exports = function Hero(anonObj) {
 		if (currentlyEquippedItem) {
 			items.push(currentlyEquippedItem); // Put the currently equipped item back into the inventory	if one exists
 			_this.equippedItems[item.slot] = null;
+			return { status: true, reason:"Item removed and put in inventory!" };
 		}
+		else
+			return { status: false, reason:"Item was not equipped, nothing to remove!" };
 	};	
 	
 	// east, west, north, south, up, down
