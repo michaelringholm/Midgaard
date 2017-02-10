@@ -11,8 +11,7 @@ module.exports = function MidgaardMainMap(mapDao) {
 	this.locations = new Array();
 	this.mapMatrix = null;
 	this.mapDefinition = null;
-	
-	var mapDao = mapDao;
+	this.mapDao = mapDao;
 	var mobFactory = new MobFactory();
 	
 	var getTerrainType = function(terrainChar) {
@@ -44,7 +43,7 @@ module.exports = function MidgaardMainMap(mapDao) {
 		// Should figure out what is there
 		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 18) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 6)  ) {
 			var possibleMobKeys = ["rat", "beetle", "spider"];
-			var mobProbability = 0.20;
+			var mobProbability = 0.01;
 			var mob = null;
 			
 			if(Math.random() < mobProbability) {
@@ -74,8 +73,10 @@ module.exports = function MidgaardMainMap(mapDao) {
 			else
 				return null;
 		}
-		else 
+		else {
+			_logger.logInfo("outside of map area!");
 			return null;
+		}
 	};
 	
 	this.construct = function() {
