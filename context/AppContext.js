@@ -9,7 +9,8 @@ module.exports = function AppContext() {
 	};
 	
 	this.getHostIp = function() {
-		return "127.0.0.1";
+		//return "127.0.0.1";
+		return "192.168.0.24";
 	};
 	
 	this.getHostPort = function() {
