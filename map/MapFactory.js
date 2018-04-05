@@ -6,7 +6,7 @@ var _logger = new Logger();
 module.exports = function MapFactory(mapDao) {
 	var _this = this;
 	this.maps = {};
-	var mapDao = mapDao;
+	this.mapDao = mapDao;
 	
 	this.create = function(mapKey) {
 		_logger.logInfo("MapFactory.create");
@@ -21,7 +21,7 @@ module.exports = function MapFactory(mapDao) {
 	
 	this.construct = function() {
 		_logger.logInfo("MobFactory.construct");
-		_this.addMap(new MidgaardMainMap(mapDao));
+		_this.addMap(new MidgaardMainMap(this.mapDao));
 	};
 	
 	_this.construct();

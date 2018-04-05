@@ -154,7 +154,11 @@ module.exports = function Hero(anonObj) {
 	
 	this.died = function(mob) {
 		_this.xp -= (mob.xp*10);
-		_this.sta -= 1;
+		
+		if (_this.sta > 1) {
+			_this.sta -= 1;
+		}
+		
 		_this.hp = 1;
 		_this.mana = _this.baseMana;
 		var baseTown = _mapFactory.create(_this.currentMapKey).getBaseTown();
