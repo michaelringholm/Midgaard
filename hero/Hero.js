@@ -37,6 +37,7 @@ module.exports = function Hero(anonObj) {
 	this.atkTypes = [];
 	this.currentMapKey = "";
 	this.currentCoordinates = {};
+	this.rested = false;
 	
 	this.equipItem = function(itemKey) {
 		
@@ -111,11 +112,13 @@ module.exports = function Hero(anonObj) {
 			_this.copper -= 1;
 			_this.hp = _this.baseHp;
 			_this.mana = _this.baseMana;
-			return true;
+			_this.rested = true;
+			return {success:true};
 		}
 		else {
-			_logger.logError("Not enough money to visit the mead hall, you need at least 1 copper!");
-			return false;
+			var reason = "Not enough money to visit the mead hall, you need at least 1 copper!";
+			_logger.logError(reason);
+			return {success:false, reason:reason};
 		}
 	};
 	

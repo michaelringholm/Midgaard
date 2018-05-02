@@ -43,10 +43,13 @@ module.exports = function MidgaardMainMap(mapDao) {
 		// Should figure out what is there
 		if( (targetCoordinates.x >= 0 && targetCoordinates.x <= 18) && (targetCoordinates.y >= 0 && targetCoordinates.y <= 6)  ) {
 			var possibleMobKeys = ["rat", "beetle", "spider"];
-			var mobProbability = 0.01;
+			var mobProbability = 0.5;
 			var mob = null;
+			var randomPropability = Math.random();
+			_logger.logInfo("mobProbability = "  + mobProbability);
+			_logger.logInfo("randomPropability = "  + randomPropability);
 			
-			if(Math.random() < mobProbability) {
+			if(randomPropability < mobProbability) {
 				//var mobIndex = Math.Round(Math.random()*possibleMobKeys.length));
 				//var mob = 
 				_logger.logInfo("Monsters found!");

@@ -355,6 +355,58 @@ http.createServer(function (request, response) {
 		});		
   }		
 	
+	else if(request.url == "/fleeBattle" && request.method == 'OPTIONS') {
+		response.end();
+	}	
+	else if(request.url == "/fleeBattle" && request.method == 'POST') {		
+		var postData = "";
+	
+		request.on('data', function(chunk) {
+			// append the current chunk of data to the postData variable
+			postData += chunk.toString();
+		});
+		
+		request.on('end', function() {			
+			var gameSession = JSON.parse(postData);			
+			var serverLogin = _loginCache[gameSession.publicKey];
+			
+			if(serverLogin) {
+									
+				if(serverLogin.activeHero) {						
+					var battle = _battleCache[serverLogin.activeHero.name];
+
+					if(battle) {							
+						response.writeHead(200, {'Content-Type': 'application/json'});
+						battle.flee();
+						_heroDao.save(serverLogin.activeHero);
+						
+						if(battle.status.over)
+							delete _battleCache[serverLogin.activeHero.name];
+							
+						var data = {hero:serverLogin.activeHero,battle:battle};
+						response.write(JSON.stringify(data));
+					}
+					else {
+						response.writeHead(200, {'Content-Type': 'application/json'});
+						var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
+						var data = { map:currentMap, hero:serverLogin.activeHero, status:"Battle not found!"};
+						response.write(JSON.stringify(data));
+					}
+				}
+				else {
+					response.writeHead(500, {'Content-Type': 'application/json'});	
+					response.write('{ "reason": "No active hero found, please choose a hero!"}');
+				}
+			}
+			else {
+				response.writeHead(500, {'Content-Type': 'application/json'});	
+				response.write('{ "reason": "Public key not found, please login again!"}');
+			}
+			
+			response.end();
+		});		
+  }		
+	
 	else if(request.url == "/createHero" && request.method == 'OPTIONS') {
 		response.end();
 	}	
@@ -559,7 +611,7 @@ http.createServer(function (request, response) {
 					
 					if(location.town) {
 						data = { map:currentMap, hero:serverLogin.activeHero, town:location.town };
-						data.rested = serverLogin.activeHero.visitMeadhall();
+						data.actionResponse = serverLogin.activeHero.visitMeadhall();
 						_heroDao.save(serverLogin.activeHero);
 					}
 					else {

@@ -130,6 +130,38 @@ module.exports = function Battle(hero, mob) {
     _logger.logInfo(JSON.stringify(_this.hero));
 		_logger.logInfo(JSON.stringify(_this.mob));
   };
+	
+	this.flee = function() {
+  	_logger.logInfo("Battle.flee");
+    
+    if(_this.status.over) {
+			_logger.logInfo("battle is over!");
+    	return;
+		}
+		else
+			this.round++;
+      
+  	var firstUp = _this.getFirstUp(_this.hero, _this.mob);
+    var secondUp = _this.getSecondUp(_this.hero, _this.mob);
+    
+  	_this.attack(firstUp, secondUp);
+    
+    if(secondUp.hp <= 0) {
+			_this.battleEnded(firstUp, secondUp);
+    }
+    else {
+    	_this.attack(secondUp, firstUp);
+    	
+      if(firstUp.hp <= 0) {
+				_this.battleEnded(secondUp, firstUp);
+      }
+			else
+				_this.regen();
+    }
+    
+    _logger.logInfo(JSON.stringify(_this.hero));
+		_logger.logInfo(JSON.stringify(_this.mob));
+  };
   
   this.construct = function() {
 		_logger.logInfo("Battle.construct");
