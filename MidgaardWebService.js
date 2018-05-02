@@ -17,6 +17,8 @@ var Coordinate = require('./map/Coordinate.js');
 var Location = require('./map/Location.js');
 var Smithy = require('./town/Smithy.js');
 
+var SmithyController = require('./controllers/SmithyController.js');
+
 var _logger = new Logger();
 var _appContext = new AppContext();
 var _mapDao = new MapDao();
@@ -33,7 +35,6 @@ var _mobFactory = new MobFactory();
 
 //var _mob = new MobFactory().create();
 //var battle = new Battle(_hero, _mob);
-
 
 /********** GameSession ***********/
 function GameSession(loginName) {
@@ -62,7 +63,6 @@ function GameSession(loginName) {
 /*********** WEB SERVER ****************/
 http.createServer(function (request, response) {
   //response.writeHead(200, {'Content-Type': 'text/plain'});
-	
 	response.setHeader("Access-Control-Allow-Origin", "*");
 	response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -801,11 +801,11 @@ http.createServer(function (request, response) {
 			response.end();
 		});
 	}	 
-	
-	else if(request.url == "/buySmithyItem" && request.method == 'OPTIONS') {
+		
+	else if(request.url == "/Smithy/BuyItem" && request.method == 'OPTIONS') {
 		response.end();
 	}	
-	else if(request.url == "/buySmithyItem" && request.method == 'POST') {			
+	else if(request.url == "/Smithy/BuyItem" && request.method == 'POST') {			
 		var postData = '';
 	
 		request.on('data', function(chunk) {
@@ -826,12 +826,13 @@ http.createServer(function (request, response) {
 			}
 			
 			if(serverLogin) {				
-				if(serverLogin.activeHero) {
+				if(serverLogin.activeHero) {					
+					response.writeHead(200, {'Content-Type': 'application/json'});					
+					_logger.logInfo("wants to buy an item!");
+					var data = null;
 					var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);				
 					var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
-					response.writeHead(200, {'Content-Type': 'application/json'});					
-					var data = null;
-					_logger.logInfo("wants to buy an item!");
+					eval["SmithyController"]["BuyItem"](gameSession);
 					
 					if(location.town) {
 						if (gameSession.itemKey) {							
@@ -842,9 +843,9 @@ http.createServer(function (request, response) {
 							_heroDao.save(serverLogin.activeHero);
 						}
 						else {
-							_logger.logError("No hero selected!");
+							_logger.logError("No item selected!");
 							response.writeHead(500, {'Content-Type': 'application/json'});
-							response.write('{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+							response.write('{ "error": "No item selected!, please select an item to buy!"}');
 						}
 					}
 					else {
