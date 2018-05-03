@@ -2,11 +2,11 @@ var Logger = require('../common/Logger.js');
 
 var _logger = new Logger();
 
-module.exports = function SmithyController() {
+module.exports = function HeroController() {
     var _this = this;
 
-    this.BuyItem = function(data) {
-        _logger.logInfo("SmithyController.BuyItem called!");
+    this.Train = function(data) {
+        _logger.logInfo("HeroController.Train called!");
         _logger.logInfo(JSON.stringify(data));
     };
 }
