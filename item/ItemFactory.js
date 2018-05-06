@@ -1,7 +1,7 @@
-var Logger = require('../common/Logger.js');
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 
-module.exports = function ItemFactory() {
+module.exports = 
+function ItemFactory() {
 	var _this = this;
 	this.mobs = {};
 	//this.mobKeys = new Array();

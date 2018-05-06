@@ -1,17 +1,16 @@
-var Logger = require('../common/Logger.js');
+var _logger = require('../common/Logger.js');
 var Location = require('../map/Location.js');
+var _mapDao = require('../map/MapDao.js');
 var MobFactory = require('../mob/MobFactory.js');
 
-var _logger = new Logger();
-
-module.exports = function MidgaardMainMap(mapDao) {
+module.exports = 
+function MidgaardMainMap() {
 	var _this = this;
 	this.key = "midgaard-main";
 	this.name = "Midgaard main map";
 	this.locations = new Array();
 	this.mapMatrix = null;
 	this.mapDefinition = null;
-	this.mapDao = mapDao;
 	var mobFactory = new MobFactory();
 	
 	var getTerrainType = function(terrainChar) {
@@ -85,9 +84,9 @@ module.exports = function MidgaardMainMap(mapDao) {
 	this.construct = function() {
 		_logger.logInfo("MidgaardMainMap.construct");
 		var mob = mobFactory.create();
-		var rawMap = mapDao.load(_this.key);
+		var rawMap = _mapDao.load(_this.key);
 		_this.mapMatrix = rawMap.match(/[^\r\n]+/g);
-		_this.mapDefinition = JSON.parse(mapDao.loadDefinition(_this.key));
+		_this.mapDefinition = JSON.parse(_mapDao.loadDefinition(_this.key));
 	};
 	
 	_this.construct();

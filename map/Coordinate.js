@@ -1,8 +1,7 @@
-var Logger = require('../common/Logger.js');
+var _logger = require('../common/Logger.js');
 
-var _logger = new Logger();
-
-module.exports = function Coordinate(anonObj) {
+module.exports = 
+function Coordinate(anonObj) {
 	var _this = this;
 	this.x = 0;
 	this.y = 0;

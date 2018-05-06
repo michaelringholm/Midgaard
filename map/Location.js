@@ -1,8 +1,7 @@
-var Logger = require('../common/Logger.js');
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 
-
-module.exports = function Location(anonObj) {
+module.exports = 
+function Location(anonObj) {
 	var _this = this;
 	this.terrainType = "";
 	this.mob = null;

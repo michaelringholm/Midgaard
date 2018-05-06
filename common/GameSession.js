@@ -1,7 +1,5 @@
 
-var Logger = require('../common/Logger.js');
-
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 
 module.exports = 
 function GameSession(loginName) {

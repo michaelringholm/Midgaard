@@ -1,12 +1,12 @@
-var Logger = require('../common/Logger.js');
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 var _baseController = require('./BaseController.js');
-var HeroDao = require('../hero/HeroDao.js');
+var _heroDao = require('../hero/HeroDao.js');
+var _mapDao = require('../map/MapDao.js');
+var _mapFactory = require('../map/MapFactory.js');
 
 module.exports = 
 function HeroController() {
 	var _this = this;
-	this.heroDao = new HeroDao();
 
     this.Train = function(postData, response) {
         _logger.logInfo("HeroController.Train called!");
@@ -19,8 +19,8 @@ function HeroController() {
         var serverLogin = _baseController.loginCache[gameSession.publicKey];
 		_logger.logInfo("Login Cache=" +  JSON.stringify(_baseController.loginCache));
         if (serverLogin) {
-            if (_this.heroDao.exists(gameSession.heroName)) {
-                var loadedHero = _this.heroDao.load(gameSession.heroName);
+            if (_heroDao.exists(gameSession.heroName)) {
+                var loadedHero = _heroDao.load(gameSession.heroName);
 
                 if (loadedHero) {
                     serverLogin.activeHero = loadedHero;

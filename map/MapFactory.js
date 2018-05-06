@@ -1,12 +1,10 @@
-var Logger = require('../common/Logger.js');
+var _logger = require('../common/Logger.js');
+var _mapDao = require('../map/MapDao.js');
 var MidgaardMainMap = require('../map/MidgaardMainMap.js');
 
-var _logger = new Logger();
-
-module.exports = function MapFactory(mapDao) {
+function MapFactory() {
 	var _this = this;
 	this.maps = {};
-	this.mapDao = mapDao;
 	
 	this.create = function(mapKey) {
 		_logger.logInfo("MapFactory.create");
@@ -21,8 +19,10 @@ module.exports = function MapFactory(mapDao) {
 	
 	this.construct = function() {
 		_logger.logInfo("MobFactory.construct");
-		_this.addMap(new MidgaardMainMap(this.mapDao));
+		_this.addMap(new MidgaardMainMap(_mapDao));
 	};
 	
 	_this.construct();
 }
+
+module.exports = new MapFactory();

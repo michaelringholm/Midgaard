@@ -1,4 +1,4 @@
-module.exports = function Logger() {
+function Logger() {
 
 	var _this = this;
 	
@@ -13,5 +13,6 @@ module.exports = function Logger() {
 	this.logWarn = function(msg) {
 		console.log('[WARN]:' + msg);
 	};
-
 }
+
+module.exports = new Logger();

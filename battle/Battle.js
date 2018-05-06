@@ -1,7 +1,7 @@
-var Logger = require('../common/Logger.js');
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 
-module.exports = function Battle(hero, mob) {
+module.exports = 
+function Battle(hero, mob) {
 	var _this = this;
 	if(!hero || !mob) {
 		_logger.logError("Hero or mob was null!");

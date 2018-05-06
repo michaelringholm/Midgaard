@@ -2,8 +2,7 @@ var fs = require( 'fs' );
 var path = require( 'path' );
 // In newer Node.js versions where process is already global this isn't necessary.
 var process = require( "process" );
-var Logger = require('../common/Logger.js');
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 
 
 
@@ -14,17 +13,17 @@ module.exports = function Router() {
     var _this = this;
     this.importDone = false;
 
-    this.route = function(fullRoute, data, response) {
+    this.route = function(fullRoute, data) {
         _logger.logInfo("Full Route=" + fullRoute);        
         var routeParts = fullRoute.split("/");
         _logger.logInfo("routeParts[1]=" + routeParts[1]);
         _logger.logInfo("routeParts[2]=" + routeParts[2]);
         if(!_this.importDone)
-            _this.importControllers(_this.fnDone, routeParts, data, response);
-        return eval("new _this." + routeParts[1] + "Controller()")[routeParts[2]](data, response);  
+            _this.importControllers();
+        return eval("new _this." + routeParts[1] + "Controller()")[routeParts[2]](data);  
     };
 
-    this.importControllers = function(fnCallback, routeParts, data, response) {
+    this.importControllers = function() {
         console.log("*************  importControllers ...");
         var files = fs.readdirSync( "./controllers/");
         

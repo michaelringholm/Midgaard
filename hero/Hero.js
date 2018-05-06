@@ -1,13 +1,9 @@
-var Logger = require('../common/Logger.js');
+var _logger = require('../common/Logger.js');
 var Battle = require('../battle/Battle.js');
 var Coordinate = require('../map/Coordinate.js');
-var MapDao = require('../map/MapDao.js');
-var MapFactory = require('../map/MapFactory.js');
+var _mapDao = require('../map/MapDao.js');
+var _mapFactory = require('../map/MapFactory.js');
 var ItemFactory = require('../item/ItemFactory.js');
-
-var _logger = new Logger();
-var _mapDao = new MapDao();
-var _mapFactory = new MapFactory(_mapDao);
 var _itemFactory = new ItemFactory();
 
 module.exports = function Hero(anonObj) {

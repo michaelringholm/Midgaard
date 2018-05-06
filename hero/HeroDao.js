@@ -1,9 +1,7 @@
-var Logger = require('../common/Logger.js');
+var _logger = require('../common/Logger.js');
 var Hero = require('../hero/Hero.js');
 
-var _logger = new Logger();
-
-module.exports = function HeroDao() {
+function HeroDao() {
 	var _this = this;
 		
 	this.exists = function(heroName) {
@@ -57,3 +55,5 @@ module.exports = function HeroDao() {
   
   _this.construct();
 }
+
+module.exports = new HeroDao();

@@ -1,5 +1,4 @@
-var Logger = require('../common/Logger.js');
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
 var LoginDao = require('../login/LoginDao.js');
 var _loginDao = new LoginDao();
 var _baseController = require('./BaseController.js');

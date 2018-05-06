@@ -1,14 +1,15 @@
-var Logger = require('../common/Logger.js');
-
-var _logger = new Logger();
+var _logger = require('../common/Logger.js');
+var _baseController = require('./BaseController.js');
+var _heroDao = require('../hero/HeroDao.js');
+var _mapFactory = require("../map/MapFactory.js");
 
 module.exports = 
 function MapController() {
     var _this = this;
 
-    this.move = function() {
+    this.Move = function(postData) {
         var gameSession = JSON.parse(postData);
-        var serverLogin = _loginCache[gameSession.publicKey];
+        var serverLogin = _baseController.loginCache[gameSession.publicKey];
 
         if (serverLogin) {
             var direction = gameSession.direction;
@@ -16,44 +17,75 @@ function MapController() {
             if (direction == "west" || direction == "east" || direction == "north" || direction == "south") {
                 if (serverLogin.activeHero) {
 
-                    if (_battleCache[serverLogin.activeHero.name]) {
-                        response.writeHead(200, { 'Content-Type': 'application/json' });
-                        var battle = _battleCache[serverLogin.activeHero.name];
-                        response.write(JSON.stringify(battle));
+                    if (_baseController.battleCache[serverLogin.activeHero.name]) {
+                        var battle = _baseController.battleCache[serverLogin.activeHero.name];
+                        return _baseController.JsonResult(200, JSON.stringify(battle));
                     }
                     else {
                         serverLogin.activeHero.currentCoordinates;
-                        var location = serverLogin.activeHero.move(direction, _battleCache);
+                        var location = serverLogin.activeHero.move(direction, _baseController.battleCache);
 
                         if (location) {
                             _heroDao.save(serverLogin.activeHero);
-                            response.writeHead(200, { 'Content-Type': 'application/json' });
-
-                            var battle = _battleCache[serverLogin.activeHero.name];
+                            var battle = _baseController.battleCache[serverLogin.activeHero.name];
                             if (battle)
-                                response.write(JSON.stringify(battle));
+                                return _baseController.JsonResult(200, JSON.stringify(battle));
                             else
-                                response.write(JSON.stringify(location));
+                                return _baseController.JsonResult(200, JSON.stringify(location));
                         }
                         else {
-                            response.writeHead(500, { 'Content-Type': 'application/json' });
-                            response.write('{ "reason": "Invalid location!"}');
+                            return _baseController.JsonResult(500, '{ "reason": "Invalid location!"}');
                         }
                     }
                 }
                 else {
-                    response.writeHead(500, { 'Content-Type': 'application/json' });
-                    response.write('{ "reason": "No active hero found, please choose a hero!"}');
+                    return _baseController.JsonResult(500,'{ "reason": "No active hero found, please choose a hero!"}');
                 }
             }
             else {
-                response.writeHead(500, { 'Content-Type': 'application/json' });
-                response.write('{ "reason": "Invalid direction [' + direction + ']!"}');
+                return _baseController.JsonResult(500, '{ "reason": "Invalid direction [' + direction + ']!"}');
             }
         }
         else {
-            response.writeHead(500, { 'Content-Type': 'application/json' });
-            response.write('{ "reason": "Public key not found, please login again!"}');
+            return _baseController.JsonResult(500, '{ "reason": "Public key not found, please login again!"}');
         }
-    };  
+    };
+
+    this.EnterTown = function(postData) {
+        _logger.logInfo(postData);
+        var gameSession = null;
+        var serverLogin = null;
+
+        try {
+            gameSession = JSON.parse(postData);
+            serverLogin = _baseController.loginCache[gameSession.publicKey]
+        }
+        catch (ex) {
+            _logger.logError(ex);
+        }
+
+        if (serverLogin) {
+            if (serverLogin.activeHero) {
+                var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);
+                var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
+                var data = null;
+
+                if (location.town) {
+                    data = { map: currentMap, hero: serverLogin.activeHero, town: location.town };
+                }
+                else {
+                    data = { map: currentMap, hero: serverLogin.activeHero };
+                }
+                return _baseController.JsonResult(200, JSON.stringify(data));
+            }
+            else {
+                _logger.logError("No hero selected!");
+                return _baseController.JsonResult(500, '{ "error": "No hero selected!, please select one of your heroes, or create a new one!"}');
+            }
+        }
+        else {
+            _logger.logError("Unable to find public key, please try to login again!");
+            return _baseController.JsonResult(500, '{ "error": "Unable to find public key, please try to login again!"}');
+        }
+    };
 }

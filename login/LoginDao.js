@@ -1,7 +1,5 @@
-var Logger = require('../common/Logger.js');
+var _logger = require('../common/Logger.js');
 var AppContext = require('../context/AppContext.js');
-
-var _logger = new Logger();
 var _appContext = new AppContext();
 
 module.exports = function LoginDao() {
