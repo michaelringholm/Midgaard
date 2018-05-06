@@ -10,13 +10,9 @@ var process = require( "process" );
 
 module.exports = function Router() {
     var _this = this;
-    this.areModulesImported = false;
-    this.route = function(fullRoute, data) {
-        console.log("************* Step3");
+    this.route = function(fullRoute, data, response) {
         var routeParts = fullRoute.split("/");
-        _this.importControllers(_this.fnDone, routeParts, data);        
-        //while(!_this.areModulesImported);
-        console.log("************* Step4");        
+        _this.importControllers(_this.fnDone, routeParts, data, response);        
         //return eval("new " + routeParts[1] + "Controller()")[routeParts[2]](data);
     };
 
@@ -28,12 +24,21 @@ module.exports = function Router() {
         //return eval("new " + controllerName + "Controller()")[methodName](data);
     };
 
-    this.fnDone = function(routeParts, data) {
+    this.fnDone = function(routeParts, data, response) {
         console.log("fnDone called....");
-        eval("new _this." + routeParts[1] + "Controller()")[routeParts[2]](data);
+
+        try {
+            eval("new _this." + routeParts[1] + "Controller()")[routeParts[2]](data, response);
+        }
+        catch(ex) {
+            console.log(ex);
+            //console.log(routeParts[1] + "Controller or method " + routeParts[2] + "(...) does not exist!");
+            //throw(routeParts[1] + "Controller or method " + routeParts[2] + "(...) does not exist!");
+            throw(ex);
+        }
     };
 
-    this.importControllers = function(fnCallback, routeParts, data) {
+    this.importControllers = function(fnCallback, routeParts, data, response) {
         console.log("************* Step0");
         fs.readdir( "./controllers/", function( err, files ) {
             console.log("************* Step01");
@@ -69,8 +74,10 @@ module.exports = function Router() {
                     
                     if(fileStats.isFile()) {
                         console.log( "'%s' is a file.", file );
-                        console.log(file.substring(0, file.length-2));
-                        eval("_this.SmithyController = require('../controllers/" + file + "')");
+                        var controllerName = file.substring(0, file.length-3);
+                        console.log("Controller Name=" + controllerName);
+                        eval("_this." + controllerName + " = require('../controllers/" + file + "')");
+                        // TODO
                         console.log( "imported module %s.", file );                            
                         //eval("new SmithyController()")["BuyItem"]({})
                     }
@@ -80,7 +87,7 @@ module.exports = function Router() {
 
                     const filesDone = index >= files.length - 1;
                     if (filesDone)
-                        fnCallback(routeParts, data);
+                        fnCallback(routeParts, data, response);
             } );            
                       
             
