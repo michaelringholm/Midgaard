@@ -25,40 +25,11 @@ var _appContext = new AppContext();
 var _mapDao = new MapDao();
 var _hero = null;
 var _heroCache = {};
-var _loginCache = {};
-var _battleCache = {};
 var _smithy = new Smithy();
 
 var _heroDao = new HeroDao();
 var _mapFactory = new MapFactory(_mapDao);
 var _mobFactory = new MobFactory();
-
-//var _mob = new MobFactory().create();
-//var battle = new Battle(_hero, _mob);
-
-/********** GameSession ***********/
-function GameSession(loginName) {
-	var _this = this;
-	this.publicKey = "";
-	this.data = {};
-
-	var generateUUID = function () {
-		var d = new Date().getTime();
-		var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-			var r = (d + Math.random() * 16) % 16 | 0;
-			d = Math.floor(d / 16);
-			return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-		});
-		return uuid;
-	};
-
-	this.construct = function (loginName) {
-		_logger.logInfo("GameSession.construct");
-		_this.publicKey = generateUUID() + "_" + loginName;
-	};
-
-	_this.construct(loginName);
-}
 
 /*********** WEB SERVER ****************/
 http.createServer(function (request, response) {
@@ -92,9 +63,12 @@ http.createServer(function (request, response) {
 
 		request.on('end', function () {		
 			try {	
-				_router.route(request.url, postData, response);
+				var jsonResult = _router.route(request.url, postData, response);
+				response.writeHead(jsonResult.httpStatusCode, { 'Content-Type': 'application/json' });
+				response.write(jsonResult.jsonData);
 			}
 			catch(ex) {
+				_logger.logError(ex);
 				response.writeHead(500, { 'Content-Type': 'application/json' });
 				response.write('{ "reason": "' + ex + '"}');
 			}

@@ -1,13 +1,16 @@
 var Logger = require('../common/Logger.js');
 var _logger = new Logger();
-
 var LoginDao = require('../login/LoginDao.js');
 var _loginDao = new LoginDao();
+var _baseController = require('./BaseController.js');
+//var _baseController = new BaseController();
+var GameSession = require('../common/GameSession.js');
+var _gameSession = new GameSession();
 
 
 module.exports = 
 function LoginController() {
-    var _this = this;
+    var _this = this;    
 
     this.CreateLogin = function(postData, response) {
         _logger.logInfo("LoginController.Login called!");
@@ -17,17 +20,14 @@ function LoginController() {
         if (loginRequest && loginRequest.name && loginRequest.name.length > 5) {
             if (loginRequest.password == loginRequest.repeatedPassword) {
                 _loginDao.save(loginRequest);
-                response.writeHead(200, { 'Content-Type': 'application/json' });
-                response.write('{ "status": "success"}');
+                return _baseController.JsonResult(200, '{ "status": "success"}');
             }
             else {
-                response.writeHead(500, { 'Content-Type': 'application/json' });
-                response.write('{ "reason": "Password and repeated password do not match!"}');
+                return _baseController.JsonResult(500,'{ "reason": "Password and repeated password do not match!"}');
             }
         }
         else {
-            response.writeHead(500, { 'Content-Type': 'application/json' });
-            response.write('{ "reason": "Login is too short, please use at least 5 characters!"}');
+            return _baseController.JsonResult(500,'{ "reason": "Login is too short, please use at least 5 characters!"}');
         }
     };
 
@@ -39,24 +39,21 @@ function LoginController() {
             var serverLogin = _loginDao.load(clientLogin.name);
 
             if (serverLogin) {
-                if (serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password) {
-                    response.writeHead(200, { 'Content-Type': 'application/json' });
+                if (serverLogin.name == clientLogin.name && serverLogin.password == clientLogin.password) {                    
                     var gameSession = new GameSession(serverLogin.name);
                     gameSession.data = serverLogin;
                     serverLogin.activeHero = null;
                     _logger.logInfo("publicKey=[" + gameSession.publicKey + "]");
-                    _loginCache[gameSession.publicKey] = serverLogin;
-                    response.write(JSON.stringify(gameSession));
+                    _baseController.loginCache[gameSession.publicKey] = serverLogin;
+                    return _baseController.JsonResult(200, JSON.stringify(gameSession));
                 }
                 else {
-                    response.writeHead(500, { 'Content-Type': 'application/json' });
-                    response.write('{ "reason": "Wrong login or password!"}');
+                    return _baseController.JsonResult(500,'{ "reason": "Wrong login or password!"}');
                 }
             }
         }
         else {
-            response.writeHead(500, { 'Content-Type': 'application/json' });
-            response.write('{ "reason": "login does not exist!"}');
+            return _baseController.JsonResult(500,'{ "reason": "login does not exist!"}');
         }
     };
 }

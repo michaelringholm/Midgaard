@@ -1,10 +1,12 @@
 var Logger = require('../common/Logger.js');
-
 var _logger = new Logger();
+var _baseController = require('./BaseController.js');
+var HeroDao = require('../hero/HeroDao.js');
 
 module.exports = 
 function HeroController() {
-    var _this = this;
+	var _this = this;
+	this.heroDao = new HeroDao();
 
     this.Train = function(postData, response) {
         _logger.logInfo("HeroController.Train called!");
@@ -14,33 +16,28 @@ function HeroController() {
     this.ChooseHero = function(postData, response) {
         // request ended -> do something with the data
         var gameSession = JSON.parse(postData);
-        var serverLogin = _loginCache[gameSession.publicKey];
-
+        var serverLogin = _baseController.loginCache[gameSession.publicKey];
+		_logger.logInfo("Login Cache=" +  JSON.stringify(_baseController.loginCache));
         if (serverLogin) {
-            if (_heroDao.exists(gameSession.heroName)) {
-                var loadedHero = _heroDao.load(gameSession.heroName);
+            if (_this.heroDao.exists(gameSession.heroName)) {
+                var loadedHero = _this.heroDao.load(gameSession.heroName);
 
                 if (loadedHero) {
                     serverLogin.activeHero = loadedHero;
-                    response.writeHead(200, { 'Content-Type': 'application/json' });
-                    var currentBattle = _battleCache[serverLogin.activeHero.name];
-
+                    var currentBattle = _baseController.battleCache[serverLogin.activeHero.name];
                     var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);
                     var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
-
                     var data = { hero: loadedHero, battle: currentBattle, map: currentMap, status: 'Your active hero is now [' + loadedHero.name + ']!' };
 
-                    response.write(JSON.stringify(data));
+                    return _baseController.JsonResult(200, JSON.stringify(data));
                 }
             }
             else {
-                response.writeHead(500, { 'Content-Type': 'application/json' });
-                response.write('{ "reason": "Requested hero not found!"}');
+                return _baseController.JsonResult(500,'{ "reason": "Requested hero not found!"}');
             }
         }
         else {
-            response.writeHead(500, { 'Content-Type': 'application/json' });
-            response.write('{ "reason": "Public key not found, please login again!"}');
+            return _baseController.JsonResult(500,'{ "reason": "Public key not found, please login again!"}');
         }
 
     };
@@ -55,7 +52,7 @@ function HeroController() {
 
 			try {
 				gameSession = JSON.parse(postData);
-				serverLogin = _loginCache[gameSession.publicKey]
+				serverLogin = _baseController.loginCache[gameSession.publicKey]
 			}
 			catch (ex) {
 				_logger.logError(ex);
@@ -74,20 +71,16 @@ function HeroController() {
 
 					serverLogin.heroes[newHero.name] = newHero.name;
 					_loginDao.save(serverLogin);
-
-					response.writeHead(200, { 'Content-Type': 'application/json' });
-					response.write(JSON.stringify(newHero));
+					return _baseController.JsonResult(200, JSON.stringify(newHero));
 				}
 				else {
 					_logger.logError("Unable to create new hero, as a hero with this name already exists!");
-					response.writeHead(500, { 'Content-Type': 'application/json' });
-					response.write('{ "error": "Unable to create new hero, as a hero with this name already exists!"}');
+					return _baseController.JsonResult(500, '{ "error": "Unable to create new hero, as a hero with this name already exists!"}');
 				}
 			}
 			else {
 				_logger.logError("Unable to find public key, please try to login again!");
-				response.writeHead(500, { 'Content-Type': 'application/json' });
-				response.write('{ "error": "Unable to find public key, please try to login again!"}');
+				return _baseController.JsonResult(500,'{ "error": "Unable to find public key, please try to login again!"}');
 			}
 
 			/*
