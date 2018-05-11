@@ -3,21 +3,17 @@ var _baseController = require('./BaseController.js');
 var _heroDao = require('../hero/HeroDao.js');
 var _mapDao = require('../map/MapDao.js');
 var _mapFactory = require('../map/MapFactory.js');
+var _loginDao = require('../login/LoginDao.js');
 
 module.exports = 
 function HeroController() {
 	var _this = this;
 
-    this.Train = function(postData, response) {
-        _logger.logInfo("HeroController.Train called!");
-        _logger.logInfo(JSON.stringify(postData));
-    };
-
-    this.ChooseHero = function(postData, response) {
+    this.ChooseHero = function(postData) {
         // request ended -> do something with the data
         var gameSession = JSON.parse(postData);
-        var serverLogin = _baseController.loginCache[gameSession.publicKey];
-		_logger.logInfo("Login Cache=" +  JSON.stringify(_baseController.loginCache));
+        var serverLogin = _loginDao.Cache[gameSession.publicKey];
+		_logger.logInfo("Login Cache=" +  JSON.stringify(_loginDao.Cache));
         if (serverLogin) {
             if (_heroDao.exists(gameSession.heroName)) {
                 var loadedHero = _heroDao.load(gameSession.heroName);
@@ -42,7 +38,7 @@ function HeroController() {
 
     };
 
-    this.CreateHero = function(postData, response) {
+    this.CreateHero = function(postData) {
         _logger.logInfo(postData);
 			var success = false;
 			var newHero = {};
@@ -52,7 +48,7 @@ function HeroController() {
 
 			try {
 				gameSession = JSON.parse(postData);
-				serverLogin = _baseController.loginCache[gameSession.publicKey]
+				serverLogin = _loginDao.Cache[gameSession.publicKey]
 			}
 			catch (ex) {
 				_logger.logError(ex);

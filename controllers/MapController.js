@@ -2,6 +2,7 @@ var _logger = require('../common/Logger.js');
 var _baseController = require('./BaseController.js');
 var _heroDao = require('../hero/HeroDao.js');
 var _mapFactory = require("../map/MapFactory.js");
+var _loginDao = require('../login/LoginDao.js');
 
 module.exports = 
 function MapController() {
@@ -9,7 +10,7 @@ function MapController() {
 
     this.Move = function(postData) {
         var gameSession = JSON.parse(postData);
-        var serverLogin = _baseController.loginCache[gameSession.publicKey];
+        var serverLogin = _loginDao.Cache[gameSession.publicKey];
 
         if (serverLogin) {
             var direction = gameSession.direction;
@@ -58,7 +59,7 @@ function MapController() {
 
         try {
             gameSession = JSON.parse(postData);
-            serverLogin = _baseController.loginCache[gameSession.publicKey]
+            serverLogin = _loginDao.Cache[gameSession.publicKey]
         }
         catch (ex) {
             _logger.logError(ex);

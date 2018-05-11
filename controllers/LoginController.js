@@ -1,6 +1,5 @@
 var _logger = require('../common/Logger.js');
-var LoginDao = require('../login/LoginDao.js');
-var _loginDao = new LoginDao();
+var _loginDao = require('../login/LoginDao.js');
 var _baseController = require('./BaseController.js');
 //var _baseController = new BaseController();
 var GameSession = require('../common/GameSession.js');
@@ -11,7 +10,7 @@ module.exports =
 function LoginController() {
     var _this = this;    
 
-    this.CreateLogin = function(postData, response) {
+    this.CreateLogin = function(postData) {
         _logger.logInfo("LoginController.Login called!");
         _logger.logInfo("creating login for [" + postData + "].....");
         var loginRequest = JSON.parse(postData);
@@ -30,7 +29,7 @@ function LoginController() {
         }
     };
 
-    this.Login = function(postData, response) {
+    this.Login = function(postData) {
         _logger.logInfo("Logging in [" + postData + "].....");
         var clientLogin = JSON.parse(postData);
 
@@ -43,7 +42,7 @@ function LoginController() {
                     gameSession.data = serverLogin;
                     serverLogin.activeHero = null;
                     _logger.logInfo("publicKey=[" + gameSession.publicKey + "]");
-                    _baseController.loginCache[gameSession.publicKey] = serverLogin;
+                    _loginDao.Cache[gameSession.publicKey] = serverLogin;
                     return _baseController.JsonResult(200, JSON.stringify(gameSession));
                 }
                 else {

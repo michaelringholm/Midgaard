@@ -2,8 +2,9 @@ var _logger = require('../common/Logger.js');
 var AppContext = require('../context/AppContext.js');
 var _appContext = new AppContext();
 
-module.exports = function LoginDao() {
+function LoginDao() {
 	var _this = this;
+	this.Cache = {};
 		
 	this.exists = function(loginName) {
 		_logger.logInfo("LoginDao.exists");
@@ -59,3 +60,5 @@ module.exports = function LoginDao() {
   
   _this.construct();
 }
+
+module.exports = new LoginDao();
