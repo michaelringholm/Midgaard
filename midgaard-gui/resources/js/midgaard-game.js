@@ -47,6 +47,10 @@ function printDebug(hero) {
 	}
 }
 
+function printJson(json) {
+	$("#jsonInfo").html(json);
+}
+
 function logInfo(msg) {
 	$("#status").prepend("[INFO]: " + msg + "<br/>");
 } 
@@ -78,11 +82,13 @@ function callMethod(host, methodName, data, fnSuccess, fnError) {
 			cache: false,
 			beforeSend : function() {},
 			success: function(data)	{
-				logInfo("call succeeded!");				
-				if(fnSuccess)	fnSuccess(data);
+				logInfo("call succeeded!");
+				if(data) printJson(JSON.stringify(data));
+				if(fnSuccess) fnSuccess(data);
 			},
 			error: function(error, status) {
-				logInfo("call failed!");		
+				logInfo("call failed!");
+				if(error && error.responseJSON) printJson(error.responseJSON);
 				if(fnError) fnError(error.responseJSON);
 			},			
 			complete : function() {}

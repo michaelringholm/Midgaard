@@ -2,13 +2,15 @@ var _logger = require('../common/Logger.js');
 var Battle = require('../battle/Battle.js');
 var Coordinate = require('../map/Coordinate.js');
 var _mapDao = require('../map/MapDao.js');
+var _battleDao = require('../battle/BattleDao.js');
 var _mapFactory = require('../map/MapFactory.js');
 var ItemFactory = require('../item/ItemFactory.js');
 var _itemFactory = new ItemFactory();
 
 module.exports = function Hero(anonObj) {
 	var _this = this;
-	this.name = "";
+	this.heroName = "";
+	this.heroId = "";
 	this.heroClass = "warrior";
 	this.baseHp = 0;
 	this.hp = 0;
@@ -97,6 +99,7 @@ module.exports = function Hero(anonObj) {
 			_this.currentCoordinates = targetCoordinates;
 			if(targetLocation.mob) {
 				battleCache[_this.name] = new Battle(this, targetLocation.mob);
+				_battleDao.save(battleCache);
 			}
 		}
 		

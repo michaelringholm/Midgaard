@@ -9,7 +9,8 @@ $(function() {
 
 function BattleView() {
     var _this = this;
-
+    var heroView = new HeroView();
+    
     this.nextRound  = function() {
         $("#battleButtonBar").hide();
         gameSession.attackType = $("#attackType").val();	
@@ -58,7 +59,7 @@ function BattleView() {
         $("#battleBottomToolbar").show();
     
         $("#container").css("background-image", "url('./resources/images/battle-background.jpg')"); 	
-        $("#battleHeroContainer").attr("src", $("#warriorHero").attr("src"));
+        $("#battleHeroContainer").attr("src", heroView.getHeroCardImage(battle.hero.heroClass));
             
         var imgSrc = getMobImgSrc(battle.mob);
         $("#battleMobContainer").attr("src", imgSrc);

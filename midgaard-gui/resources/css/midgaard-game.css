@@ -1,6 +1,11 @@
 @font-face {
     font-family: midgaardFont;
-    src: url('../fonts/segoescb.ttf');
+	src: url('../fonts/segoescb.ttf');
+}
+
+@font-face {
+    font-family: midgaardConsoleFont;
+	src: url('../fonts/consolas.ttf');
 }
 
 body {

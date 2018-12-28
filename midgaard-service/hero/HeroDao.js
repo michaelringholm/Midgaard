@@ -51,7 +51,7 @@ function HeroDao() {
 	
 	this.construct = function() {
 		_logger.logInfo("HeroDao.construct");
-  };
+  	};
   
   _this.construct();
 }

@@ -1,5 +1,6 @@
 var _logger = require('../common/Logger.js');
 var _baseController = require('./BaseController.js');
+var _battleController = require('./BattleController.js');
 var _heroDao = require('../hero/HeroDao.js');
 var _mapDao = require('../map/MapDao.js');
 var _mapFactory = require('../map/MapFactory.js');
@@ -20,7 +21,7 @@ function HeroController() {
 
                 if (loadedHero) {
                     serverLogin.activeHero = loadedHero;
-                    var currentBattle = _baseController.battleCache[serverLogin.activeHero.heroId];
+                    var currentBattle = _battleController.battleCache[serverLogin.activeHero.heroId]; //TODO
                     var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);
                     var location = currentMap.getLocation(serverLogin.activeHero.currentCoordinates);
                     var data = { hero: loadedHero, battle: currentBattle, map: currentMap, status: 'Your active hero is now [' + loadedHero.heroId + ']!' };

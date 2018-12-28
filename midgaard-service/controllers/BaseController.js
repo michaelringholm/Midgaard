@@ -1,8 +1,7 @@
 var _logger = require('../common/Logger.js');
 
 function BaseController() {
-    var _this = this;
-    this.battleCache = {};
+    var _this = this;    
 
     _logger.logInfo("BaseController() constructor called!");
 

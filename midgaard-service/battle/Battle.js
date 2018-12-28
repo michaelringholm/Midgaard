@@ -1,4 +1,5 @@
 var _logger = require('../common/Logger.js');
+var _battleDao = require('./BattleDao.js');
 
 module.exports = 
 function Battle(hero, mob) {
@@ -164,7 +165,7 @@ function Battle(hero, mob) {
   };
   
   this.construct = function() {
-		_logger.logInfo("Battle.construct");
+		_logger.logInfo("Battle.construct");		
   	/*_this.drawB();
   	$("#nextR").click(function() { 
     	_this.nextR( {aT:"mel"}, {aT:"mel"} ); 

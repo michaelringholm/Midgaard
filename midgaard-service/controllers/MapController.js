@@ -1,5 +1,6 @@
 var _logger = require('../common/Logger.js');
 var _baseController = require('./BaseController.js');
+var _battleController = require('./BattleController.js');
 var _heroDao = require('../hero/HeroDao.js');
 var _mapFactory = require("../map/MapFactory.js");
 var _loginDao = require('../login/LoginDao.js');
@@ -18,29 +19,29 @@ function MapController() {
             if (direction == "west" || direction == "east" || direction == "north" || direction == "south") {
                 if (serverLogin.activeHero) {
 
-                    if (_baseController.battleCache[serverLogin.activeHero.name]) {
-                        var battle = _baseController.battleCache[serverLogin.activeHero.name];
-                        return _baseController.JsonResult(200, JSON.stringify(battle));
+                    if (_battleController.battleCache[serverLogin.activeHero.name]) {
+                        var battle = _battleController.battleCache[serverLogin.activeHero.name];
+                        return _baseController.JsonResult(200, battle);
                     }
                     else {
                         serverLogin.activeHero.currentCoordinates;
-                        var location = serverLogin.activeHero.move(direction, _baseController.battleCache);
+                        var location = serverLogin.activeHero.move(direction, _battleController.battleCache);
 
                         if (location) {
                             _heroDao.save(serverLogin.activeHero);
-                            var battle = _baseController.battleCache[serverLogin.activeHero.name];
+                            var battle = _battleController.battleCache[serverLogin.activeHero.name];
                             if (battle)
                                 return _baseController.JsonResult(200, battle);
                             else
                                 return _baseController.JsonResult(200, location);
                         }
                         else {
-                            return _baseController.JsonResult(500, '{ "reason": "Invalid location!"}');
+                            return _baseController.JsonResult(500, { "reason": "Invalid location!"});
                         }
                     }
                 }
                 else {
-                    return _baseController.JsonResult(500,{ "reason": "No active hero found, please choose a hero!"});
+                    return _baseController.JsonResult(500, { "reason": "No active hero found, please choose a hero!"});
                 }
             }
             else {

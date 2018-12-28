@@ -14,6 +14,17 @@ function HeroView() {
             post("Hero", "ChooseHero", gameSession, chooseHeroSuccess, chooseHeroFailed);
         }	
     };
+
+    this.getHeroCardImage = function(heroClass) {
+        var imgSrc = "";
+        switch(heroClass) {
+            case "priest" : imgSrc = $("#priestHeroImg").attr("src"); break;
+            case "warrior" : imgSrc = $("#warriorHeroImg").attr("src"); break;
+            case "rogue" : imgSrc = $("#rogueHeroImg").attr("src"); break;
+            default : imgSrc = $("#warriorHeroImg").attr("src");
+        }
+        return imgSrc;
+    };    
     
     var chooseHeroSuccess = function(data) {
         logInfo("choose hero OK!");

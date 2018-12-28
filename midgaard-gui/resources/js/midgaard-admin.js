@@ -440,7 +440,7 @@ function drawBattleScreen(battle) {
 	if(battle.mob.key == "orc")
 		mobImg = document.getElementById("orc");
 		
-	var heroImg = document.getElementById("warriorHero");
+	var heroImg = document.getElementById("warriorHeroImg");
 	if(battle.hero.hp <= 0)
 		heroImg = document.getElementById("dead");
 	if(battle.mob.hp <= 0)

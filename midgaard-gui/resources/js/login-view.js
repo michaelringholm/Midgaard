@@ -1,7 +1,6 @@
 var loginView = {};
 $(function() {	
     loginView = new LoginView();
-
     $("#btnShowCreateLogin").click(function() {login.drawCreateLoginScreen();});	
 	$("#btnCreateLogin").click(function() {login.createLogin();});	
     $("#btnLogin").click(function() {loginView.login();});
@@ -10,6 +9,7 @@ $(function() {
 function LoginView() {
     var _this = this;
     var maxHeroes = 3;
+    var heroView = new HeroView();
 
     this.createLogin = function() {
         var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
@@ -34,23 +34,12 @@ function LoginView() {
         post("Login", "Login", clientLogin, loginSuccess, loginFailed);
     };
 
-    var setHeroCardImage = function(newHeroCard, heroClass) {
-        var imgSrc = "";
-        switch(heroClass) {
-            case "priest" : imgSrc = $("#priestHeroImg").attr("src"); break;
-            case "warrior" : imgSrc = $("#warriorHeroImg").attr("src"); break;
-            case "rogue" : imgSrc = $("#rogueHeroImg").attr("src"); break;
-            default : imgSrc = $("#warriorHeroImg").attr("src");
-        }
-        $(newHeroCard).find(".card-img-top").attr("src", imgSrc);
-    };
-
     var drawHeroCard = function(hero) {
         var newHeroCard = $(".hero-card.template").clone();
         newHeroCard.removeClass("template");
         $(newHeroCard).find(".hero-name").html(hero.heroName);
         $(newHeroCard).find(".hero-text").html("");
-        setHeroCardImage(newHeroCard, hero.heroClass);        
+        $(newHeroCard).find(".card-img-top").attr("src", heroView.getHeroCardImage(hero.heroClass));
         $(newHeroCard).find(".card").attr("data-hero-id", hero.heroId);
         return newHeroCard;
     };
