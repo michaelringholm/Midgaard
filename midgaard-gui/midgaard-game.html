@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<link rel="stylesheet" href="./resources/css/midgaard-game.css" type="text/css">	
+	
+	<script type="text/javascript" src="./resources/js/lib/jquery-2.2.2.min.js"></script>
+	<script type="text/javascript" src="./resources/js/lib/jquery-ui.min.js"></script>	
+	<script type="text/javascript" src="./resources/js/midgaard-game.js"></script>
+	<script type="text/javascript" src="./resources/js/battle-view.js"></script>
+	<script type="text/javascript" src="./resources/js/hero-view.js"></script>
+	<script type="text/javascript" src="./resources/js/login-view.js"></script>
+	<script type="text/javascript" src="./resources/js/map-view.js"></script>
+	<script type="text/javascript" src="./resources/js/smithy-view.js"></script>
+	<script type="text/javascript" src="./resources/js/town-view.js"></script>
+</head>
+<body>
+
+<div id="container" class="container-fluid" tabindex='100'>
+
+	<div id="loginContainer" class="function row" style="height: 160px;">
+		<div style="margin-top: 10px;; margin-left: 10px;">
+			<div style="margin: 4px;"><div class="label">Login:</div><input id="login" type="text" value="ethlore"/></div>
+			<div style="margin: 4px;"><div class="label">Password:</div><input id="password" type="password" value="test" /></div>
+			<div style="color: red; text-align: left; margin-left: 124px;" id="loginStatus"></div>
+			<div id="btnLogin" class="btn" style="background-color: green; margin-left: 124px;">Login</div>
+			<div id="btnShowCreateLogin" style="margin-left: 124px; text-decoration: underline; cursor:pointer;">Create new login</div>
+		</div>
+	</div>
+	
+	<div id="createLoginContainer" class="function" style="display: none;">
+		<div style="margin-top: 10px;; margin-left: 10px;">
+			<div style="margin: 4px;"><div class="label" style="width: 220px;">New login:</div><input id="newLogin" type="text" value="some login"/></div>
+			<div style="margin: 4px;"><div class="label" style="width: 220px;">New Password:</div><input id="newPassword" type="password" value="MyPassword" /></div>
+			<div style="margin: 4px;"><div class="label" style="width: 220px;">Repeated Password:</div><input id="newRepeatedPassword" type="password" value="MyPassword" /></div>
+
+			<div id="btnCreateLogin" class="button">Create Login</div><div id="statusMessage" class="label"></div>
+		</div>			
+	</div>
+	
+	<div id="chooseHeroContainer" class="function" style="display:none; height: 32rem; width:70rem;">
+		<div style="margin-top: 10px;; margin-left: 10px;">
+			<div class="row heroes">					
+			</div>
+		</div>
+		<!-- Templates -->
+		<div class="hero-card template col">
+			<div class="card" style="width: 18rem; height: 28rem;">
+				<img src="" class="card-img-top" style="height: 16rem;" alt="Warrior">
+				<div class="card-body" style="height: 12rem;">
+					<h5 class="card-title hero-name">Hero</h5>
+					<p class="card-text hero-text">Description</p>
+				</div>
+			</div>
+		</div>
+		<div class="hero-card-empty template col">
+			<div class="card" style="width: 18rem; height: 28rem;">
+				<img src="./resources/images/characters/card-backside.jpg" class="card-img-top" style="height: 28rem;" alt="Empty">
+			</div>
+		</div>
+	</div>
+
+	<div id="createHeroContainer" class="function" style="display:none; height: 180px; width: 800px;">
+		<div style="margin-top: 10px;">
+			<div class="label">Hero name:</div><input id="newHeroName" value="Krom"/>
+			<div id="btnCreateHero" class="button">Create Hero</div>
+		</div>
+	</div>
+	
+	<div id="battleContainer" class="function" style="display:none;">
+		<div id="heroHP" class="label" style="position: absolute; width: 190px; text-align:center; top: 40px; left: 100px; font-size:18pt;"></div>
+		<div id="heroName" class="label" style="position: absolute; width: 110px; text-align:center; top: 100px; left: 168px; font-size:12pt; z-index: 3; color:#570403;"></div>
+		<img id="battleHeroContainer" style="width: 190px;  position: absolute; top: 80px; left: 100px;"></img>
+		<div id="mobHP" class="label" style="position: absolute; width: 190px; text-align:center; top: 40px; right: 100px; font-size:18pt;"></div>
+		<div id="mobName" class="label" style="position: absolute; width: 110px; text-align:center; top: 100px; left: 780px; font-size:12pt; z-index: 3; color:#570403;"></div>
+		<img id="battleMobContainer" style="width: 190px; position: absolute; top: 80px; right: 100px;"></img>		
+	</div>
+	
+	<div id="battleBottomToolbar" class="function bottomToolbar">
+		<div id="btnNextRound" class="button" style="margin-left: 4px;">Next Round</div>
+		<select id="attackType">
+			<option value="melee">Melee</option>
+			<option value="healing I">Healing I</option>
+			<option value="weakness I">Weakness I</option>
+			<option value="strength I">Strength I</option>
+		</select>
+		<div id="btnFleeBattle" class="button" style="margin-left: 4px;">Flee</div>
+	</div>
+	
+	<div id="mapBottomToolbar" class="function bottomToolbar">
+		<div id="btnEnterTown" class="button" style="margin-left: 4px;">Enter town</div>
+	</div>
+	
+	<div id="townBottomToolbar" class="function bottomToolbar">
+		<div id="btnVisitMeadhall" class="button" style="margin-left: 4px;">Visit meadhall</div>
+		<div id="btnVisitSmithy" class="button" style="margin-left: 2px;">Visit smithy</div>	
+		<div id="btnViewCharacter" class="button" style="margin-left: 2px;">View character</div>
+		<div id="btnTrain" class="button" style="margin-left: 2px;">Train</div>
+		<div id="btnLeaveTown" class="button" style="margin-left: 2px;">Leave town</div>
+	</div>
+
+	<div id="deathScreenBottomToolbar" class="function bottomToolbar">
+		<div id="btnExitDeathScreen" class="button" style="margin-left: 4px;">Accept fate</div>
+	</div>
+	
+	<div id="treasureScreenButtonBar" class="function" style="display:none; z-index: 5; top: auto; right: auto; bottom: 6px; left: 10px; width: 660px; height: 40px; margin: 0px;">
+		<div id="btnExitTreasureScreen" class="button" style="margin-left: 4px;">Continue</div>
+	</div>
+	
+	<div id="meadhallTextOverlay" class="function" style="display:none; width: 760px; height: 68px; font-size: 20px;"></div>
+	<div id="smithyOverlay" class="function" style="display:none; width: 560px; height: 108px; font-size: 20px; top: 40px; left: 40px; margin: 0px;"></div>
+	<div id="smithyInventory" class="function" style="display:none; width: 1060px; height: 468px; font-size: 20px; background-color: transparent;">
+		<div id="smithyGold" class="section">
+			<img src="./resources/images/items/silver-coin.png" alt="silver" style="height: 32px; width: 32px; position: absolute; top:6px; left: 6px;" />
+			<div style="height: 32px; width: 32px; position: absolute; top:6px; left: 46px;">500</div>
+		</div>
+		<div class="smithyItemContainer itemContainer" style="left: 240px; top: 20px;"></div>
+		<div class="smithyItemContainer itemContainer" style="left: 240px; top: 160px;"></div>
+		<div class="smithyItemContainer itemContainer" style="left: 240px; top: 300px;"></div>
+		<div class="smithyItemContainer itemContainer" style="right: 240px; top: 20px;"></div>
+		<div class="smithyItemContainer itemContainer" style="right: 240px; top: 160px;"></div>
+		<div class="smithyItemContainer itemContainer" style="right: 240px; top: 300px;"></div>
+	</div>
+	<div id="characterScreenOverlay" class="function" style="display:none; width: 560px; height: 108px; font-size: 20px; top: 40px; left: 40px; margin: 0px;"></div>
+	<div id="characterScreen" class="function" style="display:none; width: 860px; height: 698px; font-size: 20px; background-color: transparent;">
+		<div style="position: absolute;left: 0px; top: 0px;" class="heroName"></div>
+		<div style="position: absolute;left: 0px; top: 20px;" class="heroLevel"></div>
+		<div style="position: absolute;left: 0px; top: 40px;" class="heroHP"></div>
+		<div style="position: absolute;left: 0px; top: 60px;" class="heroMoney"></div>
+		<div class="characterItemContainerMetaData" style="left: 10px; top: 160px;"></div>
+		<div class="characterItemContainer itemContainer" style="left: 140px; top: 160px;"></div>		
+		<div class="characterItemContainerMetaData" style="left: 10px; top: 300px;"></div>
+		<div class="characterItemContainer itemContainer" style="left: 140px; top: 300px;"></div>
+		<div class="characterItemContainerMetaData" style="left: 10px; top: 440px;"></div>		
+		<div class="characterItemContainer itemContainer" style="left: 140px; top: 440px;"></div>
+		<div class="characterItemContainerMetaData" style="right: 50px; top: 160px;"></div>
+		<div class="characterItemContainer itemContainer" style="right: 200px; top: 160px;"></div>
+		<div class="characterItemContainerMetaData" style="right: 50px; top: 300px;"></div>
+		<div class="characterItemContainer itemContainer" style="right: 200px; top: 300px;"></div>
+		<div class="characterItemContainerMetaData" style="right: 50px; top: 440px;"></div>
+		<div class="characterItemContainer itemContainer" style="right: 200px; top: 440px;"></div>
+	</div>	
+	<div id="deathScreenTextOverlay" class="function" style="display:none; width: 760px; height: 68px; font-size: 20px;"></div>
+	<div id="debugInfo" style="position: absolute; z-index: 5; top: 10px; right: 10px; width: 260px; height: 140px; margin: 0px; overflow: auto; background-color: rgba(0,0,0,0.3); color: rgb(70, 184, 17); font-family: Consoloas; font-size: 8pt;">
+		
+	</div>
+	
+	<canvas id="canvasLayer1" style="display: none"></canvas>
+	<canvas id="canvasLayer2" style="display: none"></canvas>
+</div>
+
+<!--
+<div id="gSessionId"></div>
+<div id="login"></div>
+<div id="he"></div>
+<div id="status"></div>
+
+
+
+<div class="function">
+	<div id="btnMove" class="button">Move</div>
+	<select id="direction">
+		<option value="west">west</option>
+		<option value="north">north</option>
+		<option value="east">east</option>
+		<option value="south">south</option>
+	</select>
+	<div id="btnEnterTown" class="button" style="margin-left: 40px;">Enter town</div>
+	<div id="btnLeaveTown" class="button" style="margin-left: 2px;">Leave town</div>
+</div>
+
+
+-->
+
+
+<div id="images" style="display: none;">
+	<img id="woods" src="./resources/images/woods.png" >
+	<img id="mountains" src="./resources/images/mountains.png">
+	<img id="road" src="./resources/images/road.png">
+	<img id="town" src="./resources/images/town.png">
+	<img id="cave" src="./resources/images/cave.png">
+	<img id="heroMapIcon" src="./resources/images/viking.png">
+	<img id="warriorHeroImg" src="./resources/images/characters/warrior.jpg">
+	<img id="priestHeroImg" src="./resources/images/characters/priest3.jpg">
+	<img id="rogueHeroImg" src="./resources/images/characters/rogue.jpg">
+	<img id="dead" src="./resources/images/card-dead.png">
+	<img id="town" src="./resources/images/town.jpg">
+	<img id="loot" src="./resources/images/loot.jpg">
+</div>
+
+</body>
+</html>
