@@ -1,2 +1,0 @@
-node MidgaardWebService.js
-pause

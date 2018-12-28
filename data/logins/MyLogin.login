@@ -1,1 +1,0 @@
-{"name":"MyLogin","password":"MyPassword","repeatedPassword":"MyPassword","activeHero":null,"heroes":{"Krom":"Krom","Raistlin":"Raistlin","sonya":"sonya"}}
