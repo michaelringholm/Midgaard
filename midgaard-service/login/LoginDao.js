@@ -57,10 +57,10 @@ function LoginDao() {
 		var fileName = _appContext.getAppRoot() + "data/logins/" + loginHeader.loginId + ".login.json";
 		var login = null;
 		
-		var heroJson = fs.readFileSync(fileName).toString();
+		var loginJson = fs.readFileSync(fileName).toString();
 
-		_logger.logInfo("Login JSON [" + heroJson + "] loaded!");		
-		login = JSON.parse(heroJson);
+		_logger.logInfo("Login JSON [" + loginJson + "] loaded!");		
+		login = JSON.parse(loginJson);
 		login.heroes = new Array();
 		for(var heroIndex in login.heroIds) {
 			var hero = _heroDao.load(login.heroIds[heroIndex]);

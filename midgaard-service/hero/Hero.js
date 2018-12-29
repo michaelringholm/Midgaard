@@ -98,7 +98,7 @@ module.exports = function Hero(anonObj) {
 		if(targetLocation) {
 			_this.currentCoordinates = targetCoordinates;
 			if(targetLocation.mob) {
-				battleCache[_this.name] = new Battle(this, targetLocation.mob);
+				battleCache[_this.heroId] = new Battle(this, targetLocation.mob);
 				_battleDao.save(battleCache);
 			}
 		}

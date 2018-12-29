@@ -18,7 +18,7 @@ function BattleController() {
 
             if (attackType == "melee" || attackType == "healing I" || attackType == "weakness I" || attackType == "strength I") {
                 if (serverLogin.activeHero) {
-                    var battle = _this.battleCache[serverLogin.activeHero.name];
+                    var battle = _this.battleCache[serverLogin.activeHero.heroId];
 
                     if (battle) {
                         battle.hero.currentBattleAction = attackType;
@@ -63,14 +63,14 @@ function BattleController() {
         if (serverLogin) {
 
             if (serverLogin.activeHero) {
-                var battle = _this.battleCache[serverLogin.activeHero.name];
+                var battle = _this.battleCache[serverLogin.activeHero.heroId];
 
                 if (battle) {
                     battle.flee();                    
                     _heroDao.save(serverLogin.activeHero);
                     _battleDao.save(_this.battleCache);
                     if (battle.status.over)
-                        delete _this.battleCache[serverLogin.activeHero.name];
+                        delete _this.battleCache[serverLogin.activeHero.heroId];
 
                     var data = { hero: serverLogin.activeHero, battle: battle };
                 }

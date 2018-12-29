@@ -19,8 +19,8 @@ function MapController() {
             if (direction == "west" || direction == "east" || direction == "north" || direction == "south") {
                 if (serverLogin.activeHero) {
 
-                    if (_battleController.battleCache[serverLogin.activeHero.name]) {
-                        var battle = _battleController.battleCache[serverLogin.activeHero.name];
+                    if (_battleController.battleCache[serverLogin.activeHero.heroId]) {
+                        var battle = _battleController.battleCache[serverLogin.activeHero.heroId];
                         return _baseController.JsonResult(200, battle);
                     }
                     else {
@@ -29,7 +29,7 @@ function MapController() {
 
                         if (location) {
                             _heroDao.save(serverLogin.activeHero);
-                            var battle = _battleController.battleCache[serverLogin.activeHero.name];
+                            var battle = _battleController.battleCache[serverLogin.activeHero.heroId];
                             if (battle)
                                 return _baseController.JsonResult(200, battle);
                             else

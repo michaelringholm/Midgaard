@@ -3,7 +3,6 @@ var _loginDao = require('../login/LoginDao.js');
 var _baseController = require('./BaseController.js');
 //var _baseController = new BaseController();
 var GameSession = require('../common/GameSession.js');
-var _gameSession = new GameSession();
 
 
 module.exports = 
