@@ -1,7 +1,8 @@
 var battleView = {};
 $(function() {	
     battleView = new BattleView();
-    $("#btnNextRound").click(function() {battleView.nextRound();});
+    //$("#btnNextRound").click(function() {battleView.nextRound();});
+    $(".commandButton").click(function(e) {battleView.nextRound(e.currentTarget);});
 	$("#btnExitDeathScreen").click(function() {townView.enterTown();});		
 	$("#btnExitDeathScreen").click(function() {battleView.nextRound();});
 	$("#btnExitTreasureScreen").click(function() {battleView.nextRound();});
@@ -11,9 +12,11 @@ function BattleView() {
     var _this = this;
     var heroView = new HeroView();
     
-    this.nextRound  = function() {
+    this.nextRound  = function(commandButton) {
         $("#battleButtonBar").hide();
-        gameSession.attackType = $("#attackType").val();	
+        $(commandButton).effect("pulsate", 2000);
+        var ability = $(commandButton).attr("data-ability");
+        gameSession.ability = ability;
         post("Battle", "NextRound", gameSession, nextRoundSuccess, nextRoundFailed);
     };
     
@@ -64,7 +67,7 @@ function BattleView() {
         var imgSrc = getMobImgSrc(battle.mob);
         $("#battleMobContainer").attr("src", imgSrc);
         
-        $("#heroName").html(battle.hero.name);
+        $("#heroName").html(battle.hero.heroName);
         $("#mobName").html(battle.mob.name);
         if (battle.mob.name.length > 8)
             $("#mobName").css("font-size", "10px");
@@ -73,21 +76,32 @@ function BattleView() {
             
                         
         if (battle.status.over) {
-            if(battle.status.winner == battle.hero.name) {
+            if(battle.status.winner == battle.hero.heroName) {
                 $("#battleMobContainer").attr("src", $("#dead").attr("src"));
                 $("#heroHP").html(battle.hero.hp + " HP");
                 $("#mobHP").html(0 + " HP");
+                new Audio("./resources/sounds/victory.wav").play();
             }
             else {
                 $("#battleHeroContainer").attr("src", $("#dead").attr("src"));
-                $("#heroHP").html(battle.hero.hp + " HP");
+                $("#heroHP").html(battle.hero.hp + " (" + battle.hero.baseHp + ") HP");
                 $("#mobHP").html(0 + " HP");
+                new Audio("./resources/sounds/loss.wav").play();
             }
         }
         else {
             if(battle.round*1 > 0) {
-                $("#heroHP").html((battle.hero.hp*1+battle.mob.damageImpact*1) + " HP");
+                $("#heroHP").html((battle.hero.hp*1+battle.mob.damageImpact*1) + " (" + battle.hero.baseHp + ") HP");
                 $("#mobHP").html((battle.mob.hp*1+battle.hero.damageImpact*1) + " HP");
+                
+                //TODO
+                $("#heroStatus").html(battle.hero.abilityImpact);
+                $("#mobStatus").html(battle.mob.abilityImpact);
+
+                //TODO
+                // https://www.wowhead.com/spell-sounds/name:heal
+                new Audio("./resources/sounds/sword-attack.wav").play();
+                new Audio("./resources/sounds/heal.wav").play();
                 
                 if(battle.hero.damageImpact > 0) {
                     battleAnimation1("#mobHP", "#battleMobContainer", battle.hero.damageImpact*1, battle.mob.hp*1, function() {
@@ -107,7 +121,7 @@ function BattleView() {
                     $("#battleButtonBar").show();
             }
             else {
-                $("#heroHP").html(battle.hero.hp + " HP");
+                $("#heroHP").html(battle.hero.hp + " (" + battle.hero.baseHp + ") HP");
                 $("#mobHP").html(battle.mob.hp + " HP");
             }
         }	

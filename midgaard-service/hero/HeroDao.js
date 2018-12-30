@@ -1,5 +1,5 @@
 var _logger = require('../common/Logger.js');
-var Hero = require('../hero/Hero.js');
+var HeroDTO = require('../hero/HeroDTO.js');
 
 function HeroDao() {
 	var _this = this;
@@ -31,22 +31,27 @@ function HeroDao() {
 		_logger.logInfo("Hero [" + heroId + "] loaded!");
 		_logger.logInfo("Hero JSON [" + heroJson + "] loaded!");
 		
-		hero = new Hero(JSON.parse(heroJson));		
+		hero = new HeroDTO(JSON.parse(heroJson));
 		return hero;
 	};	
 	
 	this.save = function(hero) {
 		_logger.logInfo("HeroDao.save");
-		var fs = require("fs");
-		var fileName = "./data/heroes/" + hero.heroId + '.hero.json';
-		
-		var updateTime = new Date();
-		fs.writeFile(fileName, JSON.stringify(hero),  function(err) {
-			if (err) {
-				return console.error(err);
-			}
-			console.log("Data written successfully!");
-		});
+
+		if(hero && hero.heroId) {
+			var fs = require("fs");
+			var fileName = "./data/heroes/" + hero.heroId + '.hero.json';
+			
+			var updateTime = new Date();
+			fs.writeFile(fileName, JSON.stringify(hero),  function(err) {
+				if (err) {
+					return console.error(err);
+				}
+				console.log("Data written successfully!");
+			});
+		}
+		else
+			_logger.error("Skipping save of hero as the hero in invalid!");
 	};	
 	
 	this.construct = function() {

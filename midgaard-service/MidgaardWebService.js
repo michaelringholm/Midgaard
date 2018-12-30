@@ -12,6 +12,7 @@ var Login = require('./login/Login.js');
 var HeroDao = require('./hero/HeroDao.js');
 var Hero = require('./hero/Hero.js');
 var Battle = require('./battle/Battle.js');
+var BattleFactory = require('./battle/BattleFactory.js');
 var MobFactory = require('./mob/MobFactory.js');
 
 var MidgaardMainMap = require('./map/MidgaardMainMap.js');

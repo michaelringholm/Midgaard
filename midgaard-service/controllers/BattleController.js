@@ -4,36 +4,38 @@ var _battleDao = require('../battle/BattleDao.js');
 var _heroDao = require('../hero/HeroDao.js');
 var _mapFactory = require('../map/MapFactory.js');
 var _loginDao = require('../login/LoginDao.js');
+var Battle = require('../battle/Battle.js');
+var _battleCache = require('../battle/BattleCache.js');
 
+module.exports = 
 function BattleController() {
-    var _this = this;
-    this.battleCache = {};
+    var _this = this;    
 
     this.NextRound = function(postData) {
         var gameSession = JSON.parse(postData);
         var serverLogin = _loginDao.Cache[gameSession.publicKey];
 
         if (serverLogin) {
-            var attackType = gameSession.attackType;
+            var ability = gameSession.ability;
 
-            if (attackType == "melee" || attackType == "healing I" || attackType == "weakness I" || attackType == "strength I") {
+            if (ability == "melee" || ability == "heal" || ability == "weaken" || ability == "strength") {
                 if (serverLogin.activeHero) {
-                    var battle = _this.battleCache[serverLogin.activeHero.heroId];
-
+                    var battleDTO = _battleCache[serverLogin.activeHero.heroId];
+                    var battle = new Battle(battleDTO);
                     if (battle) {
-                        battle.hero.currentBattleAction = attackType;
-                        battle.mob.currentBattleAction = "melee";
+                        battleDTO.hero.currentBattleAction = ability;
+                        battleDTO.mob.currentBattleAction = "melee";
                         battle.nextRound();
                         _heroDao.save(serverLogin.activeHero);
-                        _battleDao.save(_this.battleCache);
+                        _battleDao.save(_battleCache);
 
-                        if (battle.status.over) {
-                            delete _this.battleCache[serverLogin.activeHero.name];
-                            var data = { hero: serverLogin.activeHero, battle: battle };
+                        if (battleDTO.status.over) {
+                            delete _battleCache[serverLogin.activeHero.name];
+                            var data = { hero: serverLogin.activeHero, battle: battleDTO };
                             return _baseController.JsonResult(200, data);
                         }
                         else {
-                            var data = { hero: serverLogin.activeHero, battle: battle };
+                            var data = { hero: serverLogin.activeHero, battle: battleDTO };
                             return _baseController.JsonResult(200, (data));
                         }
                     }
@@ -48,7 +50,7 @@ function BattleController() {
                 }
             }
             else {
-                return _baseController.JsonResult(500,{ "reason": "Invalid attack type [' + attackType + ']!"});
+                return _baseController.JsonResult(500,{ "reason": "Invalid ability [" + ability + "]!"});
             }
         }
         else {
@@ -63,14 +65,14 @@ function BattleController() {
         if (serverLogin) {
 
             if (serverLogin.activeHero) {
-                var battle = _this.battleCache[serverLogin.activeHero.heroId];
+                var battle = _battleCache[serverLogin.activeHero.heroId];
 
                 if (battle) {
                     battle.flee();                    
                     _heroDao.save(serverLogin.activeHero);
-                    _battleDao.save(_this.battleCache);
+                    _battleDao.save(_battleCache);
                     if (battle.status.over)
-                        delete _this.battleCache[serverLogin.activeHero.heroId];
+                        delete _battleCache[serverLogin.activeHero.heroId];
 
                     var data = { hero: serverLogin.activeHero, battle: battle };
                 }
@@ -91,10 +93,7 @@ function BattleController() {
 
     this.construct = function() {
         _logger.logInfo("BattleDao.construct");
-        _this.battleCache = _battleDao.load();
   	};
   
   _this.construct();
 }
-
-module.exports = new BattleController();

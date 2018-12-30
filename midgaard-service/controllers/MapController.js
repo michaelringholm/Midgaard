@@ -1,9 +1,10 @@
 var _logger = require('../common/Logger.js');
 var _baseController = require('./BaseController.js');
-var _battleController = require('./BattleController.js');
+var _battleCache = require('../battle/BattleCache.js');
 var _heroDao = require('../hero/HeroDao.js');
 var _mapFactory = require("../map/MapFactory.js");
 var _loginDao = require('../login/LoginDao.js');
+var Hero = require('../hero/Hero.js');
 
 module.exports = 
 function MapController() {
@@ -19,17 +20,17 @@ function MapController() {
             if (direction == "west" || direction == "east" || direction == "north" || direction == "south") {
                 if (serverLogin.activeHero) {
 
-                    if (_battleController.battleCache[serverLogin.activeHero.heroId]) {
-                        var battle = _battleController.battleCache[serverLogin.activeHero.heroId];
+                    if (_battleCache[serverLogin.activeHero.heroId]) {
+                        var battle = _battleCache[serverLogin.activeHero.heroId];
                         return _baseController.JsonResult(200, battle);
                     }
                     else {
                         serverLogin.activeHero.currentCoordinates;
-                        var location = serverLogin.activeHero.move(direction, _battleController.battleCache);
+                        var location = new Hero(serverLogin.activeHero).move(direction, _battleCache);
 
                         if (location) {
                             _heroDao.save(serverLogin.activeHero);
-                            var battle = _battleController.battleCache[serverLogin.activeHero.heroId];
+                            var battle = _battleCache[serverLogin.activeHero.heroId];
                             if (battle)
                                 return _baseController.JsonResult(200, battle);
                             else

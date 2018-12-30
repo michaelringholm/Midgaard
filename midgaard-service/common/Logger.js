@@ -7,11 +7,11 @@ function Logger() {
 	};
 
 	this.logError = function(msg) {
-		console.log('[ERROR]:' + msg);
+		console.error('[ERROR]:' + msg);
 	};
 		
 	this.logWarn = function(msg) {
-		console.log('[WARN]:' + msg);
+		console.warn('[WARN]:' + msg);
 	};
 }
 
