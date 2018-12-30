@@ -30,12 +30,8 @@ $(function() {
 	$("#btnNextRound").click(function() {nextRound();});
 	$("#btnFleeBattle").click(function() {fleeBattle();});	
 	$("#btnEnterTown").click(function() {enterTown();});
-	$("#btnLeaveTown").click(function() {leaveTown();});
-	
-	$("#btnVisitMeadhall").click(function() {visitMeadhall();});
-	$("#btnTrain").click(function() {train();});
-	$("#btnVisitSmithy").click(function() {visitSmithy();});
-	$("#btnViewCharacter").click(function() {viewCharacter();});
+	//$("#btnLeaveTown").click(function() {leaveTown();});
+
   
 	$("#gSessionId").html("gSessionId: N/A");
 	

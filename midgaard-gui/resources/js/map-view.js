@@ -30,8 +30,8 @@ function MapView() {
                 logInfo("you moved to a new location");
             }
             else if(data.hero && data.mob) { // The move resulted in a fight
-                var battle = data;
-                battleView.drawBattleScreen(battle);
+                var battle = data;                
+                battleView.startOrResumeBattle(battle);
                 logInfo("you were surprised by monsters!");
             }
         }

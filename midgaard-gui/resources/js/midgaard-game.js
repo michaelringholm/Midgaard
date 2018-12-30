@@ -20,7 +20,7 @@ $(function() {
 	canvasLayer1.width = canvasWidth;
 	canvasLayer1.height = canvasHeight;
 	canvasLayer2.width = canvasWidth;
-	canvasLayer2.height = canvasHeight;
+	canvasLayer2.height = canvasHeight;		
   
 	$("#gSessionId").html("gSessionId: N/A");
 });

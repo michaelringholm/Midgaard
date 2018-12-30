@@ -1,15 +1,23 @@
 var townView = {};
 $(function() {	
     townView = new TownView();
-    $("#btnVisitMeadhall").click(function() {town.visitMeadhall();});
-	$("#btnTrain").click(function() {town.train();});
-    $("#btnViewCharacter").click(function() {town.viewCharacter();});
-    $("#btnLeaveTown").click(function() {town.leaveTown();});
+    $("#townBottomToolbar .commandButton").click(function(e) {townView.handleEvent(e.currentTarget);});
 });
 
 function TownView() {
     var _this = this;
     
+    this.handleEvent = function(commandButton) {
+        var townAction = $(commandButton).attr("data-town-action");
+        switch(townAction) {
+            case "VisitMeadhall": _this.visitMeadhall();
+            case "Train": _this.train();
+            case "ViewCharacter": _this.viewCharacter();
+            case "LeaveTown": _this.leaveTown();
+            default: logInfo("Unknwon town action");
+        }
+    };
+
     this.enterTown = function() {
         post("Map", "EnterTown", gameSession, _this.enterTownSuccess, _this.enterTownFailed);
     };
@@ -22,7 +30,7 @@ function TownView() {
             printDebug(data.hero);
             var town = data.town;
             logInfo("Entering the town of [" + town.name + "]!");
-            townView.drawTown(town);
+            _this.drawTown(town);
         }
         else
             logInfo("There is no town at this location, continuing on map!");
@@ -43,7 +51,7 @@ function TownView() {
         if(data.town) {
             var hero = data.hero;
             logInfo("Viewing character sheet for [" + hero + "]!");
-            drawCharacterSheet(hero);
+            _this.drawCharacterSheet(hero);
         }
         else
             logInfo("There is no town at this location, continuing on map!");
@@ -64,7 +72,7 @@ function TownView() {
         if(data.town) {
             var town = data.town;
             logInfo("Training in the town of [" + town.name + "]!");
-            drawTraining(data.hero, data.trainingOutcome, data.town);
+            _this.drawTraining(data.hero, data.trainingOutcome, data.town);
         }
         else
             logInfo("There is no town at this location, continuing on map!");
@@ -85,7 +93,7 @@ function TownView() {
         if(data.town) {
             var town = data.town;
             logInfo("Entering the town of [" + town.name + "]!");
-            drawMeadhall(town, data.actionResponse);
+            _this.drawMeadhall(town, data.actionResponse);
         }
         else
             logInfo("There is no town at this location, continuing on map!");
@@ -103,7 +111,7 @@ function TownView() {
         logInfo("leave town OK!");
         logInfo(JSON.stringify(data));
         
-        drawMap(data);
+        mapView.drawMap(data);
     };
 
     this.leaveTownFailed = function(errorMsg) {

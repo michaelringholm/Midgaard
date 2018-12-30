@@ -4,6 +4,7 @@ var _mapFactory = require('../map/MapFactory.js');
 var _loginDao = require('../login/LoginDao.js');
 var _heroDao = require('../hero/HeroDao.js');
 var Smithy = require('../town/Smithy.js');
+var Hero = require('../hero/Hero.js');
 var _smithy = new Smithy();
 
 module.exports = 
@@ -30,7 +31,7 @@ function TownController() {
 
 					if (location.town) {
 						data = { map: currentMap, hero: serverLogin.activeHero, town: location.town };
-						data.actionResponse = serverLogin.activeHero.visitMeadhall();
+						data.actionResponse = new Hero(serverLogin.activeHero).visitMeadhall();
 						_heroDao.save(serverLogin.activeHero);
 					}
 					else {
@@ -151,7 +152,7 @@ function TownController() {
 
 				if (location.town) {
 					data = { map: currentMap, hero: serverLogin.activeHero, town: location.town };
-					data.trainingOutcome = serverLogin.activeHero.train();
+					data.trainingOutcome = new Hero(serverLogin.activeHero).train();
 					_heroDao.save(serverLogin.activeHero);
 				}
 				else {

@@ -10,6 +10,7 @@ function LoginView() {
     var _this = this;
     var maxHeroes = 3;
     var heroView = new HeroView();
+    var welcomeMusic = {};
 
     this.createLogin = function() {
         var newClientLogin = {name:$("#newLogin").val(), password:$("#newPassword").val(), repeatedPassword:$("#newRepeatedPassword").val()};
@@ -29,9 +30,14 @@ function LoginView() {
     };
     
     this.login = function() {
+        welcomeMusic = soundPlayer.playSound("./resources/sounds/welcome.wav");
         var clientLogin = {name:$("#login").val(), password:$("#password").val()};
         //callMethod("http://" + hostIp + ":" + hostPort, "login", clientLogin, loginSuccess, loginFailed);
         post("Login", "Login", clientLogin, loginSuccess, loginFailed);
+    };
+
+    this.stopWelcomeMusic = function() {
+        soundPlayer.stop(welcomeMusic);
     };
 
     var drawHeroCard = function(hero) {

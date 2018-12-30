@@ -2,8 +2,8 @@ var battleView = {};
 $(function() {	
     battleView = new BattleView();
     //$("#btnNextRound").click(function() {battleView.nextRound();});
-    $(".commandButton").click(function(e) {battleView.nextRound(e.currentTarget);});
-	$("#btnExitDeathScreen").click(function() {townView.enterTown();});		
+    $("#battleBottomToolbar .commandButton").click(function(e) {battleView.nextRound(e.currentTarget);});
+	//$("#btnExitDeathScreen").click(function() {townView.enterTown();});		
 	$("#btnExitDeathScreen").click(function() {battleView.nextRound();});
 	$("#btnExitTreasureScreen").click(function() {battleView.nextRound();});
 });
@@ -11,12 +11,20 @@ $(function() {
 function BattleView() {
     var _this = this;
     var heroView = new HeroView();
+
+    /*this.handleEvent = function(commandButton) {
+        var townAction = $(commandButton).attr("data-ability");
+        next
+    };*/
     
-    this.nextRound  = function(commandButton) {
+    this.nextRound  = function(commandButton) {        
         $("#battleButtonBar").hide();
-        $(commandButton).effect("pulsate", 2000);
+        gameSession.ability = null;
         var ability = $(commandButton).attr("data-ability");
-        gameSession.ability = ability;
+        if(ability) {
+            $(commandButton).effect("pulsate", 2000);        
+            gameSession.ability = ability;
+        }
         post("Battle", "NextRound", gameSession, nextRoundSuccess, nextRoundFailed);
     };
     
@@ -34,12 +42,12 @@ function BattleView() {
                         setTimeout(function() { _this.drawTreasureScreen(battle); },5500);					
                     }
                     else {
-                        _this.drawBattleScreen(battle);
+                        drawBattleScreen(battle);
                         setTimeout(function() { _this.drawDeathScreen(hero); },5500);										
                     }
                 }
                 else
-                    _this.drawBattleScreen(battle);			
+                    drawBattleScreen(battle);			
             }
             else {
                 logInfo("Battle was already over!");
@@ -52,7 +60,12 @@ function BattleView() {
         logInfo(errorMsg);
     };
 
-    this.drawBattleScreen = function(battle) {
+    this.startOrResumeBattle = function(battle) {
+        soundPlayer.playSound("./resources/sounds/danger.wav");
+        drawBattleScreen(battle);
+    };
+
+    var drawBattleScreen = function(battle) {
         $(".function").hide();
         $(canvasLayer1).hide();
         $(canvasLayer2).hide();

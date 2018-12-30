@@ -22,7 +22,7 @@ function BattleController() {
                 if (serverLogin.activeHero) {
                     var battleDTO = _battleCache[serverLogin.activeHero.heroId];
                     var battle = new Battle(battleDTO);
-                    if (battle) {
+                    if (battle && battleDTO && !battleDTO.status.over) {
                         battleDTO.hero.currentBattleAction = ability;
                         battleDTO.mob.currentBattleAction = "melee";
                         battle.nextRound();
@@ -30,7 +30,7 @@ function BattleController() {
                         _battleDao.save(_battleCache);
 
                         if (battleDTO.status.over) {
-                            delete _battleCache[serverLogin.activeHero.name];
+                            delete _battleCache[serverLogin.activeHero.heroId];
                             var data = { hero: serverLogin.activeHero, battle: battleDTO };
                             return _baseController.JsonResult(200, data);
                         }
@@ -39,7 +39,11 @@ function BattleController() {
                             return _baseController.JsonResult(200, (data));
                         }
                     }
-                    else {
+                    else {                        
+                        if(battle && battleDTO && battleDTO.status.over) { // Should not happen unless out of sync
+                            delete _battleCache[serverLogin.activeHero.heroId];
+                            _battleDao.save(_battleCache);
+                        }
                         var currentMap = _mapFactory.create(serverLogin.activeHero.currentMapKey);
                         var data = { map: currentMap, hero: serverLogin.activeHero, status: "Battle not found!" };
                         return _baseController.JsonResult(200, data);

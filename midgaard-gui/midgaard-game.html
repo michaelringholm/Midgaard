@@ -7,14 +7,15 @@
 	<link rel="stylesheet" href="./resources/css/midgaard-game.css" type="text/css">	
 	
 	<script type="text/javascript" src="./resources/js/lib/jquery-2.2.2.min.js"></script>
-	<script type="text/javascript" src="./resources/js/lib/jquery-ui.min.js"></script>	
+	<script type="text/javascript" src="./resources/js/lib/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="./resources/js/sound-player.js"></script>
 	<script type="text/javascript" src="./resources/js/midgaard-game.js"></script>
 	<script type="text/javascript" src="./resources/js/battle-view.js"></script>
 	<script type="text/javascript" src="./resources/js/hero-view.js"></script>
 	<script type="text/javascript" src="./resources/js/login-view.js"></script>
 	<script type="text/javascript" src="./resources/js/map-view.js"></script>
 	<script type="text/javascript" src="./resources/js/smithy-view.js"></script>
-	<script type="text/javascript" src="./resources/js/town-view.js"></script>
+	<script type="text/javascript" src="./resources/js/town-view.js"></script>	
 </head>
 <body>
 
@@ -86,41 +87,61 @@
 			<div class="col-md-auto">
 				<div class="row align-items-center" style="height: 6rem;">
 					<div class="col">
-						<img id="btnAbility1" class="commandButton img-fluid" src="./resources/images/abilities/heal-128.png" data-ability="heal" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/heal-128.png" data-ability="heal" style="margin-left: 4px;" alt="ability1">
 					</div>
 					<div class="col">
-						<img id="btnAbility1" class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="weaken" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="weaken" style="margin-left: 4px;" alt="ability1">
 					</div>
-					<div class="col"><div id="btnAbility3" class="commandButton" style="margin-left: 4px;"></div></div>
-					<div class="col"><div id="btnAbility4" class="commandButton" style="margin-left: 4px;"></div></div>
-					<div class="col"><div id="btnNextRound" class="commandButton" style="margin-left: 4px;">Next Round</div></div>
-					<div class="col"><div id="btnFleeBattle" class="commandButton" style="margin-left: 4px;">Flee</div></div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="x" style="margin-left: 4px;" alt="ability1">
+					</div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="y" style="margin-left: 4px;" alt="ability1">
+					</div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="flee" style="margin-left: 4px;" alt="ability1">
+					</div>
 				</div>
 			</div>
 			<div class="col"></div>
 		</div>
-					
-			<!--<select id="attackType">
-				<option value="melee">Melee</option>
-				<option value="healing I">Healing I</option>
-				<option value="weakness I">Weakness I</option>
-				<option value="strength I">Strength I</option>
-			</select>
-		-->		
-
 	</div>
 	
-	<div id="mapBottomToolbar" class="function bottomToolbar">
-		<div id="btnEnterTown" class="button" style="margin-left: 4px;">Enter town</div>
+	<div id="mapBottomToolbar" class="function bottomToolbar container-fluid">
+		<div class="row">
+			<div class="col"></div>
+			<div class="col-md-auto">
+				<img id="btnEnterTown" class="commandButton img-fluid" src="./resources/images/map/town.png" data-ability="heal" style="margin-left: 4px;" alt="enter town">
+			</div>
+			<div class="col"></div>			
+		</div>		
 	</div>
 	
-	<div id="townBottomToolbar" class="function bottomToolbar">
-		<div id="btnVisitMeadhall" class="button" style="margin-left: 4px;">Visit meadhall</div>
-		<div id="btnVisitSmithy" class="button" style="margin-left: 2px;">Visit smithy</div>	
-		<div id="btnViewCharacter" class="button" style="margin-left: 2px;">View character</div>
-		<div id="btnTrain" class="button" style="margin-left: 2px;">Train</div>
-		<div id="btnLeaveTown" class="button" style="margin-left: 2px;">Leave town</div>
-	</div>
+	<div id="townBottomToolbar" class="function bottomToolbar container-fluid">
+		<div class="row">
+			<div class="col"></div>
+			<div class="col-md-auto">
+				<div class="row align-items-center" style="height: 6rem;">
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/heal-128.png" data-town-action="VisitMeadhall" style="margin-left: 4px;" alt="ability1">
+					</div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-town-action="VisitSmithy" style="margin-left: 4px;" alt="ability1">
+					</div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-town-action="ViewCharacter" style="margin-left: 4px;" alt="ability1">
+					</div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-town-action="Train" style="margin-left: 4px;" alt="ability1">
+					</div>
+					<div class="col">
+						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-town-action="LeaveTown" style="margin-left: 4px;" alt="ability1">
+					</div>										
+				</div>
+			</div>
+			<div class="col"></div>
+		</div>
+	</div>	
 
 	<div id="deathScreenBottomToolbar" class="function bottomToolbar">
 		<div id="btnExitDeathScreen" class="button" style="margin-left: 4px;">Accept fate</div>
@@ -199,7 +220,7 @@
 	<img id="woods" src="./resources/images/woods.png" >
 	<img id="mountains" src="./resources/images/mountains.png">
 	<img id="road" src="./resources/images/road.png">
-	<img id="town" src="./resources/images/town.png">
+	<img id="town" src="./resources/images/map/town.png">
 	<img id="cave" src="./resources/images/cave.png">
 	<img id="heroMapIcon" src="./resources/images/viking.png">
 	<img id="warriorHeroImg" src="./resources/images/characters/warrior.jpg">

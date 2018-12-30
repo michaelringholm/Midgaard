@@ -7,6 +7,8 @@ $(function() {
 function HeroView() {
     var _this = this;
     this.chooseHero = function(heroCard) {
+        loginView.stopWelcomeMusic();
+        soundPlayer.playSound("./resources/sounds/select-hero.wav");
         var heroId = $(heroCard).attr("data-hero-id");
         
         if (heroId) {
@@ -31,7 +33,7 @@ function HeroView() {
         if(data) {
             printDebug(data.hero);
             if(data.battle && data.battle.mob && data.battle.hero) { // The hero is already in a fight
-                battleView.drawBattleScreen(data.battle);
+                battleView.startOrResumeBattle(data.battle);
                 logInfo("you resume the battle!");
             }		
             else if(data.town)
@@ -47,6 +49,7 @@ function HeroView() {
     };
     
     this.createHero = function() {
+        soundPlayer.playSound("./resources/sounds/create-hero.wav");
         var hero = { name: $("#newHeroName").val()};
         gameSession.data = hero;
         post("Hero", "Create", gameSession, createHeroSuccess, createHeroFailed);
