@@ -136,6 +136,14 @@ select {
 #battleContainer {
 	width: 1000px;
 	height: 600px;
+	font-family: midgaardConsoleFont;
+	color:#730b0b;
+}
+
+#battleContainer div.label {
+	font-family: midgaardConsoleFont;
+	color:#730b0b;
+	font-size: 1.2rem;
 }
 
 #container {
@@ -183,6 +191,6 @@ select {
 	/*max-width: 100%; height: auto; object-fit: cover;*/
 }
 
-.commandButton:hover {
+.commandButton.active:hover {
 	cursor:pointer; border-color: rgb(30, 255, 0); border-width: 0.3rem;
 }

@@ -20,7 +20,7 @@ function HeroView() {
     this.getHeroCardImage = function(heroClass) {
         var imgSrc = "";
         switch(heroClass) {
-            case "priest" : imgSrc = $("#priestHeroImg").attr("src"); break;
+            case "priest" : imgSrc = "./resources/images/characters/card-priest-male.png"; break;
             case "warrior" : imgSrc = $("#warriorHeroImg").attr("src"); break;
             case "rogue" : imgSrc = $("#rogueHeroImg").attr("src"); break;
             default : imgSrc = $("#warriorHeroImg").attr("src");

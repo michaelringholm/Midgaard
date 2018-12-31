@@ -2,7 +2,7 @@ var battleView = {};
 $(function() {	
     battleView = new BattleView();
     //$("#btnNextRound").click(function() {battleView.nextRound();});
-    $("#battleBottomToolbar .commandButton").click(function(e) {battleView.nextRound(e.currentTarget);});
+    $("#battleBottomToolbar .commandButton.active").click(function(e) {battleView.nextRound(e.currentTarget);});
 	//$("#btnExitDeathScreen").click(function() {townView.enterTown();});		
 	$("#btnExitDeathScreen").click(function() {battleView.nextRound();});
 	$("#btnExitTreasureScreen").click(function() {battleView.nextRound();});
@@ -65,6 +65,64 @@ function BattleView() {
         drawBattleScreen(battle);
     };
 
+    var updateHpEffectCallback = function() {
+        $(this).hide().fadeIn();
+    };
+
+    var setHp = function(placeholder, hp, baseHp) {
+        $(placeholder).html(hp + " (" + baseHp + ") HP");
+        $(placeholder).effect("bounce", {}, 500, updateHpEffectCallback);
+    };
+
+    var playAbilitySound = function(ability) {
+        switch(ability) {
+            case "heal" : soundPlayer.playSound("./resources/sounds/heal.wav"); break;
+            case "melee" : soundPlayer.playSound("./resources/sounds/sword-attack.wav"); break;
+            default : soundPlayer.playSound("./resources/sounds/sword-attack.wav"); break;
+        }                
+    };
+
+    var updateAbilityImpactTextEffectCallback = function() {
+        $(this).hide().fadeIn();
+    };
+
+    var updateAbilityImpactText = function(name, ability, abilityImpact, placeholder) {
+        var abilityText = "";
+        switch(ability) {
+            case "heal" : abilityText="heals for"; break;
+            case "melee" : abilityText="hits for"; break;
+            default : abilityText="does not know what to do"; break;
+        }
+        $(placeholder).html(name + " " + abilityText + " " + abilityImpact);
+        $(placeholder).effect("explode", {}, 500, updateAbilityImpactTextEffectCallback);
+    };
+
+    var updateAbilityImpacts = function(battle) {
+        updateAbilityImpactText(battle.hero.heroName, battle.hero.currentBattleAction, battle.hero.abilityImpact, "#heroStatus");
+        updateAbilityImpactText(battle.mob.name, battle.mob.currentBattleAction, battle.mob.abilityImpact, "#mobStatus");
+
+        // https://www.wowhead.com/spell-sounds/name:heal
+        playAbilitySound(battle.hero.currentBattleAction);
+        playAbilitySound(battle.mob.currentBattleAction);
+        
+        if(battle.hero.damageImpact > 0) {
+            /*battleAnimation1("#mobHP", "#battleMobContainer", battle.hero.damageImpact*1, battle.mob.hp*1, function() {
+                if(battle.mob.damageImpact > 0) {
+                    battleAnimation1("#heroHP", "#battleHeroContainer", battle.mob.damageImpact*1, battle.hero.hp*1, function() {
+                        $("#battleButtonBar").show();
+                    });
+                }
+            });*/
+        }
+        else if(battle.mob.damageImpact > 0) {
+            /*battleAnimation1("#heroHP", "#battleHeroContainer", battle.mob.damageImpact*1, battle.hero.hp*1, function() {
+                $("#battleButtonBar").show();
+            });*/
+        }
+        else
+            $("#battleButtonBar").show();
+    };
+
     var drawBattleScreen = function(battle) {
         $(".function").hide();
         $(canvasLayer1).hide();
@@ -83,59 +141,34 @@ function BattleView() {
         $("#heroName").html(battle.hero.heroName);
         $("#mobName").html(battle.mob.name);
         if (battle.mob.name.length > 8)
-            $("#mobName").css("font-size", "10px");
+            $("#mobName").css("font-size", "1rem");
         else
-            $("#mobName").css("font-size", "16px");
+            $("#mobName").css("font-size", "1.2rem");
             
                         
         if (battle.status.over) {
             if(battle.status.winner == battle.hero.heroName) {
                 $("#battleMobContainer").attr("src", $("#dead").attr("src"));
-                $("#heroHP").html(battle.hero.hp + " HP");
-                $("#mobHP").html(0 + " HP");
-                new Audio("./resources/sounds/victory.wav").play();
+                setHp("#heroHP", battle.hero.hp, battle.hero.baseHp);
+                setHp("#mobHP", battle.mob.hp, battle.mob.baseHp);
+                soundPlayer.playSound("./resources/sounds/victory.wav");
             }
             else {
                 $("#battleHeroContainer").attr("src", $("#dead").attr("src"));
-                $("#heroHP").html(battle.hero.hp + " (" + battle.hero.baseHp + ") HP");
-                $("#mobHP").html(0 + " HP");
-                new Audio("./resources/sounds/loss.wav").play();
+                setHp("#heroHP", battle.hero.hp, battle.hero.baseHp);
+                setHp("#mobHP", battle.mob.hp, battle.mob.baseHp);
+                soundPlayer.playSound("./resources/sounds/loss.wav");
             }
         }
         else {
             if(battle.round*1 > 0) {
-                $("#heroHP").html((battle.hero.hp*1+battle.mob.damageImpact*1) + " (" + battle.hero.baseHp + ") HP");
-                $("#mobHP").html((battle.mob.hp*1+battle.hero.damageImpact*1) + " HP");
-                
-                //TODO
-                $("#heroStatus").html(battle.hero.abilityImpact);
-                $("#mobStatus").html(battle.mob.abilityImpact);
-
-                //TODO
-                // https://www.wowhead.com/spell-sounds/name:heal
-                new Audio("./resources/sounds/sword-attack.wav").play();
-                new Audio("./resources/sounds/heal.wav").play();
-                
-                if(battle.hero.damageImpact > 0) {
-                    battleAnimation1("#mobHP", "#battleMobContainer", battle.hero.damageImpact*1, battle.mob.hp*1, function() {
-                        if(battle.mob.damageImpact > 0) {
-                            battleAnimation1("#heroHP", "#battleHeroContainer", battle.mob.damageImpact*1, battle.hero.hp*1, function() {
-                                $("#battleButtonBar").show();
-                            });
-                        }
-                    });
-                }
-                else if(battle.mob.damageImpact > 0) {
-                    battleAnimation1("#heroHP", "#battleHeroContainer", battle.mob.damageImpact*1, battle.hero.hp*1, function() {
-                        $("#battleButtonBar").show();
-                    });
-                }
-                else
-                    $("#battleButtonBar").show();
+                setHp("#heroHP", battle.hero.hp, battle.hero.baseHp);
+                setHp("#mobHP", battle.mob.hp, battle.mob.baseHp);                
+                updateAbilityImpacts(battle);                
             }
             else {
-                $("#heroHP").html(battle.hero.hp + " (" + battle.hero.baseHp + ") HP");
-                $("#mobHP").html(battle.mob.hp + " HP");
+                setHp("#heroHP", battle.hero.hp, battle.hero.baseHp);
+                setHp("#mobHP", battle.mob.hp, battle.mob.baseHp);
             }
         }	
     };

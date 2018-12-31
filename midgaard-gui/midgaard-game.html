@@ -72,14 +72,15 @@
 	</div>
 	
 	<div id="battleContainer" class="function" style="display:none;">
-		<div id="heroHP" class="label" style="position: absolute; width: 190px; text-align:center; top: 40px; left: 100px; font-size:18pt;"></div>
-		<div id="heroName" class="label" style="position: absolute; width: 110px; text-align:center; top: 100px; left: 168px; font-size:12pt; z-index: 3; color:#570403;"></div>
-		<img id="battleHeroContainer" style="width: 190px;  position: absolute; top: 80px; left: 100px;"></img>
-		<div id="heroStatus" style="width: 190px;  position: absolute; top: 290px; left: 100px; font-size: 5rem;"></div>
-		<div id="mobHP" class="label" style="position: absolute; width: 190px; text-align:center; top: 40px; right: 100px; font-size:18pt;"></div>
-		<div id="mobName" class="label" style="position: absolute; width: 110px; text-align:center; top: 100px; left: 780px; font-size:12pt; z-index: 3; color:#570403;"></div>
-		<img id="battleMobContainer" style="width: 190px; position: absolute; top: 80px; right: 100px;"></img>		
-		<div id="mobStatus" style="width: 190px; position: absolute; top: 290px; right: 100px; font-size: 5rem;"></div>		
+		<img id="battleHeroContainer" style="width: 25rem;  position: absolute; top: 5rem; left: 5rem;"></img>
+		<div id="heroName" class="label" style="position: absolute; width: 22rem; text-align:left; top: 7rem; left: 5.5rem; z-index: 3;"></div>
+		<div id="heroHP" class="label" style="position: absolute; width: 22rem; text-align:left; top: 8.7rem; left: 5.5rem; z-index: 3;"></div>		
+		<div id="heroStatus" class="label" style="width: 21rem;  position: absolute; top: 32rem; left: 7rem;"></div>
+		
+		<img id="battleMobContainer" style="width: 25rem; position: absolute; top: 5rem; right: 5rem;"></img>		
+		<div id="mobName" class="label" style="position: absolute; width:22rem; text-align:left; top: 7rem; right: 7rem; z-index: 3;"></div>
+		<div id="mobHP" class="label" style="position: absolute; width: 22rem; text-align:left; top: 8.7rem; right: 7rem; z-index: 3;"></div>
+		<div id="mobStatus" class="label" style="width: 21rem; text-align:left; position: absolute; top: 32rem; right: 7rem;"></div>		
 	</div>
 	
 	<div id="battleBottomToolbar" class="function bottomToolbar container-fluid">
@@ -88,19 +89,19 @@
 			<div class="col-md-auto">
 				<div class="row align-items-center" style="height: 6rem;">
 					<div class="col">
-						<img class="commandButton img-fluid" src="./resources/images/abilities/heal-128.png" data-ability="heal" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton active img-fluid" src="./resources/images/abilities/heal-128.png" data-ability="heal" style="margin-left: 4px;" alt="ability1">
 					</div>
 					<div class="col">
-						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="weaken" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton active img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="weaken" style="margin-left: 4px;" alt="ability1">
 					</div>
 					<div class="col">
-						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="x" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton active img-fluid" src="./resources/images/battle/melee-button-128.png" data-ability="melee" style="margin-left: 4px;" alt="ability1">
 					</div>
 					<div class="col">
-						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="y" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton img-fluid" src="./resources/images/battle/lock-button-128.png" data-ability="y" style="margin-left: 4px;" alt="ability1">
 					</div>
 					<div class="col">
-						<img class="commandButton img-fluid" src="./resources/images/abilities/weaken-128.png" data-ability="flee" style="margin-left: 4px;" alt="ability1">
+						<img class="commandButton img-fluid" src="./resources/images/battle/lock-button-128.png" data-ability="flee" style="margin-left: 4px;" alt="ability1">
 					</div>
 				</div>
 			</div>
