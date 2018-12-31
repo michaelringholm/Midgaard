@@ -10,10 +10,11 @@ function TownView() {
     this.handleEvent = function(commandButton) {
         var townAction = $(commandButton).attr("data-town-action");
         switch(townAction) {
-            case "VisitMeadhall": _this.visitMeadhall();
-            case "Train": _this.train();
-            case "ViewCharacter": _this.viewCharacter();
-            case "LeaveTown": _this.leaveTown();
+            case "VisitMeadhall": _this.visitMeadhall(); break;
+            case "VisitSmithy": smithyView.enter(); break;
+            case "Train": _this.train(); break;
+            case "ViewCharacter": _this.viewCharacter(); break;
+            case "LeaveTown": _this.leaveTown(); break;
             default: logInfo("Unknwon town action");
         }
     };
@@ -24,9 +25,10 @@ function TownView() {
 
     this.enterTownSuccess = function(data) {
         logInfo("enter town OK!");
-        logInfo(JSON.stringify(data));
+        logInfo(JSON.stringify(data));        
         
         if(data.town) {
+            soundPlayer.playSound("./resources/sounds/enter-town.mp3");
             printDebug(data.hero);
             var town = data.town;
             logInfo("Entering the town of [" + town.name + "]!");
@@ -65,7 +67,7 @@ function TownView() {
         post("Town", "Train", gameSession, _this.trainSuccess, _this.trainFailed);
     };
 
-    this.trainSuccess = function() {
+    this.trainSuccess = function(data) {
         logInfo("enter town OK!");
         logInfo(JSON.stringify(data));
         
@@ -132,7 +134,7 @@ function TownView() {
         //var townImg = document.getElementById("town");		
         //ctx1.drawImage(townImg,50,50,120,190);
         
-        $("#container").css("background-image", "url('./resources/images/town.jpg')"); 
+        $("#container").css("background-image", "url('./resources/images/town/town.jpg')"); 
         
         ctx1.font = "28px Calibri";
         ctx1.fillStyle = '#3D3A36';

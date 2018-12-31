@@ -6,7 +6,8 @@ var canvasWidth = 0;
 var hostIp = "";
 var hostPort = 0;
 
-$(function() {	
+$(function() {
+	//includeHTML();
 	//hostIp = "www.opusmagus.com";
 	//hostPort = 83;
 	//hostIp = "sundgaard.ddns.net";
